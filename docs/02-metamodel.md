@@ -111,6 +111,10 @@ mappings, and is **responsible** for their meaning.
   avoid blocking a review when one is absent.
 - MM-022: People are referenced by the e-mail of their Atlas account. The SaaS resolves them; the CLI treats them as
   plain text.
+- MM-023: A person can be owner or steward of several domains.
+- MM-024: Only an Admin can change a domain's owner or stewards. Such a change made elsewhere (e.g. directly in Git)
+  is flagged and does not take effect until an Admin confirms it; otherwise anyone able to edit the YAML could make
+  themselves steward.
 
 ### 3.3 System
 | Attribute | Required | Description |
@@ -161,7 +165,7 @@ The target side is written first: it is the contract that every branch must fulf
 | grain | yes | What one row represents, and the key columns that make it unique. |
 | layer | no | Free label: `staging`, `intermediate`, `mart`… |
 | materialization | no | `table`, `view`, `incremental`. Default from project. |
-| historization | no | `none` (default) or `scd2` (keep history of changes). |
+| historization | later | Not in v1. Will be `none` (default) or `scd2` (keep history of changes). Optional, so adding it later does not break existing specs. |
 | branches | yes | One or more branches (§4.2). |
 | consolidation | when > 1 branch | How branches are combined (§4.4). |
 | qualityChecks | no | Model-level checks (§8). |
@@ -312,7 +316,7 @@ gross amount − discounts", "Customer status from blocking flags", "Fiscal peri
 | reference | one of | For large lists: a dataset and two columns (key, value) to read from. |
 | default | no | Value when no entry matches. |
 
-- MM-310: Inline entries are limited in number (limit to be set; proposal: 1,000). Beyond it, use `reference`.
+- MM-310: Inline entries are limited to 1,000. Beyond that, use `reference`.
 - MM-311: The `from` values are unique.
 
 ## 7. Type system
@@ -364,7 +368,8 @@ Basic checks in v1. They generate dbt tests and the quality section of an ODCS e
   mappings it uses. Changing a rule therefore marks every approval that depends on it as outdated.
 - MM-701: A unit is **effectively approved** when it has a valid approval of its own, or when it is covered by a
   valid approval of a unit that contains it (e.g. a model approved as a whole).
-- MM-702: Approvals of objects owned by a domain are given by the stewards of that domain.
+- MM-702: Approvals of objects owned by a domain are given by the stewards of that domain. Approval of the whole
+  project is given by holders of the project-level Approver permission (`docs/01-scope.md` §2.3).
 
 ## 11. Platform domain (summary)
 Kept in the Atlas database, never in the spec. Detailed in `docs/04-architecture.md`.
@@ -393,11 +398,9 @@ Kept in the Atlas database, never in the spec. Detailed in `docs/04-architecture
 | `customer_status` | All branches: `rule` `customer_status_from_flags`, owned by Sales, approved by its steward. |
 | `credit_limit` | `sap_fr`, `sap_de`: `notProvided` ("held in the credit management module, phase 2"). `oracle`: `lookup` in the credit profile table. |
 
-## 13. Open questions
-- Q-MM-01: Domains: the scope gives the Approver permission **per project**; this metamodel gives approval to the
-  **stewards of the owning domain** (MM-702). Proposal: domain stewards approve their domain's objects; the
-  project-level Approver permission covers project-level approvals. To be confirmed, then reflected in
-  `docs/01-scope.md`.
-- Q-MM-02: Can a person be steward of several domains, and owner of several? (Proposal: yes.)
-- Q-MM-03: Inline value mapping limit (MM-310): is 1,000 entries right?
-- Q-MM-04: Is `scd2` historization needed in v1, or later?
+## 13. Decisions log
+- Q-MM-01: Domain stewards approve their domain's objects; the project-level Approver permission covers approval
+  of the whole project (MM-702, `docs/01-scope.md` §2.3).
+- Q-MM-02: A person can be owner or steward of several domains (MM-023).
+- Q-MM-03: Inline value mappings are limited to 1,000 entries (MM-310).
+- Q-MM-04: `scd2` historization comes later; it is an optional attribute, so it does not affect v1 (§4.1).

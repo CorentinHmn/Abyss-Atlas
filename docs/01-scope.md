@@ -103,15 +103,18 @@ Priority levels:
 | ID | Use case | Persona | Priority |
 |---|---|---|---|
 | UC-020 | Validate a spec: references to sources exist, types are compatible, joins are consistent, required fields are filled. | All users | v1 |
-| UC-021 | Submit for review, then approve or reject (Draft → In review → Approved), with comments. The unit of review can be a whole spec, a target table or a single column mapping. | PER-002, PER-003 | v1 |
+| UC-021 | Submit for review, then approve or reject (Draft → In review → Approved), with comments. The unit of review can be a whole spec, a target table, a single column mapping, a business rule or a value mapping (`docs/02-metamodel.md` §10). | PER-002, PER-003 | v1 |
 | UC-022 | Keep the approval status in sync with Git. | PER-001 | v1 |
 | UC-023 | See the history of a spec and the diff between two versions. | All users | v1 |
 
 Review rules:
-- Approving requires the **Approver** permission, given per project to Editors or Admins (the data steward,
-  PER-003, is typically an Editor with this permission).
-- A project can have several approvers, and any one of them can approve, so one absent person does not block a
-  review. An Admin can grant the permission at any time.
+- Target models, column mappings, business rules and value mappings belong to a **business domain**, which has one
+  accountable owner and one or more **stewards** (`docs/02-metamodel.md` §3.2). The stewards of the domain approve
+  its objects. The data steward (PER-003) is a steward of one or more domains.
+- Approving the **whole project** requires the project-level **Approver** permission, given by an Admin to Editors
+  or Admins.
+- A domain can have several stewards, and a project several approvers; any one of them can approve, so one absent
+  person does not block a review. Only an Admin can change a domain's stewards, at any time.
 - The author of a change cannot approve it, unless an Admin has given them the **Self-approval** permission.
 - Review must not slow down creation: drafting and editing never wait for an approval.
 
