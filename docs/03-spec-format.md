@@ -3,15 +3,16 @@
 Status: Draft
 Last updated: 2026-11-04
 
-This document defines how the objects of `docs/02-metamodel.md` are written as YAML files. The metamodel is
+This document defines how the objects of `docs/02-metamodel.md` are written as YAML. Specs live in Atlas
+(ADR 0007); YAML is the format of the **YAML view** of the editor and of the **project export**, which the
+open-source CLI reads. The metamodel is
 authoritative for **concepts**; this document is authoritative for **spelling and layout**. Requirement
 identifiers: `FMT-xxx`.
 
 ## 1. Principles
 1. **Readable**: an analyst or a steward can read a file without training; the most frequent cases have a short
    form.
-2. **Diffable and mergeable**: one object per file, stable key order, so a Git diff shows exactly what changed and
-   two people rarely edit the same file.
+2. **Comparable**: one object per file, stable key order, so two versions or two exports compare line by line.
 3. **Strict**: unknown keys are errors (except extensions, FMT-012); every reference is checked.
 4. **Versioned**: every file declares the format version it is written in.
 5. **Tooled**: a JSON Schema, generated from the Zod schemas of `packages/core`, gives autocompletion and inline
@@ -72,7 +73,7 @@ An operand is a value used by a step or a condition.
 - FMT-040: Literals are only ever written with `value` (or `values`), so a literal can never be mistaken for a
   column.
 
-## 3. Repository layout
+## 3. Export layout
 ```
 atlas.yaml                                   project
 domains/<domain>.yaml                        domains
@@ -81,12 +82,11 @@ systems/<system>/datasets/<dataset>.yaml     source datasets (one file per table
 models/<domain>/<model>.yaml                 target models
 rules/<domain>/<rule>.yaml                   business rules
 value-mappings/<domain>/<mapping>.yaml       value mappings
-approvals/…                                  approval records (§6), mirroring the paths above
+approvals/…                                  approval records (§7), mirroring the paths above
 ```
-- FMT-050: The root of an Atlas project is the folder that holds `atlas.yaml`. It can be the root of the repository
-  or a sub-folder (e.g. next to a dbt project).
-- FMT-051: Generated code (dbt models, documentation) is written elsewhere (configurable), never inside these
-  folders.
+- FMT-050: An export is an archive whose root holds `atlas.yaml`. The customer stores it where its own policy
+  requires; Atlas never pushes it anywhere (ADR 0007).
+- FMT-051: Generated code (dbt models, documentation) is a separate download, never mixed with these folders.
 
 ## 4. Objects
 
@@ -381,9 +381,9 @@ entries:
   (MM-310); beyond that, `reference: { dataset: <ref>, key: <column>, value: <column> }`.
 - FMT-111: Entries are only written in YAML: no side files (CSV or other).
 
-## 7. Approvals in Git
-Approval records live under `approvals/`, mirroring the path of the file they concern, so that approving never
-modifies a spec file (ADR 0003).
+## 7. Approvals in an export
+Approvals live in Atlas's approval log (ADR 0007). An export includes them under `approvals/`, mirroring the path
+of the file they concern, so the CLI can tell which units are approved.
 
 ```yaml
 # approvals/models/sales/dim_customer.yaml
@@ -404,10 +404,9 @@ columns:
     hash: sha256:41aa…
     log_id: apv_01JB…
 ```
-- FMT-120: A file keeps only the latest record per unit; earlier records are in the Git history and in the Atlas
-  approval log.
-- FMT-121: `log_id` points to the entry of the Atlas approval log; a record without a matching entry is invalid
-  (ADR 0003 §3.5).
+- FMT-120: An export keeps only the latest record per unit; the full history stays in Atlas's approval log.
+- FMT-121: `log_id` points to the entry of the Atlas approval log. When an export is imported back, a record
+  without a matching entry is ignored: approvals can only be given in Atlas.
 - FMT-122: `hash` is the SHA-256 of the canonical form of the unit: the object serialized as JSON with RFC 8785
   (JSON Canonicalization Scheme), after expansion of short forms. Per MM-700 it includes the hashes of the rules
   and value mappings used; for a column mapping, it also includes the definition of the branches it maps from
