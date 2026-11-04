@@ -26,15 +26,19 @@ validated, and generates code (dbt / SQL) and documentation.
 - `packages/core`: metamodel (**Zod** schemas), YAML parser/serializer, validation,
   generators (dbt, SQL, ODCS, Markdown). **No UI dependency.**
 - `packages/cli`: CLI `atlas validate | generate | import | diff`.
+- `apps/worker`: Node.js service: real-time co-editing (**Yjs** + Hocuspocus, ADR 0005) and background jobs
+  (**Supabase Queues**, ADR 0006).
+- AI: **Claude on Amazon Bedrock**, EU region, through one AI gateway; off by default per organization (ADR 0004).
 - Data: **PostgreSQL** (Supabase), **Drizzle** ORM, multi-tenant per organization with RLS.
 - Auth: Supabase Auth. Payments (later): Stripe.
-- Hosting: **EU only** (GDPR): Vercel + Supabase in an EU region; sovereign host (Scaleway, OVHcloud) as a future option.
+- Hosting: **EU only** (GDPR): Vercel + Supabase in an EU region, worker on AWS Frankfurt; sovereign host (Scaleway, OVHcloud) as a future option.
 - Tests: **Vitest** (unit), **Playwright** (e2e).
 - Later, if advanced SQL analysis is needed: a small, isolated Python service (sqlglot).
 
 ## Directory layout
 ```
 apps/web/            SaaS application
+apps/worker/         co-editing server and background jobs
 packages/core/       business core (metamodel, validation, generators)
 packages/cli/        command line
 docs/                product specifications (functional source of truth)

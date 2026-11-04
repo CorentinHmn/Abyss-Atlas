@@ -95,3 +95,4 @@ Atlas is a source-to-target specification SaaS (see `docs/00-vision.md`). The st
 - Open-source license for the spec format, `packages/core` and the CLI.
 - How the in-app approval workflow syncs with Git: decided in ADR 0003.
 - Whether and when to add the Python sqlglot service.
+- AI provider, co-editing and worker service: ADR 0004, 0005 and 0006.
