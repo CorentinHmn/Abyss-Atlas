@@ -13,6 +13,8 @@ validated, and generates code (dbt / SQL) and documentation.
   without depending on it: our format is richer, ODCS is an output.
 - **Git-native**: the source of truth is a readable, diffable text format (YAML).
 - **Metadata only**: Atlas never stores customer data (see docs/00-vision.md).
+- **Customer confidentiality**: the operator never sees customer content; the control tower sees licensing
+  figures only, enforced in the database (ADR 0002).
 
 ## Stack (see docs/adr/0001-stack.md)
 - **pnpm + Turborepo** monorepo, strict **TypeScript** everywhere.
