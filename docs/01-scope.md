@@ -190,3 +190,5 @@ The non-goals in `docs/00-vision.md` §8 also apply. In addition:
 ### 4.2 Open
 - Q-10: Support tickets in the control tower (UC-055): built into Atlas, or taken from an external help desk tool?
   When?
+- Q-11: Which Git providers in v1? Proposal: GitHub and GitLab, then Azure DevOps and Bitbucket (ADR 0003).
+- Q-12: Can a project work without a connected Git repository (history kept in Atlas only)?
