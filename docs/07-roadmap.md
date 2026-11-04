@@ -15,6 +15,10 @@ identifiers of the other documents (`UC-`, `MM-`, `FMT-`, `ARC-`, `OOS-`). Ident
 - RM-004: Without design partners yet, every phase is accepted against the **reference project** (§2). Recruiting
   design partners is a parallel track (§5).
 - RM-005: v1 is complete at the end of phase 4. The AI assistant comes **after v1 is validated** (§6).
+- RM-006: **Supabase and Vercel only, until they are not enough.** The other providers of the target
+  architecture join when a phase needs them: AWS (worker) in P3 for multi-user co-editing, Sentry before the
+  first external users (end of P2), Bedrock in v1.1. Until then, logs come from Vercel and Supabase, and
+  validation and generation of the reference project run in Vercel functions.
 
 ## 2. Reference project
 A realistic project, written in phase 0 and used as the acceptance test of every phase.
@@ -42,7 +46,7 @@ A realistic project, written in phase 0 and used as the acceptance test of every
 ### 3.2 P0 — Foundations
 Content:
 - Monorepo (pnpm, Turborepo, strict TypeScript), lint, Vitest, Playwright; CI on every pull request (ARC-401).
-- Environments local, preview, staging (ARC-400); Supabase, Vercel, AWS and Sentry accounts in the EU (ARC-205).
+- Environments local, preview, staging (ARC-400); Supabase (EU region) and Vercel accounts only (RM-006).
 - Supabase Auth sign-in; `app` and `licensing` schemas with versioned migrations (ARC-402).
 - RLS test harness running in CI (ARC-104, ADR 0002 §3.4).
 - next-intl set up, no hard-coded UI text (ADR 0001).
@@ -78,7 +82,9 @@ Content:
   UC-046); projects (UC-044).
 - Source registry: manual entry and dictionary import in the browser (UC-001, UC-002, UC-003).
 - Mapping editor: target models, branches, joins, column mappings, rules, value mappings; forms and YAML view in sync
-  (UC-011…UC-015). Built on the co-editing document from the start (ADR 0005), single user in practice.
+  (UC-011…UC-015). Built on the co-editing document from the start (ADR 0005), single user in practice, saved
+  through `apps/web` (no worker yet, RM-006).
+- Error tracking (Sentry, EU) before the first external users (ARC-500).
 - Live validation in the browser, reference validation on the server (ARC-010…ARC-013).
 - History, diffs, named versions, restore (UC-023, ARC-023).
 - Downloads of generated outputs and full export (UC-030, UC-032, UC-036, ADR 0007).
@@ -94,6 +100,7 @@ Content:
 - Domains, owners and stewards, Admin-only changes (MM-020…MM-024).
 - Review and approval at every level, Approver and Self-approval permissions, outdated approvals (UC-021,
   MM-700…MM-702, `docs/01-scope.md` §2.3).
+- `apps/worker` on AWS Frankfurt (ADR 0006): co-editing server and background jobs.
 - Real-time co-editing with presence, read-only Viewers (UC-017, ADR 0005, ARC-102).
 - Lineage and join graphs (UC-035).
 - ODCS export and import (UC-033, `docs/03-spec-format.md` §8).
