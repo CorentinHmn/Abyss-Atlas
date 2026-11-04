@@ -98,7 +98,7 @@ Priority levels:
 | UC-013 | Define type conversions as structured objects. | PER-001, PER-002 | v1 |
 | UC-014 | Define business rules as structured objects, and reuse a rule across columns. | PER-002 | v1 |
 | UC-015 | Edit the spec as YAML (Monaco editor) and through forms, with both views in sync. | PER-001 | v1 |
-| UC-016 | Get AI suggestions for mappings, and accept or reject each one. AI is off by default; an Admin turns it on for the organization. | PER-002 | v1 |
+| UC-016 | Get AI suggestions for mappings, and accept or reject each one. AI is off by default; an Admin turns it on for the organization. | PER-002 | v1.1 (after v1 is validated) |
 | UC-017 | Work on the same spec at the same time as other users (real-time co-editing), seeing who is working where. | All users | v1 |
 
 ### 2.3 Checking and approving
@@ -184,7 +184,8 @@ The non-goals in `docs/00-vision.md` §8 also apply. In addition:
 ## 4. Open questions
 
 ### 4.1 Resolved
-- Q-01: The AI assistant (UC-016), the lineage graph (UC-035) and SSO (UC-042) are in v1.
+- Q-01: The lineage graph (UC-035) and SSO (UC-042) are in v1. The AI assistant (UC-016) comes in v1.1, once v1
+  is validated (`docs/07-roadmap.md` §6).
 - Q-02: Three roles: Admin, Editor, Viewer, plus an Approver permission per project (§2.5).
 - Q-03: Review works at three levels: whole spec, target table, single column mapping (UC-021).
 - Q-04: No Git: approvals live in Atlas only (ADR 0007, which supersedes ADR 0003).
