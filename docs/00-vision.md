@@ -67,8 +67,8 @@ Qualitative milestones:
 - The Atlas format is a recognized way to write source-to-target specifications, used beyond the customer base and
   interoperable with ODCS.
 - Atlas is the default tool of a network of partner consulting firms across the target markets.
-- The paid layer has the full set of SaaS features: collaboration (real-time co-editing), review, AI assistant, connectors (including
-  ERPs), governance and SSO.
+- The paid layer has the full set of SaaS features: collaboration (real-time co-editing), review, AI assistant, Git
+  integrations, ERP dictionaries, governance and SSO.
 
 Indicative figures:
 | ID | Hypothesis |
@@ -118,8 +118,9 @@ suites and warehouse automation tools, Atlas is:
 2. **Git-native**: the spec is readable, diffable YAML; Git is the source of truth.
 3. **Open format**: the spec format, `packages/core` and the CLI are open source. Adoption of the format is the moat.
 4. **ODCS-compatible, not ODCS-dependent**: ODCS is an import/export format.
-5. **Metadata only**: Atlas stores metadata only, **never customer data**. Connections to source systems only read
-   the catalog (e.g. `information_schema`).
+5. **Metadata only**: Atlas stores metadata only, **never customer data**. The Atlas service never connects to customer
+   databases or source systems: sources are **specified**. Their metadata is entered by hand or imported from
+   files the customer produces on its side (e.g. the result of a catalog query provided by Atlas).
 6. **Human in the loop**: every AI suggestion must be accepted by a person before it enters the spec.
 7. **European by design**: hosted in the EU, GDPR as a selling point.
 8. **Customer confidentiality**: the Atlas operator (the company and its staff) never sees what customers do in
@@ -136,7 +137,7 @@ suites and warehouse automation tools, Atlas is:
 | Spec format | Collaborative web interface, with real-time co-editing |
 | `packages/core` (metamodel, validation, generators) | Review and approval workflow |
 | CLI (`validate`, `generate`, `import`, `diff`) | AI assistant |
-| | Connectors |
+| | Git integrations (GitHub, GitLab) |
 | | Governance |
 | | SSO |
 

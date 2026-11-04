@@ -139,7 +139,7 @@ mappings, and is **responsible** for their meaning.
 | primaryKey | no | Ordered list of key columns. |
 | landingName | no | Override of the landed table name when it differs from the pattern. |
 | description | no | |
-| metadataOrigin | yes | `manual`, `file-import`, `connector`, plus import date. |
+| metadataOrigin | yes | `manual`, `file-import` or `cli-import` (later, UC-005), plus import date. |
 
 | Attribute (column) | Required | Description |
 |---|---|---|
@@ -380,7 +380,7 @@ Kept in the Atlas database, never in the spec. Detailed in `docs/04-architecture
 | Account | Role (Admin, Editor, Viewer), permissions (Approver, Self-approval), status (active, suspended). |
 | Credit ledger, deletion requests | ADR 0002. |
 | Support messages, support access grants | ADR 0002. |
-| Project settings | Git link and encrypted credentials (ADR 0003), connector credentials. |
+| Project settings | Git link and encrypted credentials (ADR 0003). |
 | Review requests, comments | The workflow around approvals. |
 | Approval log | The authoritative log of approvals (ADR 0003 §3.5). |
 

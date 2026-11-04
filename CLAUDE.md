@@ -12,7 +12,8 @@ validated, and generates code (dbt / SQL) and documentation.
 - **ODCS-compatible** (Open Data Contract Standard, Bitol / Linux Foundation) for import/export,
   without depending on it: our format is richer, ODCS is an output.
 - **Git-native**: the source of truth is a readable, diffable text format (YAML).
-- **Metadata only**: Atlas never stores customer data (see docs/00-vision.md).
+- **Metadata only**: Atlas never stores customer data and never connects to customer systems
+  (see docs/00-vision.md).
 - **Customer confidentiality**: the operator never sees customer content; the control tower sees licensing
   figures only, enforced in the database (ADR 0002).
 

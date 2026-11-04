@@ -85,7 +85,8 @@ Priority levels:
 |---|---|---|---|
 | UC-001 | Import source metadata from a CSV or Excel data dictionary (systems, tables, columns, types, descriptions). | PER-001, PER-002 | v1 |
 | UC-002 | Enter or edit source metadata manually. | PER-002 | v1 |
-| UC-003 | Connect to a PostgreSQL or SQL Server database and read its catalog (`information_schema`). No data is read. | PER-001 | v1 |
+| UC-003 | Extract the catalog of a PostgreSQL or SQL Server database with a **query provided by Atlas** (tables, columns, types, keys; no data), run by the customer with its own tools and access, and import the result as a dictionary file (UC-001). | PER-001 | v1 |
+| UC-005 | `atlas import` (CLI) reads the catalog of a PostgreSQL or SQL Server database directly, on the customer's machine or CI, with the customer's credentials. | PER-001 | Later |
 | UC-004 | Import an ERP data dictionary (e.g. SAP). | PER-001, PER-002 | Later (v2) |
 
 ### 2.2 Writing the specification
@@ -168,12 +169,12 @@ The non-goals in `docs/00-vision.md` §8 also apply. In addition:
 
 | ID | Out of scope | Note |
 |---|---|---|
-| OOS-001 | Reading, sampling or profiling customer data. | Connectors read the catalog only (principle "metadata only"). |
+| OOS-001 | Reading, sampling or profiling customer data. | Principle "metadata only". |
 | OOS-002 | Running the generated code. | It runs in the customer's toolchain (dbt, warehouse, orchestrator). |
 | OOS-003 | On-premise deployment. | Not in v1; may come later for large enterprises. |
-| OOS-004 | ERP-specific connectors and dictionaries in v1. | Planned for v2 (UC-004). |
+| OOS-004 | ERP-specific dictionaries in v1. | Planned for v2 (UC-004). |
 | OOS-005 | Generation targets other than dbt on Snowflake in v1. | Other warehouses later (UC-031). |
-| OOS-006 | Source connectors other than PostgreSQL and SQL Server in v1. | |
+| OOS-006 | Any connection from the Atlas service to customer databases or source systems. | Catalogs are extracted on the customer's side (UC-003, later UC-005); Atlas never holds database credentials. |
 | OOS-007 | UI in languages other than English at launch. | French and German next. The UI is internationalized from day one. |
 | OOS-008 | Any operator access to customer content outside the support access procedure (UC-053). | Principle 8 of `docs/00-vision.md`. |
 | OOS-009 | Importing existing Excel source-to-target mappings. | Product philosophy: specs are written fresh in Atlas. Importing source metadata (UC-001, UC-003) and ODCS contracts (UC-033) remains. |
