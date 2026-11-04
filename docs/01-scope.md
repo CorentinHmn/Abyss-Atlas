@@ -91,7 +91,7 @@ Priority levels:
 ### 2.2 Writing the specification
 | ID | Use case | Persona | Priority |
 |---|---|---|---|
-| UC-010 | **Import existing Excel source-to-target mappings** into a structured spec, with a report of what could not be interpreted. | PER-001, PER-002 | v1 (priority) |
+| UC-010 | *Removed (import of Excel mappings, see OOS-009). The identifier is not reused.* | — | — |
 | UC-011 | Define a target table and, for each target column, its provenance (system → table → column, possibly from several systems). | PER-002 | v1 |
 | UC-012 | Define joins between source tables as structured objects (tables, keys, join type, cardinality). | PER-001, PER-002 | v1 |
 | UC-013 | Define type conversions as structured objects. | PER-001, PER-002 | v1 |
@@ -175,6 +175,7 @@ The non-goals in `docs/00-vision.md` §8 also apply. In addition:
 | OOS-006 | Source connectors other than PostgreSQL and SQL Server in v1. | |
 | OOS-007 | UI in languages other than English at launch. | French and German next. The UI is internationalized from day one. |
 | OOS-008 | Any operator access to customer content outside the support access procedure (UC-053). | Principle 8 of `docs/00-vision.md`. |
+| OOS-009 | Importing existing Excel source-to-target mappings. | Product philosophy: specs are written fresh in Atlas. Importing source metadata (UC-001, UC-003) and ODCS contracts (UC-033) remains. |
 
 ## 4. Open questions
 

@@ -40,7 +40,8 @@ Atlas makes the source-to-target specification **the reliable source of truth** 
 - approved by the business;
 - turned directly into code and documentation.
 
-Excel stays a door in (import), not the place where the work is done.
+Atlas does not import Excel mappings: a spec is written fresh in Atlas, the right way, rather than carrying over
+the defects of the spreadsheet.
 
 ## 3. Ambitions
 
@@ -51,7 +52,7 @@ revisited with real data at each roadmap milestone.
 Qualitative milestones:
 - The spec format, `packages/core` and the CLI are published as open source and usable without the SaaS.
 - A v1 of the SaaS runs in production, hosted in the EU, covering the v1 use cases of `docs/01-scope.md`.
-- Existing Excel mappings can be imported. A first real project has moved off Excel.
+- A first real project has moved off Excel.
 - The first consulting firms use Atlas on client projects.
 
 Indicative figures:
@@ -93,7 +94,7 @@ Indicative figures:
 ### 5.1 Summary
 | Alternative | What it is | Where it falls short for our problem | Atlas's stance |
 |---|---|---|---|
-| **Excel** | The default tool for source-to-target mappings. | No validation, no structure, no history, no process (see 1.2). | **Replace**. Import existing mappings to ease the switch. |
+| **Excel** | The default tool for source-to-target mappings. | No validation, no structure, no history, no process (see 1.2). | **Replace**. No import of old spreadsheets: specs are rewritten in Atlas, guided and validated. |
 | **erwin** (Quest) | Enterprise data modeling and data intelligence suite, including mapping management. | Complete but heavy and expensive. Long sales cycles, not Git-native, built for the enterprise first. | Lighter, Git-native, priced for mid-market companies and consulting firms. |
 | **VaultSpeed** | Data warehouse automation that generates code from source metadata. | Tied to the Data Vault methodology. | Independent of the modeling method: any target model, starting with dbt. |
 | **WhereScape** | Metadata-driven data warehouse automation (design, generation, operation). | A proprietary environment you build inside. Heavy to adopt for a single project. | A spec layer that generates into the team's own toolchain (dbt, Git, CI). |
