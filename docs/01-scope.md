@@ -98,6 +98,7 @@ Priority levels:
 | UC-014 | Define business rules as structured objects, and reuse a rule across columns. | PER-002 | v1 |
 | UC-015 | Edit the spec as YAML (Monaco editor) and through forms, with both views in sync. | PER-001 | v1 |
 | UC-016 | Get AI suggestions for mappings, and accept or reject each one. | PER-002 | v1 |
+| UC-017 | Work on the same spec at the same time as other users (real-time co-editing), seeing who is working where. | All users | v1 |
 
 ### 2.3 Checking and approving
 | ID | Use case | Persona | Priority |

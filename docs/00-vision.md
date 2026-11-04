@@ -67,7 +67,7 @@ Qualitative milestones:
 - The Atlas format is a recognized way to write source-to-target specifications, used beyond the customer base and
   interoperable with ODCS.
 - Atlas is the default tool of a network of partner consulting firms across the target markets.
-- The paid layer has the full set of SaaS features: collaboration, review, AI assistant, connectors (including
+- The paid layer has the full set of SaaS features: collaboration (real-time co-editing), review, AI assistant, connectors (including
   ERPs), governance and SSO.
 
 Indicative figures:
@@ -133,7 +133,7 @@ suites and warehouse automation tools, Atlas is:
 ### 7.1 Open core
 | Open source (free) | SaaS (paid) |
 |---|---|
-| Spec format | Collaborative web interface |
+| Spec format | Collaborative web interface, with real-time co-editing |
 | `packages/core` (metamodel, validation, generators) | Review and approval workflow |
 | CLI (`validate`, `generate`, `import`, `diff`) | AI assistant |
 | | Connectors |
