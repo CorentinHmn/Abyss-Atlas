@@ -121,6 +121,10 @@ suites and warehouse automation tools, Atlas is:
    the catalog (e.g. `information_schema`).
 6. **Human in the loop**: every AI suggestion must be accepted by a person before it enters the spec.
 7. **European by design**: hosted in the EU, GDPR as a selling point.
+8. **Customer confidentiality**: the Atlas operator (the company and its staff) never sees what customers do in
+   Atlas: specs, sources, rules or Git repositories. The operator only sees licensing figures. Support may access
+   a customer's content only with the customer's explicit approval, granted by several of its admins, for a limited
+   time, and every access is logged (see ADR 0002).
 
 ## 7. Business model
 
@@ -138,9 +142,15 @@ This is the model dbt uses: the open format drives adoption, and the SaaS sells 
 open-source license is still open; it will be decided in a dedicated ADR.
 
 ### 7.2 Pricing
-- **Per organization**, with tiers based on the number of users, priced in **euros**.
+- **Per organization**, with tiers based on the number of licenses, priced in **euros**.
+- **License credits**:
+  - the customer asks for a number of licenses, and the operator grants the same number of credits (1 license =
+    1 credit);
+  - the customer's admins create user accounts themselves, and each account uses 1 credit; nobody signs in
+    without an account, so nobody signs in without a license;
+  - to get a credit back, the customer asks the operator to delete the account.
 - **Free tier**: the CLI plus 1 project in the SaaS.
-- Paid tiers, user limits and prices will be defined later; they are not set in this document.
+- Paid tiers, license ranges and prices will be defined later; they are not set in this document.
 - **On-premise**: not in v1. It may be offered later to large enterprises.
 
 ## 8. Non-goals
