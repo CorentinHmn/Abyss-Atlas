@@ -10,9 +10,10 @@ Deciders: founder
 - The operator (the Atlas company) needs a superuser **control tower** to grant credits, process deletion requests
   and see license usage per organization (`docs/01-scope.md` §2.6).
 - The operator must **never see customer content** (`docs/00-vision.md` principle 8). The control tower shows only
-  figures that are not private to the customer: credits granted, accounts created, credits remaining.
+  information that is not private to the customer: credits granted, accounts created, credits remaining, licenses
+  waiting for deletion, and the operator's own commercial data (contact person, phone number).
 - Support may need to see a customer's content to help. This is allowed only with the customer's explicit approval
-  by several Admins, for a limited time, with every access logged.
+  by an Admin, for a limited time, with every access logged.
 - The founder prefers the control tower as an area of the main application, **provided the separation is
   reliable**.
 
@@ -27,8 +28,8 @@ Deciders: founder
 **Option B**, made reliable by the following rules.
 
 ### 3.1 Data separation
-1. Licensing data lives in its own schema (working name `licensing`): organizations, credit grants, account counts,
-   deletion requests, support access requests and grants, operator audit log.
+1. Licensing data lives in its own schema (working name `licensing`): organizations, customer contact details,
+   credit grants, account counts, deletion request counts, support access requests and grants, operator audit log.
 2. The operator role can read and write **only** this schema. Account figures are exposed as aggregates (counts)
    through views or SQL functions; the operator never queries user or content tables directly.
 3. **No RLS policy on any customer content table grants access to the operator role**, except the support access
@@ -41,12 +42,14 @@ Deciders: founder
 3. The control tower is a separate route area of `apps/web`, checked on the server. It does not reuse components
    that load customer content.
 4. Every operator action is written to the audit log.
-5. Deletion requests identify accounts by an opaque reference, never by name or e-mail (to be confirmed,
-   `docs/01-scope.md` Q-09).
+5. Deletion requests are linked to the account on the customer side only. The operator sees a number of licenses
+   waiting for deletion per organization and validates them; the accounts are then deleted and the credits
+   returned, without the operator ever seeing which accounts they were.
 
 ### 3.3 Support access
 1. The operator requests access to one organization, with a reason and a duration.
-2. Access opens only after approval by several of the customer's Admins (number to be decided, Q-08).
+2. Access opens only after approval by a customer Admin (one approval for now; the number may become
+   configurable later).
 3. While the grant is valid, an RLS policy lets the operator **read** that organization's content; nothing else.
 4. The grant expires automatically. The customer can revoke it at any time.
 5. Every access is logged and the log is visible to the customer's Admins.
@@ -72,5 +75,5 @@ tower ships.
   (separate ADR).
 
 ## 5. Follow-up decisions
-- Number of customer Admin approvals for support access, and the single-Admin case (`docs/01-scope.md` Q-08).
+- Support tickets in the control tower (`docs/01-scope.md` Q-10).
 - Per-organization encryption of customer content.

@@ -69,8 +69,9 @@ These people decide to buy Atlas. They rarely use it day to day.
 #### PER-201 — Platform operator
 - **Who**: the Atlas company itself (founder, later its staff), through a superuser account.
 - **Role**: grants license credits to customer organizations, processes account deletion requests, follows license
-  usage. Not a user of the product.
-- **Sees**: licensing figures only (see §2.6). **Never** customer content (`docs/00-vision.md` principle 8).
+  usage and the customer relationship. Not a user of the product.
+- **Sees**: licensing figures and the customer's contact details (see §2.6). **Never** customer content
+  (`docs/00-vision.md` principle 8).
 
 ## 2. Use cases
 
@@ -111,6 +112,7 @@ Review rules:
   PER-003, is typically an Editor with this permission).
 - A project can have several approvers, and any one of them can approve, so one absent person does not block a
   review. An Admin can grant the permission at any time.
+- The author of a change cannot approve it, unless an Admin has given them the **Self-approval** permission.
 - Review must not slow down creation: drafting and editing never wait for an approval.
 
 ### 2.4 Producing outputs
@@ -137,20 +139,23 @@ Roles:
 | UC-040 | See the license counter: credits granted, used and remaining. | Admin | v1 |
 | UC-041 | Create a user account, which uses 1 credit; assign its role (Admin, Editor, Viewer) and the Approver permission. No account can be created without a remaining credit. | Admin | v1 |
 | UC-042 | Sign in with SSO. | All users | v1 |
-| UC-043 | Ask the operator to delete an account; the credit comes back once the operator has deleted it. | Admin | v1 |
-| UC-044 | Work on several projects in one organization (one project in the free tier). | All users | v1 |
+| UC-043 | Request the deletion of an account; the credit comes back once the operator has validated the request. | Admin | v1 |
+| UC-044 | Work on several projects in one organization. | All users | v1 |
 | UC-045 | Approve or refuse a support access request (see UC-053). | Admin | v1 |
+| UC-046 | Suspend an account immediately (e.g. an employee leaves). The credit stays used until the account is deleted (UC-043). | Admin | v1 |
 
 ### 2.6 Control tower (operator side)
 The control tower is a superuser area for PER-201, separated from customer content (ADR 0002). It shows only
-figures that are not private to the customer.
+information that is not private to the customer.
 
 | ID | Use case | Priority |
 |---|---|---|
-| UC-050 | Create a customer organization and grant or change its license credits. | v1 |
+| UC-050 | Create a customer organization and grant or change its license credits. There is no self sign-up. | v1 |
 | UC-051 | See, per organization, the credits granted, the accounts created and the credits remaining. No names of projects, no user names or e-mails, no content. | v1 |
-| UC-052 | Process account deletion requests; the credit goes back to the organization. | v1 |
-| UC-053 | Request temporary support access to an organization's content. Access opens only after approval by several of the customer's Admins, is limited in time, and every access is logged and visible to the customer. | v1 |
+| UC-052 | See, per organization, the number of licenses waiting for deletion, and validate them; the credits go back to the organization. The operator never sees which accounts they are. | v1 |
+| UC-053 | Request temporary support access to an organization's content. Access opens only after approval by a customer Admin, is limited in time, and every access is logged and visible to the customer. | v1 |
+| UC-054 | Record and see the customer's contact details: contact person (referent), phone number. | v1 |
+| UC-055 | See the support tickets raised by the customer. | Later (to confirm, Q-10) |
 
 ## 3. Out of scope
 
@@ -173,17 +178,15 @@ The non-goals in `docs/00-vision.md` §8 also apply. In addition:
 - Q-01: The AI assistant (UC-016), the lineage graph (UC-035) and SSO (UC-042) are in v1.
 - Q-02: Three roles: Admin, Editor, Viewer, plus an Approver permission per project (§2.5).
 - Q-03: Review works at three levels: whole spec, target table, single column mapping (UC-021).
+- Q-04: Approvals are synced with Git as described in ADR 0003.
+- Q-05: An author cannot approve their own change, unless an Admin gives them the Self-approval permission.
+- Q-06: Yes, a customer Admin can suspend an account immediately (UC-046).
+- Q-07: No free tier in the SaaS (0 credits); prospects see a teaser on the website and a demonstration. No self
+  sign-up: the operator creates organizations (UC-050).
+- Q-08: One customer Admin approval is enough for support access, for now.
+- Q-09: The deletion request is linked to the account on the customer side; the operator only sees a number of
+  licenses to validate (UC-052).
 
 ### 4.2 Open
-- Q-04: How does the in-app approval sync with Git (status stored in the YAML, a pull request per review, or both)?
-  Constraint: the operator must never see the customer's content or repositories. To be decided in
-  `docs/05-modules/review-approval.md` and an ADR.
-- Q-05: May the author of a change approve it themselves, or must it be another approver?
-- Q-06: Can a customer Admin suspend an account immediately (e.g. an employee leaves), the credit staying used
-  until the operator deletes the account?
-- Q-07: How many credits does the free tier include, and can a customer create a free organization without the
-  operator?
-- Q-08: Support access: how many customer Admins must approve, and what happens in an organization with a single
-  Admin?
-- Q-09: In a deletion request (UC-043), how does the operator identify the account without seeing names or
-  e-mails (e.g. an opaque account reference)?
+- Q-10: Support tickets in the control tower (UC-055): built into Atlas, or taken from an external help desk tool?
+  When?
