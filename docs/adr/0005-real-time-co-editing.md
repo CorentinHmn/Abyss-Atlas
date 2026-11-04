@@ -8,7 +8,7 @@ Deciders: founder
 - Several people must be able to work on the same spec **at the same time**, seeing each other's changes live
   (UC-017, founder requirement).
 - The spec is structured data (`docs/02-metamodel.md`), shown both as forms and as YAML (UC-015).
-- The structured content is the truth: approvals hash its canonical form (ADR 0003), Git receives YAML files.
+- The structured content is the truth: approvals hash its canonical form, exports are YAML (ADR 0007).
 - Viewers can read but never change anything.
 - Vercel functions cannot hold long-lived connections.
 
@@ -32,14 +32,14 @@ Deciders: founder
 4. The server checks the session and the role when a document is opened, opens it read-only for Viewers, and
    rejects changes from them.
 5. After a burst of edits, the server stores the document state, then the canonical JSON and its hash
-   (`docs/04-architecture.md` §3.2), which feed validation, reviews and Git sync.
+   (`docs/04-architecture.md` §3.2), which feed validation, reviews, history and exports.
 6. Presence shows who is on which model and which column.
 
 ## 4. Consequences
 - Positive: true simultaneous work; no lost edits; presence helps coordination; works on unstable connections.
 - Negative: a long-running service to operate; two representations (co-editing document and canonical JSON) must
   stay consistent, so the conversion lives in `packages/core` and is tested both ways.
-- Git: commits are grouped after a quiet period rather than per keystroke (`docs/04-architecture.md` §4.3).
+- History: versions are recorded after a quiet period rather than per keystroke (`docs/04-architecture.md` §4.3).
 
 ## 5. Follow-up decisions
 - Undo/redo scope (per user, per document).

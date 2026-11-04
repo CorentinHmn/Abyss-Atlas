@@ -7,7 +7,7 @@ Deciders: founder
 ## 1. Context
 - Some work cannot run in Vercel functions, which are time-limited and cannot hold connections:
   - the real-time co-editing server (ADR 0005);
-  - Git sync in both directions (ADR 0003);
+  - version snapshots and project exports (ADR 0007);
   - validation and generation of large projects (`docs/04-architecture.md` §7);
   - batch AI suggestions (ADR 0004).
 - Constraints: EU hosting, few sub-processors, runs the same TypeScript code (`packages/core`).
@@ -31,7 +31,7 @@ Deciders: founder
 1. **Supabase Queues** carry jobs from `apps/web` to the worker.
 2. A new application, **`apps/worker`** (Node.js, TypeScript), hosts:
    - the co-editing server (ADR 0005);
-   - the job consumers: Git sync, large validations and generations, batch AI.
+   - the job consumers: version snapshots, large validations, generations and exports, batch AI.
 3. The worker runs as a container on **AWS in Frankfurt**, with at least two instances for availability.
 4. The worker only uses `packages/core` and the database; it is portable to any container host, which keeps the
    sovereign option (Scaleway, OVHcloud) open.

@@ -405,8 +405,8 @@ columns:
     log_id: apv_01JB…
 ```
 - FMT-120: An export keeps only the latest record per unit; the full history stays in Atlas's approval log.
-- FMT-121: `log_id` points to the entry of the Atlas approval log. When an export is imported back, a record
-  without a matching entry is ignored: approvals can only be given in Atlas.
+- FMT-121: `log_id` points to the entry of the Atlas approval log. If an export is ever read back into Atlas, a
+  record without a matching entry is ignored: approvals can only be given in Atlas.
 - FMT-122: `hash` is the SHA-256 of the canonical form of the unit: the object serialized as JSON with RFC 8785
   (JSON Canonicalization Scheme), after expansion of short forms. Per MM-700 it includes the hashes of the rules
   and value mappings used; for a column mapping, it also includes the definition of the branches it maps from

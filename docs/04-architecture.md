@@ -8,10 +8,11 @@ and multi-tenancy are enforced. Decisions are recorded in ADRs:
 
 - ADR 0001: stack;
 - ADR 0002: control tower and operator access;
-- ADR 0003: Git sync of specs and approvals;
+- ADR 0003: superseded by ADR 0007 (Atlas is the only workspace, no Git integration);
 - ADR 0004: AI provider;
 - ADR 0005: real-time co-editing;
-- ADR 0006: worker service and background jobs.
+- ADR 0006: worker service and background jobs;
+- ADR 0007: Atlas is the only workspace, no Git integration.
 
 Requirement identifiers: `ARC-xxx`.
 
@@ -23,19 +24,20 @@ flowchart LR
   user[Customer users<br/>Admin, Editor, Viewer] -->|browser| atlas
   operator[Operator<br/>control tower] -->|browser| atlas
   atlas[Atlas service<br/>EU only]
-  cli[Atlas CLI<br/>open source, on customer side] -->|reads / writes| git
-  atlas <-->|sync specs and approvals| git[Customer Git repository<br/>GitHub / GitLab]
+  atlas -->|downloads: dbt, docs, export| store[Customer storage<br/>its own policy and infrastructure]
+  store --> cli[Atlas CLI<br/>open source, on customer side]
   atlas -->|metadata only| ai[Claude on Amazon Bedrock<br/>EU region]
-  cli -->|generates dbt| dbt[Customer dbt project<br/>and warehouse]
+  store --> dbt[Customer dbt project<br/>and warehouse]
 ```
-- ARC-001: Atlas never connects to customer databases, warehouses or source systems (OOS-006). Its only outbound
-  links are the customer's Git repository, the AI provider and its own infrastructure.
+- ARC-001: Atlas never connects to customer databases, warehouses or source systems (OOS-006), nor to any Git
+  repository (OOS-010, ADR 0007). Its only outbound link is the AI provider; everything else is its own
+  infrastructure. Customers take outputs by downloading them.
 
 ### 1.2 Containers
 ```mermaid
 flowchart TB
   subgraph Vercel [Vercel, EU region]
-    web[apps/web<br/>Next.js: UI, API, webhooks, AI gateway]
+    web[apps/web<br/>Next.js: UI, API, downloads, AI gateway]
   end
   subgraph AWS [AWS, Frankfurt]
     worker[apps/worker<br/>real-time sync + background jobs]
@@ -56,8 +58,6 @@ flowchart TB
   worker --> db
   worker --> queue
   worker --> vault
-  worker <-->|HTTPS| git[Customer Git provider]
-  git -->|webhooks| web
 ```
 
 ## 2. Components
@@ -65,20 +65,21 @@ flowchart TB
 | Component | Role | Must never |
 |---|---|---|
 | **`packages/core`** | Metamodel (Zod), YAML parser/serializer, canonical form and hashes, validation, generators. Runs in the browser, on the server, in the worker and in the CLI. | Depend on UI, database, network or any SaaS service (ADR 0001 §4.3). |
-| **`packages/cli`** | `atlas validate`, `generate`, `import` (dictionary files, ODCS), `diff`. Works offline on the YAML files. | Need an account or a network connection for validation and generation. |
-| **`apps/web`** | Screens (Next.js), server actions and API, Git webhooks reception, AI gateway, control tower area (ADR 0002). | Hold a long-lived connection or run long jobs (Vercel functions are time-limited): both go to the worker. |
-| **`apps/worker`** | Real-time co-editing server (ADR 0005) and background jobs (ADR 0006): Git sync, large validations and generations, batch AI suggestions. | Expose anything to the operator role. |
+| **`packages/cli`** | `atlas validate`, `generate`, `import` (dictionary files, ODCS), `diff`. Works offline on an exported project (ADR 0007). | Need an account or a network connection for validation and generation. |
+| **`apps/web`** | Screens (Next.js), server actions and API, downloads, AI gateway, control tower area (ADR 0002). | Hold a long-lived connection or run long jobs (Vercel functions are time-limited): both go to the worker. |
+| **`apps/worker`** | Real-time co-editing server (ADR 0005) and background jobs (ADR 0006): version snapshots, large validations, generations and exports, batch AI suggestions. | Expose anything to the operator role. |
 | **PostgreSQL (Supabase)** | All persistent state, with row-level security (§5). | Contain customer data (rows of customer tables): metadata only. |
 | **Supabase Auth** | Accounts, sessions, MFA, SAML SSO. | |
 | **Supabase Queues** | Durable job queue between `apps/web` and `apps/worker`. | |
-| **Supabase Vault** | Git credentials and other secrets, encrypted. | Be readable by the operator role. |
+| **Supabase Vault** | Service secrets, encrypted. | Be readable by the operator role. |
 | **Amazon Bedrock** | Claude, for AI suggestions (ADR 0004). | Receive anything but project metadata; be called without the organization's AI switch on. |
 
 ### 2.1 Where validation runs
 - ARC-010: Validation runs **in the browser** (Web Worker) on every change, for immediate feedback.
 - ARC-011: The **server** (worker) re-runs validation on saved content; its result is the reference shown in reviews
   and used before generation.
-- ARC-012: The CLI runs the same validation in CI. One code base, one result.
+- ARC-012: The CLI runs the same validation on an exported project, on the customer's side. One code base, one
+  result.
 - ARC-013: Invalid content can always be saved as a draft: validation informs, it never blocks editing.
 
 ## 3. Data storage
@@ -98,8 +99,9 @@ flowchart TB
   they are never edited directly.
 - ARC-022: The co-editing state of an object (ADR 0005) is kept next to it (`app.spec_documents`), and the canonical
   JSON is updated from it after each burst of edits.
-- ARC-023: History (UC-023) comes from Git when a repository is connected, and from `app.spec_versions` (snapshots
-  at each sync point) otherwise (ADR 0003 §3.6).
+- ARC-023: History (UC-023) lives in `app.spec_versions`: a snapshot of each changed object after each burst of
+  edits, with its authors; named versions (e.g. "Release 1.0") mark a whole project. Diffs between any two versions
+  are computed by `packages/core` on the canonical form (ADR 0007).
 
 ## 4. Main flows
 
@@ -118,30 +120,29 @@ sequenceDiagram
   W-->>B: change, applied live
   A->>A: validate locally (Web Worker)
   W->>D: after a quiet period: store state, canonical JSON, hash
-  W->>D: enqueue Git sync (if a repository is connected)
+  W->>D: snapshot the new version (history)
 ```
 
 ### 4.2 Review and approval
 1. An Editor submits a unit (project, model, column mapping, rule, value mapping) for review: a review request is
    created in `app`.
 2. The stewards of the owning domain (or project approvers) are notified, read the diff, comment.
-3. An approval writes an entry to the **approval log** (authoritative), with the unit's content hash, then a job
-   writes the approval record to Git (ADR 0003 §3.3, format `docs/03-spec-format.md` §7).
+3. An approval writes an entry to the **approval log** (authoritative), with the unit's content hash, in Atlas only
+   (ADR 0007). Exports include the records (`docs/03-spec-format.md` §7).
 4. Any later change of the unit's content changes its hash: the approval becomes outdated.
 
-### 4.3 Git sync
-- **Outbound**: after a quiet period on a file (proposal: 2 minutes without edits), or when a unit is submitted for
-  review, the worker commits the changed files. Several authors in the same commit are listed as co-authors.
-- **Inbound**: the Git provider sends a webhook to `apps/web`, which checks its signature and enqueues a job. The
-  worker fetches the changed files, validates them and applies them to the co-editing documents as structured
-  changes. If someone edited the same fields in Atlas since the last sync, a conflict is shown (ADR 0003 §3.4).
+### 4.3 Versions and history
+- A version of an object is recorded after a quiet period (proposal: 2 minutes without edits), and always when a
+  unit is submitted for review or approved. Several authors in the same burst are all recorded.
+- Users browse the history, compare any two versions and restore an older one (the restore is itself a new
+  version).
+- There is no sync with any external system (ADR 0007).
 
 ### 4.4 Generation
-- ARC-030: The main path is the CLI in the customer's CI: `atlas generate` writes dbt models into the customer's
-  dbt project.
-- ARC-031: In the SaaS, users preview the generated code of a model, and download a whole project's output as an
-  archive. Optionally, the worker commits the output to a configured folder of the customer's repository
-  (`docs/03-spec-format.md` FMT-051).
+- ARC-030: In Atlas, users preview the generated code of a model and **download** a whole project's output (dbt
+  models, documentation, ODCS contracts) as an archive. The customer stores it according to its own policy.
+- ARC-031: Alternatively, the customer downloads the project export and runs `atlas generate` (open-source CLI) on
+  its side. Atlas pushes nothing anywhere (ADR 0007).
 
 ### 4.5 AI suggestion
 ```mermaid
@@ -201,7 +202,8 @@ sequenceDiagram
 ## 6. Security and GDPR
 - ARC-200: **Authentication**: e-mail and password with MFA (TOTP) available to all, required for Admins and the
   operator; SAML SSO for organizations that ask for it (UC-042).
-- ARC-201: **Secrets**: Git credentials in Supabase Vault, used only by the worker; never sent to the browser.
+- ARC-201: **Secrets**: service secrets in Supabase Vault, used only by the servers; never sent to the browser. Atlas
+  holds no customer credentials of any kind (no database, no Git).
 - ARC-202: **Encryption**: TLS everywhere; database encryption at rest (Supabase). Per-organization encryption of
   content is a possible later decision (ADR 0002 §5).
 - ARC-203: **Audit**: the approval log, the operator audit log and the support access log are append-only.
@@ -249,5 +251,5 @@ Initial targets, to be checked with real projects.
   analytics on customer content.
 
 ## 10. Open questions
-- Q-ARC-01: Outbound Git commit after a quiet period of 2 minutes (§4.3): is the delay right?
+- Q-ARC-01: Version snapshot after a quiet period of 2 minutes (§4.3): is the delay right?
 - Q-ARC-02: Targets of §7: to be confirmed with the first design partners.
