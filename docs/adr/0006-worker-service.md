@@ -1,8 +1,8 @@
 # ADR 0006 — Worker service and background jobs
 
-Status: Proposed
+Status: Accepted
 Date: 2026-11-04
-Deciders: technical choice to be validated by the founder
+Deciders: founder
 
 ## 1. Context
 - Some work cannot run in Vercel functions, which are time-limited and cannot hold connections:

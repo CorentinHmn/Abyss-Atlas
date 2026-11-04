@@ -1,8 +1,8 @@
 # ADR 0005 — Real-time co-editing
 
-Status: Proposed
+Status: Accepted
 Date: 2026-11-04
-Deciders: founder (requirement), technical choice to be validated
+Deciders: founder
 
 ## 1. Context
 - Several people must be able to work on the same spec **at the same time**, seeing each other's changes live
