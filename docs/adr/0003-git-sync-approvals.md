@@ -1,6 +1,6 @@
 # ADR 0003 — Syncing specs and approvals with Git
 
-Status: Accepted
+Status: Superseded by ADR 0007 (no Git integration). Kept for history.
 Date: 2026-11-04
 Deciders: founder (delegated to the proposal below)
 
