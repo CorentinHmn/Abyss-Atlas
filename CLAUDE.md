@@ -1,65 +1,68 @@
-# CLAUDE.md — Atlas (nom de code provisoire)
+# CLAUDE.md — Atlas (provisional codename)
 
-## Le produit en une phrase
-SaaS de **spécification source-cible "as code"** pour data platforms : pour chaque colonne d'une table cible,
-on décrit de façon **structurée** (pas en texte libre) sa provenance (système/ERP → table → colonne),
-les jointures, les conversions de type et les règles métier. La spec est versionnée dans Git,
-validée, et génère du code (dbt / SQL) et la documentation.
+## The product in one sentence
+**Source-to-target specification "as code"** SaaS for data platforms: for each column of a target table,
+we describe in a **structured** way (not free text) its provenance (system/ERP → table → column),
+the joins, the type conversions and the business rules. The spec is versioned in Git,
+validated, and generates code (dbt / SQL) and documentation.
 
-## Principe différenciant (ne jamais le perdre de vue)
-- Les **jointures, types, règles et provenances multi-systèmes sont des objets de premier niveau**,
-  pas des chaînes de caractères.
-- **Compatible ODCS** (Open Data Contract Standard, Bitol / Linux Foundation) en import/export,
-  sans en dépendre : notre format est plus riche, ODCS est une sortie.
-- **Git-native** : la source de vérité est un format texte (YAML) lisible et diffable.
+## Differentiating principle (never lose sight of it)
+- **Joins, types, rules and multi-system provenance are first-class objects**,
+  not strings.
+- **ODCS-compatible** (Open Data Contract Standard, Bitol / Linux Foundation) for import/export,
+  without depending on it: our format is richer, ODCS is an output.
+- **Git-native**: the source of truth is a readable, diffable text format (YAML).
 
-## Stack (voir docs/adr/0001-stack.md)
-- Monorepo **pnpm + Turborepo**, **TypeScript** strict partout.
-- `apps/web` : **Next.js** (App Router), **Tailwind CSS**, **shadcn/ui**,
-  **React Flow** (graphes de jointures / lineage), **Monaco** (éditeur YAML/SQL).
-- `packages/core` : métamodèle (schémas **Zod**), parseur/sérialiseur YAML, validation,
-  générateurs (dbt, SQL, ODCS, Markdown). **Aucune dépendance UI.**
-- `packages/cli` : CLI `atlas validate | generate | import | diff`.
-- Données : **PostgreSQL** (Supabase), ORM **Drizzle**, multi-tenant par organisation avec RLS.
-- Auth : Supabase Auth. Paiement (plus tard) : Stripe.
-- Tests : **Vitest** (unitaires), **Playwright** (e2e).
-- Plus tard, si besoin d'analyse SQL avancée : petit service Python (sqlglot), isolé.
+## Stack (see docs/adr/0001-stack.md)
+- **pnpm + Turborepo** monorepo, strict **TypeScript** everywhere.
+- `apps/web`: **Next.js** (App Router), **Tailwind CSS**, **shadcn/ui**,
+  **React Flow** (join / lineage graphs), **Monaco** (YAML/SQL editor).
+- i18n: **next-intl** from day one. English-only UI at launch, but no hard-coded UI text;
+  French and German planned next.
+- `packages/core`: metamodel (**Zod** schemas), YAML parser/serializer, validation,
+  generators (dbt, SQL, ODCS, Markdown). **No UI dependency.**
+- `packages/cli`: CLI `atlas validate | generate | import | diff`.
+- Data: **PostgreSQL** (Supabase), **Drizzle** ORM, multi-tenant per organization with RLS.
+- Auth: Supabase Auth. Payments (later): Stripe.
+- Tests: **Vitest** (unit), **Playwright** (e2e).
+- Later, if advanced SQL analysis is needed: a small, isolated Python service (sqlglot).
 
-## Arborescence
+## Directory layout
 ```
-apps/web/            application SaaS
-packages/core/       cœur métier (métamodèle, validation, générateurs)
-packages/cli/        ligne de commande
-docs/                spécifications produit (sources de vérité fonctionnelles)
-docs/adr/            décisions d'architecture (une décision = un fichier daté)
+apps/web/            SaaS application
+packages/core/       business core (metamodel, validation, generators)
+packages/cli/        command line
+docs/                product specifications (functional source of truth)
+docs/adr/            architecture decisions (one decision = one dated file)
 ```
 
-## Documentation produit (lire UNIQUEMENT ce qui concerne la tâche)
-| Fichier | Contenu |
+## Product documentation (read ONLY what concerns the task)
+| File | Content |
 |---|---|
-| docs/00-vision.md | ambitions, problème, positionnement, non-objectifs |
-| docs/01-perimetre.md | personas, cas d'usage, hors scope |
-| docs/02-metamodele.md | objets du domaine et leurs relations (**cœur du produit**) |
-| docs/03-format-spec.md | grammaire YAML + correspondance ODCS |
-| docs/04-architecture.md | composants, flux, sécurité, multi-tenant |
-| docs/05-modules/*.md | un fichier par module fonctionnel |
-| docs/06-ux/navigation-menus.md | arborescence des menus et écrans |
-| docs/06-ux/ecrans/*.md | un fichier par écran |
-| docs/07-roadmap.md | phases, jalons, critères de sortie |
+| docs/00-vision.md | ambitions, problem, positioning, non-goals |
+| docs/01-scope.md | personas, use cases, out of scope |
+| docs/02-metamodel.md | domain objects and their relations (**core of the product**) |
+| docs/03-spec-format.md | YAML grammar + ODCS mapping |
+| docs/04-architecture.md | components, flows, security, multi-tenancy |
+| docs/05-modules/*.md | one file per functional module |
+| docs/06-ux/navigation-menus.md | menu and screen tree |
+| docs/06-ux/screens/*.md | one file per screen |
+| docs/07-roadmap.md | phases, milestones, exit criteria |
 
-## Règles de travail (efficience)
-1. **Lire le minimum** : ne charger que les fichiers docs pertinents pour la tâche en cours.
-2. **Plan d'abord** pour toute tâche touchant plus de 2 fichiers : proposer le plan, attendre validation.
-3. **Modifier, ne pas réécrire** : éditions ciblées ; jamais régénérer un fichier entier sans demande explicite.
-4. **Une décision structurante = un ADR** dans docs/adr/ (contexte, options, décision, conséquences).
-5. **Le métamodèle fait foi** : tout changement de concept passe d'abord par docs/02-metamodele.md,
-   puis par les schémas Zod de packages/core.
-6. Quand une spec est ambiguë : poser la question, ne pas inventer.
-7. Mettre à jour ce fichier si la stack ou l'arborescence change (garder < 100 lignes).
+## Working rules (efficiency)
+1. **Read the minimum**: only load the docs files relevant to the current task.
+2. **Plan first** for any task touching more than 2 files: propose the plan, wait for validation.
+3. **Edit, don't rewrite**: targeted edits; never regenerate a whole file without an explicit request.
+4. **One structural decision = one ADR** in docs/adr/ (context, options, decision, consequences).
+5. **The metamodel is authoritative**: any concept change goes first through docs/02-metamodel.md,
+   then through the Zod schemas in packages/core.
+6. When a spec is ambiguous: ask the question, don't invent.
+7. Update this file if the stack or the directory layout changes (keep it < 100 lines).
 
 ## Conventions
-- Docs produit en **français** ; code, noms de fichiers de code, commits et commentaires en **anglais**.
-- Commits : Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
-- Format des docs : titres numérotés, identifiants stables pour les exigences (`MAP-012`, `UX-004`…),
-  statut en tête de fichier (`Brouillon` / `Validé`).
-- Chaque fonctionnalité de la roadmap référence ses identifiants d'exigences.
+- **Everything in English** (European market): product docs, code, file names, comments, commits and UI.
+  Conversations with the founder may be in French.
+- Commits: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
+- Docs format: numbered headings, stable requirement identifiers (`MAP-012`, `UX-004`…),
+  status at the top of the file (`Draft` / `Validated`).
+- Each roadmap feature references its requirement identifiers.
