@@ -23,12 +23,12 @@ Deciders: founder (delegated to the proposal below)
 **Option B in v1.** A pull request mode (C) may be added later as a per-project setting.
 
 ### 3.1 The repository belongs to the customer
-1. Each project is linked to a repository and a branch on the customer's own Git provider.
+1. A project can be linked to a repository and a branch on the customer's own Git provider (optional, see §3.6).
 2. The customer connects it with an app installation or token limited to the chosen repositories.
 3. Git credentials are encrypted and used only by the sync process, in the context of the customer's
    organization. The operator role has no access to them and no access to the repository (ADR 0002).
-4. Providers supported in v1: proposal **GitHub and GitLab**, then Azure DevOps and Bitbucket (to confirm,
-   `docs/01-scope.md` Q-11).
+4. Providers supported in v1: **GitHub and GitLab**. Their APIs are free to use; each customer uses its own
+   account and plan. Azure DevOps and Bitbucket may follow.
 
 ### 3.2 What is stored in Git
 1. The spec files (YAML).
@@ -61,6 +61,15 @@ Deciders: founder (delegated to the proposal below)
 4. Limit: working offline, the CLI cannot tell a forged approval record from a real one. Signed approval records
    (Atlas signs, the CLI verifies with a public key) would close this gap; see §5.
 
+### 3.6 Projects without a repository
+1. A project can work without a connected repository. Atlas then keeps the version history (UC-023) and the
+   approval log itself.
+2. The spec can be exported as YAML at any time.
+3. When a repository is connected later, Atlas writes the current spec and its approval records as a first commit,
+   and the sync of §3.3 and §3.4 starts.
+4. In every case, the customer's data stays on its side, in its own platforms, run by its own data engineers:
+   Atlas holds metadata only.
+
 ## 4. Consequences
 
 ### 4.1 Positive
@@ -76,7 +85,6 @@ Deciders: founder (delegated to the proposal below)
 - Until approvals are signed, an offline CLI cannot detect a forged approval record (§3.5).
 
 ## 5. Follow-up decisions
-- Git providers supported in v1 (`docs/01-scope.md` Q-11).
 - Signed approval records.
 - Pull request mode as a per-project option.
-- Whether a project can work without a connected repository (`docs/01-scope.md` Q-12).
+- Azure DevOps and Bitbucket support.

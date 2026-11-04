@@ -29,7 +29,9 @@ Deciders: founder
 
 ### 3.1 Data separation
 1. Licensing data lives in its own schema (working name `licensing`): organizations, customer contact details,
-   credit grants, account counts, deletion request counts, support access requests and grants, operator audit log.
+   credit grants, account counts, deletion request counts, support messages, support access requests and grants,
+   operator audit log. Support messages are written by the customer for the operator, so they are not customer
+   content.
 2. The operator role can read and write **only** this schema. Account figures are exposed as aggregates (counts)
    through views or SQL functions; the operator never queries user or content tables directly.
 3. **No RLS policy on any customer content table grants access to the operator role**, except the support access
@@ -75,5 +77,4 @@ tower ships.
   (separate ADR).
 
 ## 5. Follow-up decisions
-- Support tickets in the control tower (`docs/01-scope.md` Q-10).
 - Per-organization encryption of customer content.

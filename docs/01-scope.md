@@ -143,6 +143,7 @@ Roles:
 | UC-044 | Work on several projects in one organization. | All users | v1 |
 | UC-045 | Approve or refuse a support access request (see UC-053). | Admin | v1 |
 | UC-046 | Suspend an account immediately (e.g. an employee leaves). The credit stays used until the account is deleted (UC-043). | Admin | v1 |
+| UC-047 | Send a support message to the operator and read the replies (see UC-055). | Admin | v1 |
 
 ### 2.6 Control tower (operator side)
 The control tower is a superuser area for PER-201, separated from customer content (ADR 0002). It shows only
@@ -155,7 +156,7 @@ information that is not private to the customer.
 | UC-052 | See, per organization, the number of licenses waiting for deletion, and validate them; the credits go back to the organization. The operator never sees which accounts they are. | v1 |
 | UC-053 | Request temporary support access to an organization's content. Access opens only after approval by a customer Admin, is limited in time, and every access is logged and visible to the customer. | v1 |
 | UC-054 | Record and see the customer's contact details: contact person (referent), phone number. | v1 |
-| UC-055 | See the support tickets raised by the customer. | Later (to confirm, Q-10) |
+| UC-055 | Read the customer's support messages and reply. Built into Atlas; for now only messages and replies, no ticketing workflow. | v1 |
 
 ## 3. Out of scope
 
@@ -186,9 +187,9 @@ The non-goals in `docs/00-vision.md` §8 also apply. In addition:
 - Q-08: One customer Admin approval is enough for support access, for now.
 - Q-09: The deletion request is linked to the account on the customer side; the operator only sees a number of
   licenses to validate (UC-052).
+- Q-10: Support is built into Atlas: for now, simple messages and replies (UC-047, UC-055).
+- Q-11: GitHub and GitLab in v1; their APIs cost Atlas nothing (ADR 0003).
+- Q-12: Yes, a project can work without a connected Git repository (ADR 0003 §3.6).
 
 ### 4.2 Open
-- Q-10: Support tickets in the control tower (UC-055): built into Atlas, or taken from an external help desk tool?
-  When?
-- Q-11: Which Git providers in v1? Proposal: GitHub and GitLab, then Azure DevOps and Bitbucket (ADR 0003).
-- Q-12: Can a project work without a connected Git repository (history kept in Atlas only)?
+None at this stage.
