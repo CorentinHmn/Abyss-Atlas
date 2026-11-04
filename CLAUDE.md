@@ -25,6 +25,7 @@ validated, and generates code (dbt / SQL) and documentation.
 - `packages/cli`: CLI `atlas validate | generate | import | diff`.
 - Data: **PostgreSQL** (Supabase), **Drizzle** ORM, multi-tenant per organization with RLS.
 - Auth: Supabase Auth. Payments (later): Stripe.
+- Hosting: **EU only** (GDPR): Vercel + Supabase in an EU region; sovereign host (Scaleway, OVHcloud) as a future option.
 - Tests: **Vitest** (unit), **Playwright** (e2e).
 - Later, if advanced SQL analysis is needed: a small, isolated Python service (sqlglot).
 
