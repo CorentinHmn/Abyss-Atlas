@@ -36,7 +36,7 @@ Atlas makes the source-to-target specification **the reliable source of truth** 
 
 - structured;
 - validated;
-- versioned in Git;
+- versioned in Atlas;
 - approved by the business;
 - turned directly into code and documentation.
 
@@ -67,8 +67,8 @@ Qualitative milestones:
 - The Atlas format is a recognized way to write source-to-target specifications, used beyond the customer base and
   interoperable with ODCS.
 - Atlas is the default tool of a network of partner consulting firms across the target markets.
-- The paid layer has the full set of SaaS features: collaboration (real-time co-editing), review, AI assistant, Git
-  integrations, ERP dictionaries, governance and SSO.
+- The paid layer has the full set of SaaS features: collaboration (real-time co-editing), review, AI assistant, ERP
+  dictionaries, governance and SSO.
 
 Indicative figures:
 | ID | Hypothesis |
@@ -95,9 +95,9 @@ Indicative figures:
 | Alternative | What it is | Where it falls short for our problem | Atlas's stance |
 |---|---|---|---|
 | **Excel** | The default tool for source-to-target mappings. | No validation, no structure, no history, no process (see 1.2). | **Replace**. No import of old spreadsheets: specs are rewritten in Atlas, guided and validated. |
-| **erwin** (Quest) | Enterprise data modeling and data intelligence suite, including mapping management. | Complete but heavy and expensive. Long sales cycles, not Git-native, built for the enterprise first. | Lighter, Git-native, priced for mid-market companies and consulting firms. |
+| **erwin** (Quest) | Enterprise data modeling and data intelligence suite, including mapping management. | Complete but heavy and expensive. Long sales cycles, built for the enterprise first. | Lighter, open format, priced for mid-market companies and consulting firms. |
 | **VaultSpeed** | Data warehouse automation that generates code from source metadata. | Tied to the Data Vault methodology. | Independent of the modeling method: any target model, starting with dbt. |
-| **WhereScape** | Metadata-driven data warehouse automation (design, generation, operation). | A proprietary environment you build inside. Heavy to adopt for a single project. | A spec layer that generates into the team's own toolchain (dbt, Git, CI). |
+| **WhereScape** | Metadata-driven data warehouse automation (design, generation, operation). | A proprietary environment you build inside. Heavy to adopt for a single project. | A spec layer whose output (dbt models, documentation) the team downloads into its own toolchain. |
 | **dbt** | A framework for SQL transformations with tests and docs. | Starts at the code. The mapping and business rules end up buried in SQL; there is no structured spec before the build and no business approval. | **Complement**. Atlas generates dbt models: the spec comes first, dbt runs it. |
 | **Catalogs** (Collibra, DataHub, OpenMetadata) | Discovery, governance and harvested lineage of existing assets. | They describe what exists after the build, not the design of new transformations. | **Complement**. Possible future integration: push specs and lineage to them. |
 | **ODCS** (Bitol / Linux Foundation) | An open standard for data contracts: schema, quality, SLAs, ownership. | Describes the interface of a dataset, not how it is built from its sources. | **Interoperate**. Import/export ODCS; the Atlas format is richer. |
@@ -106,16 +106,17 @@ Indicative figures:
 ### 5.2 Positioning statement
 For data teams and consulting firms running data platform projects, **Atlas is the source-to-target specification
 layer**. Mappings, joins, types and business rules are structured objects. Every change is validated, reviewed by
-the business and versioned in Git, and the spec generates the dbt code and the documentation. Unlike modeling
+the business and versioned in Atlas, and the spec generates the dbt code and the documentation. Unlike modeling
 suites and warehouse automation tools, Atlas is:
 
 - **open** (open-source format and CLI);
-- **lightweight** (fits the existing dbt and Git toolchain);
+- **lightweight** (no Git or tooling to learn: one workspace, outputs downloaded into the existing dbt project);
 - **European** (EU-hosted, metadata only).
 
 ## 6. Product principles
 1. **First-class objects**: joins, types, rules and multi-system provenance are structured objects, never free text.
-2. **Git-native**: the spec is readable, diffable YAML; Git is the source of truth.
+2. **One governed workspace**: specs, history and approvals live in Atlas; nobody needs Git. Nothing of a customer
+   is stored in any Git repository; what the customer keeps on its side, it downloads (ADR 0007).
 3. **Open format**: the spec format, `packages/core` and the CLI are open source. Adoption of the format is the moat.
 4. **ODCS-compatible, not ODCS-dependent**: ODCS is an import/export format.
 5. **Metadata only**: Atlas stores metadata only, **never customer data**. The Atlas service never connects to customer
@@ -124,7 +125,7 @@ suites and warehouse automation tools, Atlas is:
 6. **Human in the loop**: every AI suggestion must be accepted by a person before it enters the spec.
 7. **European by design**: hosted in the EU, GDPR as a selling point.
 8. **Customer confidentiality**: the Atlas operator (the company and its staff) never sees what customers do in
-   Atlas: specs, sources, rules or Git repositories. The operator only sees licensing figures and its own
+   Atlas: specs, sources or rules. The operator only sees licensing figures and its own
    commercial information about the customer (contact person). Support may access a customer's content only with
    the customer's explicit approval, granted by a customer Admin, for a limited time, and every access is logged
    (see ADR 0002).
@@ -136,12 +137,11 @@ suites and warehouse automation tools, Atlas is:
 |---|---|
 | Spec format | Collaborative web interface, with real-time co-editing |
 | `packages/core` (metamodel, validation, generators) | Review and approval workflow |
-| CLI (`validate`, `generate`, `import`, `diff`) | AI assistant |
-| | Git integrations (GitHub, GitLab) |
+| CLI (`validate`, `generate`, `import`, `diff`), working on an exported project | AI assistant |
 | | Governance |
 | | SSO |
 
-This is the model dbt uses: the open format drives adoption, and the SaaS sells collaboration and governance. The
+This is the model dbt uses: the open format drives adoption and guarantees customers can always leave with their specs (full export), and the SaaS sells collaboration and governance. The
 open-source license is still open; it will be decided in a dedicated ADR.
 
 ### 7.2 Pricing

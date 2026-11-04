@@ -3,15 +3,16 @@
 ## The product in one sentence
 **Source-to-target specification "as code"** SaaS for data platforms: for each column of a target table,
 we describe in a **structured** way (not free text) its provenance (system/ERP → table → column),
-the joins, the type conversions and the business rules. The spec is versioned in Git,
-validated, and generates code (dbt / SQL) and documentation.
+the joins, the type conversions and the business rules. The spec is versioned,
+validated and approved in Atlas, and generates code (dbt / SQL) and documentation.
 
 ## Differentiating principle (never lose sight of it)
 - **Joins, types, rules and multi-system provenance are first-class objects**,
   not strings.
 - **ODCS-compatible** (Open Data Contract Standard, Bitol / Linux Foundation) for import/export,
   without depending on it: our format is richer, ODCS is an output.
-- **Git-native**: the source of truth is a readable, diffable text format (YAML).
+- **Atlas is the only workspace** (ADR 0007): specs, history and approvals live in Atlas. Nothing of a customer
+  is ever stored in a Git repository; customers download outputs and can export everything in the open YAML format.
 - **Metadata only**: Atlas never stores customer data and never connects to customer systems
   (see docs/00-vision.md).
 - **Customer confidentiality**: the operator never sees customer content; the control tower sees licensing

@@ -14,8 +14,8 @@ Requirement identifiers: `MM-xxx`.
 ### 1.1 Two families of objects
 | Family | Where it lives | Open source | Content |
 |---|---|---|---|
-| **Spec domain** | YAML files (Git or Atlas), `packages/core` | Yes | Everything that describes a source-to-target specification: sources, targets, mappings, rules, quality checks, approvals. |
-| **Platform domain** | Atlas database only | No | Organizations, accounts, credits, review workflow, support (§10). Never written to the customer's repository. |
+| **Spec domain** | Atlas; exportable as YAML files (`docs/03-spec-format.md`); `packages/core` | Yes | Everything that describes a source-to-target specification: sources, targets, mappings, rules, quality checks, approvals. |
+| **Platform domain** | Atlas database only | No | Organizations, accounts, credits, review workflow, support (§11). Never part of an export. |
 
 - MM-001: The spec domain must be complete on its own: the CLI can validate and generate from the YAML files
   without the SaaS.
@@ -112,7 +112,7 @@ mappings, and is **responsible** for their meaning.
 - MM-022: People are referenced by the e-mail of their Atlas account. The SaaS resolves them; the CLI treats them as
   plain text.
 - MM-023: A person can be owner or steward of several domains.
-- MM-024: Only an Admin can change a domain's owner or stewards. Such a change made elsewhere (e.g. directly in Git)
+- MM-024: Only an Admin can change a domain's owner or stewards. Such a change made elsewhere (e.g. in an edited export)
   is flagged and does not take effect until an Admin confirms it; otherwise anyone able to edit the YAML could make
   themselves steward.
 
@@ -355,13 +355,13 @@ Basic checks in v1. They generate dbt tests and the quality section of an ODCS e
   `dim_customer.country_code` (model, column).
 - MM-602: Every reference must resolve. A broken reference is a validation error, never a silent null.
 - MM-603: A **canonical serialization** of each object is defined in `packages/core`. It is the basis of diffs and of
-  approval hashes (ADR 0003).
+  approval hashes (ADR 0007).
 
 ## 10. Review and approval
 | Concept | Description |
 |---|---|
 | **Review unit** | Something that can be approved: the whole project, a target model, a column mapping (one target column, all its branches), a business rule, a value mapping. |
-| **Approval record** | Unit, decision (`approved` or `rejected`), person, date, comment, **content hash** of the unit. Stored in the spec (ADR 0003). |
+| **Approval record** | Unit, decision (`approved` or `rejected`), person, date, comment, **content hash** of the unit. Stored in Atlas's approval log; included in exports (ADR 0007). |
 | **Status** | `draft`, `in-review`, `approved`. Derived, not stored: from the latest valid record and the open review requests (platform domain). |
 
 - MM-700: The content hash of a unit covers its own definition **and** the hashes of the business rules and value
@@ -380,9 +380,9 @@ Kept in the Atlas database, never in the spec. Detailed in `docs/04-architecture
 | Account | Role (Admin, Editor, Viewer), permissions (Approver, Self-approval), status (active, suspended). |
 | Credit ledger, deletion requests | ADR 0002. |
 | Support messages, support access grants | ADR 0002. |
-| Project settings | Git link and encrypted credentials (ADR 0003). |
+| Project settings | Defaults, AI switch. |
 | Review requests, comments | The workflow around approvals. |
-| Approval log | The authoritative log of approvals (ADR 0003 §3.5). |
+| Approval log | The authoritative log of approvals (ADR 0007). |
 
 ## 12. Illustrative example
 `dim_customer`, domain Sales, fed by SAP France, SAP Germany and Oracle EBS.

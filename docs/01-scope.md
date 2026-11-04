@@ -18,14 +18,14 @@ These people decide to buy Atlas. They rarely use it day to day.
 | ID | Persona | What they care about |
 |---|---|---|
 | PER-101 | **Head of data** | Delivery on time, auditability of figures, fewer specification errors, team knowledge that survives turnover. |
-| PER-102 | **Data architect** | Consistency of models and rules across projects, standards, integration with the existing toolchain (dbt, Git, CI). |
+| PER-102 | **Data architect** | Consistency of models and rules across projects, standards, integration with the existing toolchain (dbt, CI). |
 | PER-103 | **Project director at a consulting firm** | Delivering migrations and multi-ERP projects faster and with fewer defects, a reusable method across clients, a professional deliverable for the client. |
 
 ### 1.2 Users
 
 #### PER-001 — Data engineer
 - **Role**: builds the target models and pipelines from the specification.
-- **Uses Git**: yes, daily.
+- **Uses Git**: yes, for their own code, but never for Atlas (ADR 0007).
 - **Today**:
   - writes or receives the Excel mapping;
   - translates it by hand into SQL or dbt;
@@ -37,13 +37,13 @@ These people decide to buy Atlas. They rarely use it day to day.
 - **What Atlas gives them**:
   - a structured, validated spec;
   - generated dbt models;
-  - a CLI that runs in CI;
-  - diffs of the spec in pull requests.
+  - the open-source CLI, to validate and generate from an exported project on their side;
+  - history and diffs of the spec in Atlas.
 
 #### PER-002 — Analyst (business / data analyst)
 - **Role**: knows the source systems and the business meaning of the data. Writes most of the mapping and the
   business rules.
-- **Uses Git**: not necessarily.
+- **Uses Git**: no, never for Atlas.
 - **Today**: fills the Excel mapping and answers the data engineers' questions.
 - **Pains**:
   - no help to find source columns;
@@ -106,8 +106,8 @@ Priority levels:
 |---|---|---|---|
 | UC-020 | Validate a spec: references to sources exist, types are compatible, joins are consistent, required fields are filled. | All users | v1 |
 | UC-021 | Submit for review, then approve or reject (Draft → In review → Approved), with comments. The unit of review can be a whole spec, a target table, a single column mapping, a business rule or a value mapping (`docs/02-metamodel.md` §10). | PER-002, PER-003 | v1 |
-| UC-022 | Keep the approval status in sync with Git. | PER-001 | v1 |
-| UC-023 | See the history of a spec and the diff between two versions. | All users | v1 |
+| UC-022 | *Removed (sync with Git, see OOS-010). The identifier is not reused.* | — | — |
+| UC-023 | See the history of a spec in Atlas (who changed what, when), compare any two versions, and create named versions (e.g. "Release 1.0"). | All users | v1 |
 
 Review rules:
 - Target models, column mappings, business rules and value mappings belong to a **business domain**, which has one
@@ -123,12 +123,13 @@ Review rules:
 ### 2.4 Producing outputs
 | ID | Use case | Persona | Priority |
 |---|---|---|---|
-| UC-030 | Generate dbt models from an approved spec, **Snowflake dialect first**. | PER-001 | v1 |
+| UC-030 | Generate dbt models from an approved spec, **Snowflake dialect first**, and download them. | PER-001 | v1 |
 | UC-031 | Generate dbt models for Databricks, BigQuery and PostgreSQL. | PER-001 | Later |
-| UC-032 | Generate human-readable documentation (Markdown). | All | v1 |
+| UC-032 | Generate human-readable documentation (Markdown) and download it. | All | v1 |
 | UC-033 | Export a target table as an ODCS data contract; import an ODCS contract. | PER-001, PER-102 | v1 |
-| UC-034 | Run `atlas validate`, `generate`, `import` and `diff` in a CI pipeline, without the SaaS. | PER-001 | v1 |
+| UC-034 | Run `atlas validate`, `generate`, `import` and `diff` on an exported project, on the customer's side (e.g. in its CI), without the SaaS. | PER-001 | v1 |
 | UC-035 | Visualize joins and lineage as a graph. | All | v1 |
+| UC-036 | Export a whole project at any time as an archive in the open YAML format, including approvals (no lock-in). | Admin, PER-001 | v1 |
 
 ### 2.5 Organization (customer side)
 Roles:
@@ -178,6 +179,7 @@ The non-goals in `docs/00-vision.md` §8 also apply. In addition:
 | OOS-007 | UI in languages other than English at launch. | French and German next. The UI is internationalized from day one. |
 | OOS-008 | Any operator access to customer content outside the support access procedure (UC-053). | Principle 8 of `docs/00-vision.md`. |
 | OOS-009 | Importing existing Excel source-to-target mappings. | Product philosophy: specs are written fresh in Atlas. Importing source metadata (UC-001, UC-003) and ODCS contracts (UC-033) remains. |
+| OOS-010 | Any Git integration: reading from or writing to a customer's repository, or storing anything of a customer in a Git repository. | ADR 0007. Outputs are downloaded. |
 
 ## 4. Open questions
 
@@ -185,7 +187,7 @@ The non-goals in `docs/00-vision.md` §8 also apply. In addition:
 - Q-01: The AI assistant (UC-016), the lineage graph (UC-035) and SSO (UC-042) are in v1.
 - Q-02: Three roles: Admin, Editor, Viewer, plus an Approver permission per project (§2.5).
 - Q-03: Review works at three levels: whole spec, target table, single column mapping (UC-021).
-- Q-04: Approvals are synced with Git as described in ADR 0003.
+- Q-04: No Git: approvals live in Atlas only (ADR 0007, which supersedes ADR 0003).
 - Q-05: An author cannot approve their own change, unless an Admin gives them the Self-approval permission.
 - Q-06: Yes, a customer Admin can suspend an account immediately (UC-046).
 - Q-07: No free tier in the SaaS (0 credits); prospects see a teaser on the website and a demonstration. No self
@@ -194,8 +196,8 @@ The non-goals in `docs/00-vision.md` §8 also apply. In addition:
 - Q-09: The deletion request is linked to the account on the customer side; the operator only sees a number of
   licenses to validate (UC-052).
 - Q-10: Support is built into Atlas: for now, simple messages and replies (UC-047, UC-055).
-- Q-11: GitHub and GitLab in v1; their APIs cost Atlas nothing (ADR 0003).
-- Q-12: Yes, a project can work without a connected Git repository (ADR 0003 §3.6).
+- Q-11: Superseded: no Git provider is integrated (ADR 0007).
+- Q-12: Superseded: no project is ever connected to a Git repository (ADR 0007).
 
 ### 4.2 Open
 None at this stage.
