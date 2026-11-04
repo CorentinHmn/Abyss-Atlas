@@ -1,6 +1,6 @@
 # 02 — Metamodel
 
-Status: Draft
+Status: Validated
 Last updated: 2026-11-04
 
 This document is the **authoritative definition of the concepts** of Atlas (`CLAUDE.md`, rule 5). Any change of
