@@ -1,0 +1,14 @@
+atlas: 1
+kind: rule
+id: qualified_key
+name: Group-wide key qualified by its source system
+domain: GOV
+statement: >
+  A key that is only unique within one ERP is made unique for the group by prefixing it with the code of its
+  system, for example SAP_FR:0000100042.
+parameters:
+  system_code: string(10)
+  local_key: string(40)
+returns: string(52)
+logic:
+  - concat: { parts: [{ param: system_code }, { value: ":" }, { param: local_key }] }

@@ -1,0 +1,14 @@
+atlas: 1
+kind: dataset
+id: hz_cust_profile_amts
+system: oracle
+name: HZ_CUST_PROFILE_AMTS
+dataset_type: table
+description: "Credit profile amounts, one row per account and currency."
+primary_key: [CUST_ACCT_PROFILE_AMT_ID]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  CUST_ACCT_PROFILE_AMT_ID: { native_type: "NUMBER(15)", type: "bigint", nullable: false, description: "Profile amount identifier" }
+  CUST_ACCOUNT_ID:          { native_type: "NUMBER(15)", type: "bigint", nullable: false, description: "Customer account" }
+  CURRENCY_CODE:            { native_type: "VARCHAR2(15)", type: "string(15)", nullable: false, description: "Currency" }
+  OVERALL_CREDIT_LIMIT:     { native_type: "NUMBER", type: "decimal(38,10)", description: "Overall credit limit" }

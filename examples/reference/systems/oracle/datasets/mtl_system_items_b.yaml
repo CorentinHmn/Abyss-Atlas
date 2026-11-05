@@ -1,0 +1,18 @@
+atlas: 1
+kind: dataset
+id: mtl_system_items_b
+system: oracle
+name: MTL_SYSTEM_ITEMS_B
+dataset_type: table
+description: "Items, one row per item and inventory organization."
+primary_key: [INVENTORY_ITEM_ID, ORGANIZATION_ID]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  INVENTORY_ITEM_ID: { native_type: "NUMBER", type: "bigint", nullable: false, description: "Item identifier" }
+  ORGANIZATION_ID:   { native_type: "NUMBER", type: "bigint", nullable: false, description: "Inventory organization" }
+  SEGMENT1:          { native_type: "VARCHAR2(40)", type: "string(40)", description: "Item code" }
+  DESCRIPTION:       { native_type: "VARCHAR2(240)", type: "string(240)", description: "Item description" }
+  PRIMARY_UOM_CODE:  { native_type: "VARCHAR2(3)", type: "string(3)", description: "Primary unit of measure" }
+  ITEM_TYPE:         { native_type: "VARCHAR2(30)", type: "string(30)", description: "Item type (FG, SA, P…)" }
+  UNIT_WEIGHT:       { native_type: "NUMBER", type: "decimal(38,10)", description: "Unit weight" }
+  WEIGHT_UOM_CODE:   { native_type: "VARCHAR2(3)", type: "string(3)", description: "Weight unit" }

@@ -8,6 +8,7 @@ Source-to-target specifications for data platforms (provisional codename). Produ
 |---|---|
 | `apps/web` | SaaS application (Next.js), deployed on Vercel (region `fra1`) |
 | `packages/core` | Business core: metamodel, YAML format, validation, generators |
+| `examples/reference/` | Reference project: multi-ERP spec used as the acceptance test of every phase |
 | `supabase/` | Database migrations (SQL, source of truth) and RLS tests (pgTAP), see ADR 0008 |
 | `docs/` | Product specifications and architecture decisions (`docs/adr/`) |
 

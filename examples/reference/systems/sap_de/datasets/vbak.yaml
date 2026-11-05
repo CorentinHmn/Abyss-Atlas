@@ -1,0 +1,17 @@
+atlas: 1
+kind: dataset
+id: vbak
+system: sap_de
+name: VBAK
+dataset_type: table
+description: "Sales document, header."
+primary_key: [MANDT, VBELN]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  MANDT: { native_type: "CLNT(3)", type: "string(3)", nullable: false, description: "Client" }
+  VBELN: { native_type: "CHAR(10)", type: "string(10)", nullable: false, description: "Sales document" }
+  AUART: { native_type: "CHAR(4)", type: "string(4)", description: "Sales document type" }
+  ERDAT: { native_type: "DATS", type: "string(8)", description: "Created on (YYYYMMDD)" }
+  VKORG: { native_type: "CHAR(4)", type: "string(4)", description: "Sales organization" }
+  KUNNR: { native_type: "CHAR(10)", type: "string(10)", description: "Sold-to party" }
+  WAERK: { native_type: "CUKY(5)", type: "string(5)", description: "Document currency" }

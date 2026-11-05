@@ -1,0 +1,15 @@
+atlas: 1
+kind: dataset
+id: oe_order_headers_all
+system: oracle
+name: OE_ORDER_HEADERS_ALL
+dataset_type: table
+description: "Sales order headers."
+primary_key: [HEADER_ID]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  HEADER_ID:               { native_type: "NUMBER", type: "bigint", nullable: false, description: "Order header identifier" }
+  ORDER_NUMBER:            { native_type: "NUMBER", type: "bigint", nullable: false, description: "Order number" }
+  ORDERED_DATE:            { native_type: "DATE", type: "timestamp", description: "Ordered date" }
+  SOLD_TO_ORG_ID:          { native_type: "NUMBER", type: "bigint", description: "Customer account (CUST_ACCOUNT_ID)" }
+  TRANSACTIONAL_CURR_CODE: { native_type: "VARCHAR2(15)", type: "string(15)", description: "Order currency" }

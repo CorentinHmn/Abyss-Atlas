@@ -1,0 +1,16 @@
+atlas: 1
+kind: dataset
+id: afko
+system: sap_de
+name: AFKO
+dataset_type: table
+description: "Production order, header data."
+primary_key: [MANDT, AUFNR]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  MANDT: { native_type: "CLNT(3)", type: "string(3)", nullable: false, description: "Client" }
+  AUFNR: { native_type: "CHAR(12)", type: "string(12)", nullable: false, description: "Order number" }
+  GAMNG: { native_type: "QUAN(13,3)", type: "decimal(13,3)", description: "Total order quantity" }
+  GMEIN: { native_type: "UNIT(3)", type: "string(3)", description: "Unit of measure" }
+  GSTRP: { native_type: "DATS", type: "string(8)", description: "Basic start date (YYYYMMDD)" }
+  GLTRP: { native_type: "DATS", type: "string(8)", description: "Basic finish date (YYYYMMDD)" }

@@ -1,0 +1,11 @@
+atlas: 1
+kind: value_mapping
+id: rate_type_sap
+name: SAP exchange rate type to group rate type
+domain: GOV
+from_type: string(4)
+to_type: string(10)
+entries:
+  "M": "AVERAGE"
+  "EURX": "ECB"
+  "P": "PLANNING"

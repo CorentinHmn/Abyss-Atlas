@@ -1,0 +1,10 @@
+atlas: 1
+kind: system
+id: oracle
+name: Oracle EBS
+system_type: erp
+product: "Oracle E-Business Suite 12.2"
+description: "ERP of the acquired North-European entities."
+landing:
+  database: RAW
+  schema: ORACLE_EBS

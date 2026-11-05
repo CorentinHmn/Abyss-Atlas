@@ -1,0 +1,121 @@
+atlas: 1
+kind: model
+id: fact_exchange_rate
+name: Exchange rate
+domain: GOV
+description: >
+  One row per rate type, currency pair and validity start. SAP is the reference for the group; Oracle rates
+  only fill the gaps.
+grain:
+  description: One rate of one type for one currency pair, valid from a date.
+  key: [rate_type, from_currency, to_currency, valid_from]
+layer: mart
+materialization: table
+
+branches:
+  sap_fr:
+    label: SAP France (group treasury)
+    source_tag: SAP_FR
+    datasets:
+      - r: sap_fr.tcurr
+    filter: { left: r.KURST, op: in, values: ["M", "EURX", "P"] }
+  oracle:
+    label: Oracle EBS
+    source_tag: ORACLE
+    datasets:
+      - g: oracle.gl_daily_rates
+
+consolidation:
+  combine: union_all
+  add_source_column: source_system
+  match: [rate_type, from_currency, to_currency, valid_from]
+  survivorship:
+    priority: [sap_fr, oracle]
+
+columns:
+  rate_type:
+    definition: Group rate type (AVERAGE, ECB, PLANNING, SPOT).
+    type: string(10)
+    nullable: false
+    key: true
+    quality:
+      - { accepted_values: { values: ["AVERAGE", "ECB", "PLANNING", "SPOT", "OTHER"] } }
+    from:
+      sap_fr:
+        inputs: [r.KURST]
+        steps:
+          - map_values: { mapping: rate_type_sap, on_unmatched: fail }
+      oracle:
+        steps:
+          - case:
+              when:
+                - if: { left: g.CONVERSION_TYPE, op: eq, value: "Corporate" }
+                  then: { value: "AVERAGE" }
+                - if: { left: g.CONVERSION_TYPE, op: eq, value: "Spot" }
+                  then: { value: "SPOT" }
+              else: { value: "OTHER" }
+
+  from_currency:
+    definition: Currency converted from, ISO 4217.
+    type: string(3)
+    nullable: false
+    key: true
+    from:
+      sap_fr:
+        inputs: [r.FCURR]
+        steps:
+          - convert: { to: string(3), method: cast, on_error: fail }
+      oracle:
+        inputs: [g.FROM_CURRENCY]
+        steps:
+          - convert: { to: string(3), method: cast, on_error: fail }
+
+  to_currency:
+    definition: Currency converted to, ISO 4217.
+    type: string(3)
+    nullable: false
+    key: true
+    from:
+      sap_fr:
+        inputs: [r.TCURR]
+        steps:
+          - convert: { to: string(3), method: cast, on_error: fail }
+      oracle:
+        inputs: [g.TO_CURRENCY]
+        steps:
+          - convert: { to: string(3), method: cast, on_error: fail }
+
+  valid_from:
+    definition: First day the rate applies.
+    type: date
+    nullable: false
+    key: true
+    from:
+      sap_fr:
+        inputs: [r.GDATU]
+        steps:
+          - convert: { to: bigint, method: cast, on_error: fail }
+          - rule: { id: sap_inverted_date, args: { gdatu: current } }
+      oracle:
+        inputs: [g.CONVERSION_DATE]
+        steps:
+          - convert: { to: date, method: cast, on_error: fail }
+
+  exchange_rate:
+    definition: Units of the to-currency for one unit of the from-currency.
+    type: decimal(18,9)
+    nullable: false
+    quality: [not_null]
+    from:
+      sap_fr:
+        inputs: [r.UKURS, r.FFACT, r.TFACT]
+        steps:
+          - sql:
+              expression: "CASE WHEN r.UKURS < 0 THEN 1 / ABS(r.UKURS) ELSE r.UKURS END * r.TFACT / NULLIF(r.FFACT, 0)"
+              reason: >
+                SAP stores indirect quotations as negative rates, with ratio factors. A case cannot return a
+                calculation yet (operands are not expressions), so this conversion is written in SQL.
+      oracle:
+        inputs: [g.CONVERSION_RATE]
+        steps:
+          - convert: { to: "decimal(18,9)", method: cast, on_error: fail }

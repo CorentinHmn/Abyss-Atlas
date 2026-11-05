@@ -1,0 +1,7 @@
+atlas: 1
+kind: domain
+code: MFG
+name: Manufacture
+description: Materials, production orders, shop-floor execution.
+owner: manufacture.owner@example.com
+stewards: [manufacture.steward@example.com]

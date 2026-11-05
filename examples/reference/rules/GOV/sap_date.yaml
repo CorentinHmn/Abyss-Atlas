@@ -1,0 +1,12 @@
+atlas: 1
+kind: rule
+id: sap_date
+name: SAP date to calendar date
+domain: GOV
+statement: >
+  SAP stores dates as text YYYYMMDD. The initial value 00000000 and any invalid text mean "no date".
+parameters:
+  value: string(8)
+returns: date
+logic:
+  - convert: { to: date, method: parse, pattern: YYYYMMDD, on_error: set_null }

@@ -1,0 +1,15 @@
+atlas: 1
+kind: rule
+id: sap_inverted_date
+name: SAP inverted date to calendar date
+domain: GOV
+statement: >
+  Some SAP tables (e.g. exchange rates TCURR) store the validity date inverted, as 99999999 minus YYYYMMDD,
+  so that the most recent entry sorts first. 79739898 means 2026-01-01.
+parameters:
+  gdatu: bigint
+returns: date
+logic:
+  - calculate: { function: subtract, args: [{ value: "99999999" }, { param: gdatu }] }
+  - convert: { to: string(8), method: cast, on_error: fail }
+  - convert: { to: date, method: parse, pattern: YYYYMMDD, on_error: fail }

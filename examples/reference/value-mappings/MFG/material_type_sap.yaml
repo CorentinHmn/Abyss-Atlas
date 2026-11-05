@@ -1,0 +1,13 @@
+atlas: 1
+kind: value_mapping
+id: material_type_sap
+name: SAP material type to material category
+domain: MFG
+from_type: string(4)
+to_type: string(20)
+entries:
+  "FERT": "FINISHED"
+  "HALB": "SEMI_FINISHED"
+  "ROH": "RAW"
+  "VERP": "PACKAGING"
+default: "OTHER"

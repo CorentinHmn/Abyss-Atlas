@@ -1,0 +1,16 @@
+atlas: 1
+kind: dataset
+id: afpo
+system: sap_fr
+name: AFPO
+dataset_type: table
+description: "Production order, items."
+primary_key: [MANDT, AUFNR, POSNR]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  MANDT: { native_type: "CLNT(3)", type: "string(3)", nullable: false, description: "Client" }
+  AUFNR: { native_type: "CHAR(12)", type: "string(12)", nullable: false, description: "Order number" }
+  POSNR: { native_type: "NUMC(4)", type: "string(4)", nullable: false, description: "Order item (leading zeros)" }
+  MATNR: { native_type: "CHAR(40)", type: "string(40)", description: "Material number" }
+  PWERK: { native_type: "CHAR(4)", type: "string(4)", description: "Planning plant" }
+  PSMNG: { native_type: "QUAN(13,3)", type: "decimal(13,3)", description: "Order item quantity" }

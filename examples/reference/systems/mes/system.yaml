@@ -1,0 +1,10 @@
+atlas: 1
+kind: system
+id: mes
+name: MES
+system_type: mes
+product: "Manufacturing execution system (SQL Server)"
+description: "Shop-floor execution: work orders, good and scrap quantities."
+landing:
+  database: RAW
+  schema: MES

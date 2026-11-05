@@ -1,0 +1,188 @@
+atlas: 1
+kind: model
+id: dim_material
+name: Material
+domain: MFG
+description: >
+  One row per material of the group. Material codes are harmonized across ERPs (SAP MATNR = Oracle item code),
+  so the same material from several ERPs is merged on its code; SAP France is the reference.
+grain:
+  description: One material of the group.
+  key: [material_id]
+layer: mart
+materialization: table
+
+branches:
+  sap_fr:
+    label: SAP France
+    source_tag: SAP_FR
+    datasets:
+      - m: sap_fr.mara
+      - t: sap_fr.makt
+    joins:
+      - left: m
+        right: t
+        type: left
+        on:
+          all:
+            - { left: m.MATNR, op: eq, right: t.MATNR }
+            - { left: t.SPRAS, op: eq, value: "E" }
+        cardinality: one_to_one
+        description: English description of the material.
+    filter: { left: m.LVORM, op: is_null }
+
+  sap_de:
+    label: SAP Germany
+    source_tag: SAP_DE
+    datasets:
+      - m: sap_de.mara
+      - t: sap_de.makt
+    joins:
+      - left: m
+        right: t
+        type: left
+        on:
+          all:
+            - { left: m.MATNR, op: eq, right: t.MATNR }
+            - { left: t.SPRAS, op: eq, value: "E" }
+        cardinality: one_to_one
+        description: English description of the material.
+    filter: { left: m.LVORM, op: is_null }
+
+  oracle:
+    label: Oracle EBS
+    source_tag: ORACLE
+    datasets:
+      - i: oracle.mtl_system_items_b
+      - ic: oracle.mtl_item_categories
+      - c: oracle.mtl_categories_b
+    joins:
+      - left: i
+        right: ic
+        type: inner
+        on: { i.INVENTORY_ITEM_ID: ic.INVENTORY_ITEM_ID }
+        cardinality: many_to_many
+        confirmed: true
+        description: >
+          Items exist once per inventory organization and are assigned to categories once per category set.
+          The filter on the inventory category set and the deduplication on the item code bring it back to one
+          row per item.
+      - left: ic
+        right: c
+        type: inner
+        on: { ic.CATEGORY_ID: c.CATEGORY_ID }
+        cardinality: many_to_one
+        description: The category of the assignment.
+    filter: { left: ic.CATEGORY_SET_ID, op: eq, value: "1" }
+    deduplicate:
+      key: [i.SEGMENT1]
+      order_by: [{ column: i.ORGANIZATION_ID, direction: asc }]
+      keep: first
+
+consolidation:
+  combine: union_all
+  add_source_column: source_system
+  match: [material_id]
+  survivorship:
+    priority: [sap_fr, sap_de, oracle]
+
+columns:
+  material_id:
+    definition: Group material code.
+    type: string(40)
+    nullable: false
+    key: true
+    from:
+      sap_fr: m.MATNR
+      sap_de: m.MATNR
+      oracle: i.SEGMENT1
+
+  material_name:
+    definition: English name of the material.
+    type: string(240)
+    nullable: false
+    from:
+      sap_fr:
+        inputs: [t.MAKTX]
+        steps:
+          - default: { value: "No English description", also_empty: true }
+      sap_de:
+        inputs: [t.MAKTX]
+        steps:
+          - default: { value: "No English description", also_empty: true }
+      oracle:
+        inputs: [i.DESCRIPTION]
+        steps:
+          - default: { value: "No English description", also_empty: true }
+
+  material_category:
+    definition: FINISHED, SEMI_FINISHED, RAW, PACKAGING or OTHER.
+    type: string(20)
+    nullable: false
+    quality:
+      - { accepted_values: { values: ["FINISHED", "SEMI_FINISHED", "RAW", "PACKAGING", "OTHER"] } }
+    from:
+      sap_fr:
+        inputs: [m.MTART]
+        steps:
+          - map_values: { mapping: material_type_sap, on_unmatched: use_default }
+      sap_de:
+        inputs: [m.MTART]
+        steps:
+          - map_values: { mapping: material_type_sap, on_unmatched: use_default }
+      oracle:
+        steps:
+          - case:
+              when:
+                - if: { left: i.ITEM_TYPE, op: eq, value: "FG" }
+                  then: { value: "FINISHED" }
+                - if: { left: i.ITEM_TYPE, op: eq, value: "SA" }
+                  then: { value: "SEMI_FINISHED" }
+                - if: { left: i.ITEM_TYPE, op: in, values: ["P", "PH"] }
+                  then: { value: "RAW" }
+              else: { value: "OTHER" }
+
+  material_group:
+    definition: Material group (SAP) or inventory category (Oracle).
+    type: string(40)
+    nullable: true
+    from:
+      sap_fr: m.MATKL
+      sap_de: m.MATKL
+      oracle: c.SEGMENT1
+
+  base_unit:
+    definition: Base unit of measure.
+    type: string(3)
+    nullable: false
+    from:
+      sap_fr: m.MEINS
+      sap_de: m.MEINS
+      oracle: i.PRIMARY_UOM_CODE
+
+  gross_weight_kg:
+    definition: Gross weight of one base unit, in kilograms.
+    type: decimal(15,3)
+    nullable: true
+    from:
+      sap_fr:
+        inputs: [m.GEWEI]
+        steps:
+          - map_values: { mapping: weight_unit_to_kg_factor, on_unmatched: set_null }
+          - calculate: { function: multiply, args: [current, m.BRGEW] }
+          - calculate: { function: round, args: [current, { value: "3" }] }
+          - convert: { to: "decimal(15,3)", method: cast, on_error: fail }
+      sap_de:
+        inputs: [m.GEWEI]
+        steps:
+          - map_values: { mapping: weight_unit_to_kg_factor, on_unmatched: set_null }
+          - calculate: { function: multiply, args: [current, m.BRGEW] }
+          - calculate: { function: round, args: [current, { value: "3" }] }
+          - convert: { to: "decimal(15,3)", method: cast, on_error: fail }
+      oracle:
+        inputs: [i.WEIGHT_UOM_CODE]
+        steps:
+          - map_values: { mapping: weight_unit_to_kg_factor, on_unmatched: set_null }
+          - calculate: { function: multiply, args: [current, i.UNIT_WEIGHT] }
+          - calculate: { function: round, args: [current, { value: "3" }] }
+          - convert: { to: "decimal(15,3)", method: cast, on_error: fail }

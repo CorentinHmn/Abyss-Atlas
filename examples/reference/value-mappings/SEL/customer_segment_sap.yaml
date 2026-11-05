@@ -1,0 +1,12 @@
+atlas: 1
+kind: value_mapping
+id: customer_segment_sap
+name: SAP customer group to group segment
+domain: SEL
+from_type: string(2)
+to_type: string(20)
+entries:
+  "01": "KEY_ACCOUNT"
+  "02": "DISTRIBUTOR"
+  "03": "RETAIL"
+default: "OTHER"

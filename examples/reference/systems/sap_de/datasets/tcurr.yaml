@@ -1,0 +1,18 @@
+atlas: 1
+kind: dataset
+id: tcurr
+system: sap_de
+name: TCURR
+dataset_type: table
+description: "Exchange rates. GDATU is an inverted date (99999999 - YYYYMMDD)."
+primary_key: [MANDT, KURST, FCURR, TCURR, GDATU]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  MANDT: { native_type: "CLNT(3)", type: "string(3)", nullable: false, description: "Client" }
+  KURST: { native_type: "CHAR(4)", type: "string(4)", nullable: false, description: "Exchange rate type" }
+  FCURR: { native_type: "CUKY(5)", type: "string(5)", nullable: false, description: "From currency" }
+  TCURR: { native_type: "CUKY(5)", type: "string(5)", nullable: false, description: "To currency" }
+  GDATU: { native_type: "CHAR(8)", type: "string(8)", nullable: false, description: "Valid from, inverted date" }
+  UKURS: { native_type: "DEC(9,5)", type: "decimal(9,5)", description: "Exchange rate (negative: indirect quotation)" }
+  FFACT: { native_type: "DEC(9,0)", type: "decimal(9,0)", description: "Ratio for the from-currency units" }
+  TFACT: { native_type: "DEC(9,0)", type: "decimal(9,0)", description: "Ratio for the to-currency units" }

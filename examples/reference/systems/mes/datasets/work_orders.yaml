@@ -1,0 +1,19 @@
+atlas: 1
+kind: dataset
+id: work_orders
+system: mes
+name: WORK_ORDERS
+dataset_type: table
+description: "Shop-floor work orders, several per ERP production order."
+primary_key: [WO_ID]
+metadata_origin: { method: manual, date: "2026-11-05" }
+columns:
+  WO_ID:         { native_type: "BIGINT", type: "bigint", nullable: false, description: "Work order identifier" }
+  ERP_ORDER_REF: { native_type: "NVARCHAR(12)", type: "string(12)", description: "SAP production order (AUFNR)" }
+  PLANT_CODE:    { native_type: "NVARCHAR(4)", type: "string(4)", description: "Plant" }
+  PRODUCT_CODE:  { native_type: "NVARCHAR(40)", type: "string(40)", description: "Material number" }
+  QTY_GOOD:      { native_type: "DECIMAL(13,3)", type: "decimal(13,3)", description: "Good quantity" }
+  QTY_SCRAP:     { native_type: "DECIMAL(13,3)", type: "decimal(13,3)", description: "Scrap quantity" }
+  START_TS:      { native_type: "DATETIME2", type: "timestamp", description: "Actual start" }
+  END_TS:        { native_type: "DATETIME2", type: "timestamp", description: "Actual end" }
+  STATUS:        { native_type: "NVARCHAR(10)", type: "string(10)", description: "RELEASED, RUNNING, COMPLETED, CLOSED" }

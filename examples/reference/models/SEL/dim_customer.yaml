@@ -1,0 +1,270 @@
+atlas: 1
+kind: model
+id: dim_customer
+name: Customer
+domain: SEL
+description: One row per customer of the group, across the three ERPs, the same company merged on its VAT number.
+grain:
+  description: One customer of the group.
+  key: [customer_id]
+layer: mart
+materialization: table
+
+branches:
+  sap_fr:
+    label: SAP France
+    source_tag: SAP_FR
+    datasets:
+      - c: sap_fr.kna1
+      - s: sap_fr.knvv
+    joins:
+      - left: c
+        right: s
+        type: left
+        on:
+          all:
+            - { left: c.KUNNR, op: eq, right: s.KUNNR }
+            - { left: s.VKORG, op: eq, value: "FR01" }
+            - { left: s.VTWEG, op: eq, value: "10" }
+            - { left: s.SPART, op: eq, value: "00" }
+        cardinality: one_to_one
+        description: Sales data of the customer in the main French sales area (FR01 / 10 / 00).
+    filter: { left: c.KTOKD, op: in, values: ["0001", "0002"] }
+
+  sap_de:
+    label: SAP Germany
+    source_tag: SAP_DE
+    datasets:
+      - c: sap_de.kna1
+      - s: sap_de.knvv
+    joins:
+      - left: c
+        right: s
+        type: left
+        on:
+          all:
+            - { left: c.KUNNR, op: eq, right: s.KUNNR }
+            - { left: s.VKORG, op: eq, value: "DE01" }
+        cardinality: one_to_many
+        description: >
+          Sales data of the customer in the German sales organization DE01, which has several distribution
+          channels and divisions per customer; the deduplication keeps the first channel.
+    filter: { left: c.KTOKD, op: in, values: ["0001", "0002"] }
+    deduplicate:
+      key: [c.KUNNR]
+      order_by: [{ column: s.VTWEG, direction: asc }, { column: s.SPART, direction: asc }]
+      keep: first
+
+  oracle:
+    label: Oracle EBS
+    source_tag: ORACLE
+    datasets:
+      - a: oracle.hz_cust_accounts
+      - p: oracle.hz_parties
+    joins:
+      - left: a
+        right: p
+        type: inner
+        on: { a.PARTY_ID: p.PARTY_ID }
+        cardinality: many_to_one
+        description: The party (company) behind the customer account.
+
+consolidation:
+  combine: union_all
+  add_source_column: source_system
+  match: [vat_number]
+  survivorship:
+    priority: [sap_fr, sap_de, oracle]
+    columns:
+      credit_limit: { strategy: first_not_null, priority: [oracle, sap_fr, sap_de] }
+
+columns:
+  customer_id:
+    definition: Group-wide customer identifier, qualified by its ERP (e.g. SAP_FR:0000100042).
+    type: string(52)
+    nullable: false
+    key: true
+    from:
+      sap_fr:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_FR" }, local_key: c.KUNNR } }
+      sap_de:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_DE" }, local_key: c.KUNNR } }
+      oracle:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "ORACLE" }, local_key: a.ACCOUNT_NUMBER } }
+
+  customer_number:
+    definition: Customer number in its ERP.
+    type: string(30)
+    nullable: false
+    from:
+      sap_fr: c.KUNNR
+      sap_de: c.KUNNR
+      oracle: a.ACCOUNT_NUMBER
+
+  customer_name:
+    definition: Legal name of the customer.
+    type: string(360)
+    nullable: false
+    classification: internal
+    from:
+      sap_fr:
+        steps:
+          - concat: { parts: [c.NAME1, c.NAME2], separator: " " }
+      sap_de:
+        steps:
+          - concat: { parts: [c.NAME1, c.NAME2], separator: " " }
+      oracle: p.PARTY_NAME
+
+  vat_number:
+    definition: VAT registration number; used to recognize the same company across ERPs.
+    type: string(20)
+    nullable: true
+    classification: confidential
+    from:
+      sap_fr: c.STCEG
+      sap_de: c.STCEG
+      oracle: p.JGZZ_FISCAL_CODE
+
+  country_code:
+    definition: Country of the customer's head office, ISO 3166-1 alpha-2.
+    type: string(2)
+    nullable: false
+    quality: [not_null]
+    from:
+      sap_fr:
+        inputs: [c.LAND1]
+        steps:
+          - convert: { to: string(2), method: cast, on_error: fail }
+      sap_de:
+        inputs: [c.LAND1]
+        steps:
+          - convert: { to: string(2), method: cast, on_error: fail }
+      oracle:
+        inputs: [p.COUNTRY]
+        steps:
+          - convert: { to: string(2), method: cast, on_error: fail }
+
+  city:
+    definition: City of the head office; "Unknown" when the ERP has none.
+    type: string(60)
+    nullable: false
+    from:
+      sap_fr:
+        inputs: [c.ORT01]
+        steps:
+          - default: { value: "Unknown", also_empty: true }
+      sap_de:
+        inputs: [c.ORT01]
+        steps:
+          - default: { value: "Unknown", also_empty: true }
+      oracle:
+        inputs: [p.CITY]
+        steps:
+          - default: { value: "Unknown", also_empty: true }
+
+  postal_code:
+    definition: Postal code of the head office.
+    type: string(60)
+    nullable: true
+    from:
+      sap_fr: c.PSTLZ
+      sap_de: c.PSTLZ
+      oracle: p.POSTAL_CODE
+
+  customer_segment:
+    definition: Group customer segment (KEY_ACCOUNT, DISTRIBUTOR, RETAIL, OTHER).
+    type: string(20)
+    nullable: false
+    quality:
+      - { accepted_values: { values: ["KEY_ACCOUNT", "DISTRIBUTOR", "RETAIL", "OTHER"] } }
+    from:
+      sap_fr:
+        inputs: [s.KDGRP]
+        steps:
+          - map_values: { mapping: customer_segment_sap, on_unmatched: use_default }
+      sap_de:
+        inputs: [s.KDGRP]
+        steps:
+          - map_values: { mapping: customer_segment_sap, on_unmatched: use_default }
+      oracle:
+        inputs: [a.CUSTOMER_CLASS_CODE]
+        steps:
+          - map_values: { mapping: customer_segment_oracle, on_unmatched: use_default }
+
+  customer_status:
+    definition: ACTIVE, BLOCKED or DELETED.
+    type: string(10)
+    nullable: false
+    quality:
+      - { accepted_values: { values: ["ACTIVE", "BLOCKED", "DELETED"] } }
+    from:
+      sap_fr:
+        steps:
+          - rule: { id: customer_status_from_flags, args: { blocked_flag: c.AUFSD, deletion_flag: c.LOEVM } }
+      sap_de:
+        steps:
+          - rule: { id: customer_status_from_flags, args: { blocked_flag: c.AUFSD, deletion_flag: c.LOEVM } }
+      oracle:
+        steps:
+          - case:
+              when:
+                - if: { left: a.STATUS, op: eq, value: "I" }
+                  then: { value: "BLOCKED" }
+              else: { value: "ACTIVE" }
+
+  sales_currency:
+    definition: Default currency of sales to the customer, ISO 4217.
+    type: string(3)
+    nullable: true
+    from:
+      sap_fr:
+        inputs: [s.WAERS]
+        steps:
+          - convert: { to: string(3), method: cast, on_error: fail }
+      sap_de:
+        inputs: [s.WAERS]
+        steps:
+          - convert: { to: string(3), method: cast, on_error: fail }
+      oracle: { not_provided: "Oracle accounts have no default sales currency; it is set on each order." }
+
+  credit_limit:
+    definition: Credit limit granted to the customer, in EUR.
+    type: decimal(15,2)
+    nullable: true
+    classification: confidential
+    from:
+      sap_fr: { not_provided: "Held in the SAP credit management module, out of scope of phase 1." }
+      sap_de: { not_provided: "Held in the SAP credit management module, out of scope of phase 1." }
+      oracle:
+        steps:
+          - lookup:
+              dataset: oracle.hz_cust_profile_amts
+              alias: k
+              match:
+                all:
+                  - { left: k.CUST_ACCOUNT_ID, op: eq, right: a.CUST_ACCOUNT_ID }
+                  - { left: k.CURRENCY_CODE, op: eq, value: "EUR" }
+              return: k.OVERALL_CREDIT_LIMIT
+              on_missing: set_null
+          - convert: { to: "decimal(15,2)", method: cast, on_error: fail }
+
+  created_on:
+    definition: Date the customer was created in its ERP.
+    type: date
+    nullable: true
+    from:
+      sap_fr:
+        inputs: [c.ERDAT]
+        steps:
+          - rule: { id: sap_date, args: { value: current } }
+      sap_de:
+        inputs: [c.ERDAT]
+        steps:
+          - rule: { id: sap_date, args: { value: current } }
+      oracle:
+        inputs: [a.CREATION_DATE]
+        steps:
+          - convert: { to: date, method: cast, on_error: fail }

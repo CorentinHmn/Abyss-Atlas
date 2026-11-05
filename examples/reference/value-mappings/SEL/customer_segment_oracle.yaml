@@ -1,0 +1,12 @@
+atlas: 1
+kind: value_mapping
+id: customer_segment_oracle
+name: Oracle customer class to group segment
+domain: SEL
+from_type: string(30)
+to_type: string(20)
+entries:
+  "KEY ACCOUNT": "KEY_ACCOUNT"
+  "DISTRIBUTOR": "DISTRIBUTOR"
+  "RETAIL": "RETAIL"
+default: "OTHER"

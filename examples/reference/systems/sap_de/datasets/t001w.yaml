@@ -1,0 +1,16 @@
+atlas: 1
+kind: dataset
+id: t001w
+system: sap_de
+name: T001W
+dataset_type: table
+description: "Plants."
+primary_key: [MANDT, WERKS]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  MANDT: { native_type: "CLNT(3)", type: "string(3)", nullable: false, description: "Client" }
+  WERKS: { native_type: "CHAR(4)", type: "string(4)", nullable: false, description: "Plant" }
+  NAME1: { native_type: "CHAR(30)", type: "string(30)", description: "Plant name" }
+  LAND1: { native_type: "CHAR(3)", type: "string(3)", description: "Country key" }
+  ORT01: { native_type: "CHAR(25)", type: "string(25)", description: "City" }
+  REGIO: { native_type: "CHAR(3)", type: "string(3)", description: "Region" }

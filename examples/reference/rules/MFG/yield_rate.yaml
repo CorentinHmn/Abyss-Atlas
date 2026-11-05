@@ -1,0 +1,17 @@
+atlas: 1
+kind: rule
+id: yield_rate
+name: Production yield
+domain: MFG
+statement: >
+  Share of good quantity in the total quantity produced (good + scrap), rounded to 4 decimals.
+  Empty when nothing was produced.
+parameters:
+  good: decimal(38,3)
+  scrap: decimal(38,3)
+returns: decimal(7,4)
+logic:
+  - calculate: { function: add, args: [{ param: good }, { param: scrap }] }
+  - calculate: { function: nullif, args: [current, { value: "0" }] }
+  - calculate: { function: divide, args: [{ param: good }, current] }
+  - calculate: { function: round, args: [current, { value: "4" }] }

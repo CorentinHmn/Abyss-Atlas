@@ -1,0 +1,7 @@
+atlas: 1
+kind: domain
+code: GOV
+name: Govern
+description: Shared reference data (plants, keys, calendars) and finance (exchange rates).
+owner: govern.owner@example.com
+stewards: [govern.steward@example.com, data.office@example.com]

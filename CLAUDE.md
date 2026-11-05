@@ -45,6 +45,7 @@ apps/worker/         co-editing server and background jobs
 packages/core/       business core (metamodel, validation, generators)
 packages/cli/        command line
 supabase/            database migrations (SQL) and RLS tests (pgTAP)
+examples/reference/  reference project (acceptance test of every phase, docs/07-roadmap.md §2)
 docs/                product specifications (functional source of truth)
 docs/adr/            architecture decisions (one decision = one dated file)
 ```

@@ -1,0 +1,22 @@
+atlas: 1
+kind: dataset
+id: kna1
+system: sap_de
+name: KNA1
+dataset_type: table
+description: "Customer master, general data."
+primary_key: [MANDT, KUNNR]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  MANDT: { native_type: "CLNT(3)", type: "string(3)", nullable: false, description: "Client" }
+  KUNNR: { native_type: "CHAR(10)", type: "string(10)", nullable: false, description: "Customer number" }
+  NAME1: { native_type: "CHAR(35)", type: "string(35)", description: "Name 1" }
+  NAME2: { native_type: "CHAR(35)", type: "string(35)", description: "Name 2" }
+  LAND1: { native_type: "CHAR(3)", type: "string(3)", description: "Country key" }
+  ORT01: { native_type: "CHAR(35)", type: "string(35)", description: "City" }
+  PSTLZ: { native_type: "CHAR(10)", type: "string(10)", description: "Postal code" }
+  STCEG: { native_type: "CHAR(20)", type: "string(20)", description: "VAT registration number" }
+  KTOKD: { native_type: "CHAR(4)", type: "string(4)", description: "Customer account group" }
+  AUFSD: { native_type: "CHAR(2)", type: "string(2)", description: "Central order block" }
+  LOEVM: { native_type: "CHAR(1)", type: "string(1)", description: "Central deletion flag" }
+  ERDAT: { native_type: "DATS", type: "string(8)", description: "Created on (YYYYMMDD)" }

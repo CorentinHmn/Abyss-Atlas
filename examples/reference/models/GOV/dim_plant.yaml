@@ -1,0 +1,92 @@
+atlas: 1
+kind: model
+id: dim_plant
+name: Plant
+domain: GOV
+description: One row per plant of the group, shared reference data for sales and manufacture.
+grain:
+  description: One plant of the group.
+  key: [plant_id]
+layer: mart
+materialization: table
+
+branches:
+  sap_fr:
+    label: SAP France
+    source_tag: SAP_FR
+    datasets:
+      - t: sap_fr.t001w
+  sap_de:
+    label: SAP Germany
+    source_tag: SAP_DE
+    datasets:
+      - t: sap_de.t001w
+
+consolidation:
+  combine: union_all
+  add_source_column: source_system
+
+columns:
+  plant_id:
+    definition: Group-wide plant identifier, qualified by its ERP (e.g. SAP_FR:FR10).
+    type: string(52)
+    nullable: false
+    key: true
+    from:
+      sap_fr:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_FR" }, local_key: t.WERKS } }
+      sap_de:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_DE" }, local_key: t.WERKS } }
+
+  plant_code:
+    definition: Plant code in its ERP.
+    type: string(4)
+    nullable: false
+    from:
+      "*": t.WERKS
+
+  plant_name:
+    definition: Name of the plant.
+    type: string(30)
+    nullable: true
+    from:
+      "*": t.NAME1
+
+  country_code:
+    definition: Country of the plant, ISO 3166-1 alpha-2.
+    type: string(2)
+    nullable: false
+    quality: [not_null]
+    from:
+      "*":
+        inputs: [t.LAND1]
+        steps:
+          - convert: { to: string(2), method: cast, on_error: fail }
+
+  city:
+    definition: City of the plant; "Unknown" when the ERP has none.
+    type: string(25)
+    nullable: false
+    from:
+      "*":
+        inputs: [t.ORT01]
+        steps:
+          - default: { value: "Unknown", also_empty: true }
+
+  region_code:
+    definition: Region (state, province) code of the plant, as in the ERP.
+    type: string(3)
+    nullable: true
+    from:
+      "*": t.REGIO
+
+  erp_product:
+    definition: ERP product the plant is managed in.
+    type: string(20)
+    nullable: false
+    from:
+      "*":
+        steps:
+          - constant: { value: "SAP S/4HANA" }

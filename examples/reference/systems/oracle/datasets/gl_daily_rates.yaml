@@ -1,0 +1,15 @@
+atlas: 1
+kind: dataset
+id: gl_daily_rates
+system: oracle
+name: GL_DAILY_RATES
+dataset_type: table
+description: "Daily exchange rates."
+primary_key: [FROM_CURRENCY, TO_CURRENCY, CONVERSION_DATE, CONVERSION_TYPE]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  FROM_CURRENCY:   { native_type: "VARCHAR2(15)", type: "string(15)", nullable: false, description: "From currency" }
+  TO_CURRENCY:     { native_type: "VARCHAR2(15)", type: "string(15)", nullable: false, description: "To currency" }
+  CONVERSION_DATE: { native_type: "DATE", type: "timestamp", nullable: false, description: "Conversion date" }
+  CONVERSION_TYPE: { native_type: "VARCHAR2(30)", type: "string(30)", nullable: false, description: "Rate type (Corporate, Spot…)" }
+  CONVERSION_RATE: { native_type: "NUMBER", type: "decimal(38,10)", nullable: false, description: "Rate" }

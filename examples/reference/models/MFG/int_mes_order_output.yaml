@@ -1,0 +1,83 @@
+atlas: 1
+kind: model
+id: int_mes_order_output
+name: MES output per production order
+domain: MFG
+description: >
+  Intermediate model: what the shop floor reported for each SAP production order, summed over its MES work
+  orders. Read by fact_production_order (chain).
+grain:
+  description: One SAP production order reported by the MES.
+  key: [erp_order_ref]
+layer: intermediate
+materialization: view
+
+branches:
+  mes:
+    label: MES
+    source_tag: MES
+    datasets:
+      - w: mes.work_orders
+    filter: { left: w.STATUS, op: in, values: ["COMPLETED", "CLOSED"] }
+    group_by: [w.ERP_ORDER_REF]
+
+columns:
+  erp_order_ref:
+    definition: SAP production order number the work orders belong to.
+    type: string(12)
+    nullable: false
+    key: true
+    from:
+      mes: w.ERP_ORDER_REF
+
+  good_qty:
+    definition: Total good quantity reported.
+    type: decimal(38,3)
+    nullable: false
+    from:
+      mes:
+        inputs: [w.QTY_GOOD]
+        steps:
+          - default: { value: "0" }
+          - aggregate: sum
+
+  scrap_qty:
+    definition: Total scrap quantity reported.
+    type: decimal(38,3)
+    nullable: false
+    from:
+      mes:
+        inputs: [w.QTY_SCRAP]
+        steps:
+          - default: { value: "0" }
+          - aggregate: sum
+
+  work_order_count:
+    definition: Number of completed or closed work orders.
+    type: bigint
+    nullable: false
+    from:
+      mes:
+        inputs: [w.WO_ID]
+        steps:
+          - aggregate: count
+
+  actual_start:
+    definition: Earliest actual start of the work orders.
+    type: timestamp
+    nullable: true
+    from:
+      mes:
+        inputs: [w.START_TS]
+        steps:
+          - aggregate: min
+
+  actual_end:
+    definition: Latest actual end of the work orders.
+    type: timestamp
+    nullable: true
+    from:
+      mes:
+        inputs: [w.END_TS]
+        steps:
+          - aggregate: max

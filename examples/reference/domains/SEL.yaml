@@ -1,0 +1,7 @@
+atlas: 1
+kind: domain
+code: SEL
+name: Sales
+description: Customers, sales orders, invoicing.
+owner: sales.owner@example.com
+stewards: [sales.steward1@example.com, sales.steward2@example.com]

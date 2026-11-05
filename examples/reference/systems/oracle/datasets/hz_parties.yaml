@@ -1,0 +1,16 @@
+atlas: 1
+kind: dataset
+id: hz_parties
+system: oracle
+name: HZ_PARTIES
+dataset_type: table
+description: "TCA parties (organizations)."
+primary_key: [PARTY_ID]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  PARTY_ID:         { native_type: "NUMBER(15)", type: "bigint", nullable: false, description: "Party identifier" }
+  PARTY_NAME:       { native_type: "VARCHAR2(360)", type: "string(360)", nullable: false, description: "Party name" }
+  COUNTRY:          { native_type: "VARCHAR2(60)", type: "string(60)", description: "Country code" }
+  CITY:             { native_type: "VARCHAR2(60)", type: "string(60)", description: "City" }
+  POSTAL_CODE:      { native_type: "VARCHAR2(60)", type: "string(60)", description: "Postal code" }
+  JGZZ_FISCAL_CODE: { native_type: "VARCHAR2(20)", type: "string(20)", description: "Taxpayer identifier" }

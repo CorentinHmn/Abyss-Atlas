@@ -1,0 +1,18 @@
+atlas: 1
+kind: dataset
+id: mara
+system: sap_de
+name: MARA
+dataset_type: table
+description: "Material master, general data."
+primary_key: [MANDT, MATNR]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  MANDT: { native_type: "CLNT(3)", type: "string(3)", nullable: false, description: "Client" }
+  MATNR: { native_type: "CHAR(40)", type: "string(40)", nullable: false, description: "Material number" }
+  MTART: { native_type: "CHAR(4)", type: "string(4)", description: "Material type" }
+  MATKL: { native_type: "CHAR(9)", type: "string(9)", description: "Material group" }
+  MEINS: { native_type: "UNIT(3)", type: "string(3)", description: "Base unit of measure" }
+  BRGEW: { native_type: "QUAN(13,3)", type: "decimal(13,3)", description: "Gross weight" }
+  GEWEI: { native_type: "UNIT(3)", type: "string(3)", description: "Weight unit" }
+  LVORM: { native_type: "CHAR(1)", type: "string(1)", description: "Flagged for deletion" }

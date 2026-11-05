@@ -1,0 +1,17 @@
+atlas: 1
+kind: dataset
+id: knvv
+system: sap_fr
+name: KNVV
+dataset_type: table
+description: "Customer master, sales area data."
+primary_key: [MANDT, KUNNR, VKORG, VTWEG, SPART]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  MANDT: { native_type: "CLNT(3)", type: "string(3)", nullable: false, description: "Client" }
+  KUNNR: { native_type: "CHAR(10)", type: "string(10)", nullable: false, description: "Customer number" }
+  VKORG: { native_type: "CHAR(4)", type: "string(4)", nullable: false, description: "Sales organization" }
+  VTWEG: { native_type: "CHAR(2)", type: "string(2)", nullable: false, description: "Distribution channel" }
+  SPART: { native_type: "CHAR(2)", type: "string(2)", nullable: false, description: "Division" }
+  KDGRP: { native_type: "CHAR(2)", type: "string(2)", description: "Customer group" }
+  WAERS: { native_type: "CUKY(5)", type: "string(5)", description: "Currency" }

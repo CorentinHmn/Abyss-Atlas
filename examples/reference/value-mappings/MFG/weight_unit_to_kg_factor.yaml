@@ -1,0 +1,13 @@
+atlas: 1
+kind: value_mapping
+id: weight_unit_to_kg_factor
+name: Weight unit to kilogram factor
+domain: MFG
+from_type: string(3)
+to_type: decimal(12,8)
+entries:
+  "KG": "1"
+  "G": "0.001"
+  "GRM": "0.001"
+  "LB": "0.45359237"
+  "TO": "1000"

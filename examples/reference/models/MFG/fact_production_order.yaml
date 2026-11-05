@@ -1,0 +1,188 @@
+atlas: 1
+kind: model
+id: fact_production_order
+name: Production order
+domain: MFG
+description: >
+  One row per SAP production order, with planned figures from SAP and actual output reported by the MES.
+grain:
+  description: One production order.
+  key: [production_order_id]
+layer: mart
+materialization: table
+
+branches:
+  sap_fr:
+    label: SAP France
+    source_tag: SAP_FR
+    datasets:
+      - o: sap_fr.afko
+      - p: sap_fr.afpo
+      - x: int_mes_order_output
+    joins:
+      - left: o
+        right: p
+        type: inner
+        on:
+          all:
+            - { left: o.AUFNR, op: eq, right: p.AUFNR }
+            - { left: p.POSNR, op: eq, value: "0001" }
+        cardinality: one_to_one
+        description: First item of the order (the produced material).
+      - left: o
+        right: x
+        type: left
+        on: { o.AUFNR: x.erp_order_ref }
+        cardinality: one_to_one
+        description: Output reported by the MES, when any.
+
+  sap_de:
+    label: SAP Germany
+    source_tag: SAP_DE
+    datasets:
+      - o: sap_de.afko
+      - p: sap_de.afpo
+      - x: int_mes_order_output
+    joins:
+      - left: o
+        right: p
+        type: inner
+        on:
+          all:
+            - { left: o.AUFNR, op: eq, right: p.AUFNR }
+            - { left: p.POSNR, op: eq, value: "0001" }
+        cardinality: one_to_one
+        description: First item of the order (the produced material).
+      - left: o
+        right: x
+        type: left
+        on: { o.AUFNR: x.erp_order_ref }
+        cardinality: one_to_one
+        description: Output reported by the MES, when any.
+
+consolidation:
+  combine: union_all
+  add_source_column: source_system
+
+columns:
+  production_order_id:
+    definition: Group-wide production order identifier, qualified by its ERP.
+    type: string(52)
+    nullable: false
+    key: true
+    from:
+      sap_fr:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_FR" }, local_key: o.AUFNR } }
+      sap_de:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_DE" }, local_key: o.AUFNR } }
+
+  order_number:
+    definition: Production order number in SAP.
+    type: string(12)
+    nullable: false
+    from:
+      "*": o.AUFNR
+
+  plant_id:
+    definition: Producing plant (dim_plant).
+    type: string(52)
+    nullable: false
+    quality:
+      - { relationship: { to: dim_plant.plant_id } }
+    from:
+      sap_fr:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_FR" }, local_key: p.PWERK } }
+      sap_de:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_DE" }, local_key: p.PWERK } }
+
+  material_id:
+    definition: Material produced (dim_material).
+    type: string(40)
+    nullable: false
+    quality:
+      - { relationship: { to: dim_material.material_id, severity: warn } }
+    from:
+      "*": p.MATNR
+
+  planned_quantity:
+    definition: Quantity planned in SAP.
+    type: decimal(15,3)
+    nullable: false
+    from:
+      "*": o.GAMNG
+
+  unit_of_measure:
+    definition: Unit of the quantities.
+    type: string(3)
+    nullable: false
+    from:
+      "*": o.GMEIN
+
+  planned_start:
+    definition: Planned start date.
+    type: date
+    nullable: true
+    from:
+      "*":
+        inputs: [o.GSTRP]
+        steps:
+          - rule: { id: sap_date, args: { value: current } }
+
+  planned_finish:
+    definition: Planned finish date.
+    type: date
+    nullable: true
+    from:
+      "*":
+        inputs: [o.GLTRP]
+        steps:
+          - rule: { id: sap_date, args: { value: current } }
+
+  actual_start:
+    definition: Actual start on the shop floor (MES); empty when not started.
+    type: timestamp
+    nullable: true
+    from:
+      "*": x.actual_start
+
+  actual_end:
+    definition: Actual end on the shop floor (MES); empty when not finished.
+    type: timestamp
+    nullable: true
+    from:
+      "*": x.actual_end
+
+  good_quantity:
+    definition: Good quantity reported by the MES; 0 when nothing was reported.
+    type: decimal(15,3)
+    nullable: false
+    from:
+      "*":
+        inputs: [x.good_qty]
+        steps:
+          - default: { value: "0" }
+          - convert: { to: "decimal(15,3)", method: cast, on_error: fail }
+
+  scrap_quantity:
+    definition: Scrap quantity reported by the MES; 0 when nothing was reported.
+    type: decimal(15,3)
+    nullable: false
+    from:
+      "*":
+        inputs: [x.scrap_qty]
+        steps:
+          - default: { value: "0" }
+          - convert: { to: "decimal(15,3)", method: cast, on_error: fail }
+
+  yield_rate:
+    definition: Good quantity divided by good + scrap; empty when nothing was produced.
+    type: decimal(7,4)
+    nullable: true
+    from:
+      "*":
+        steps:
+          - rule: { id: yield_rate, args: { good: x.good_qty, scrap: x.scrap_qty } }

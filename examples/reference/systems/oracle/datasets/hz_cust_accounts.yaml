@@ -1,0 +1,16 @@
+atlas: 1
+kind: dataset
+id: hz_cust_accounts
+system: oracle
+name: HZ_CUST_ACCOUNTS
+dataset_type: table
+description: "Customer accounts."
+primary_key: [CUST_ACCOUNT_ID]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  CUST_ACCOUNT_ID:     { native_type: "NUMBER(15)", type: "bigint", nullable: false, description: "Customer account identifier" }
+  PARTY_ID:            { native_type: "NUMBER(15)", type: "bigint", nullable: false, description: "Party of the account" }
+  ACCOUNT_NUMBER:      { native_type: "VARCHAR2(30)", type: "string(30)", nullable: false, description: "Account number" }
+  STATUS:              { native_type: "VARCHAR2(1)", type: "string(1)", description: "A = active, I = inactive" }
+  CUSTOMER_CLASS_CODE: { native_type: "VARCHAR2(30)", type: "string(30)", description: "Customer class" }
+  CREATION_DATE:       { native_type: "DATE", type: "timestamp", description: "Created on" }

@@ -27,7 +27,7 @@ A realistic project, written in phase 0 and used as the acceptance test of every
 |---|---|
 | Systems | `sap_fr`, `sap_de` (SAP S/4HANA), `oracle` (Oracle EBS), `mes` (a manufacturing execution system). |
 | Domains | `SEL` Sales, `MFG` Manufacture, `GOV` Govern (shared reference data, finance). |
-| Target models | 6, about 85 columns: `dim_customer`, `fact_sales_order_line` (SEL); `dim_material`, `fact_production_order` (MFG); `dim_plant`, `fact_exchange_rate` (GOV). Location: `examples/reference/`. |
+| Target models | 7, 61 columns: `dim_customer`, `fact_sales_order_line` (SEL); `dim_material`, `int_mes_order_output` (intermediate, chained), `fact_production_order` (MFG); `dim_plant`, `fact_exchange_rate` (GOV). Location: `examples/reference/`. |
 | Coverage | Every step kind (`docs/02-metamodel.md` §5.2), joins of each cardinality (one confirmed many-to-many), union of branches with consolidation and survivorship, at least one business rule, one value mapping, one `not_provided`, one `sql` escape hatch. |
 | Outputs | dbt models for Snowflake that compile and run on a test Snowflake account with sample data; Markdown documentation. |
 

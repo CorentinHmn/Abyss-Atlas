@@ -1,0 +1,20 @@
+atlas: 1
+kind: rule
+id: customer_status_from_flags
+name: Customer status from blocking flags
+domain: SEL
+statement: >
+  A customer flagged for deletion is DELETED. Otherwise, a customer with a central order block is BLOCKED.
+  Otherwise the customer is ACTIVE.
+parameters:
+  blocked_flag: string(2)
+  deletion_flag: string(1)
+returns: string(10)
+logic:
+  - case:
+      when:
+        - if: { left: { param: deletion_flag }, op: eq, value: "X" }
+          then: { value: "DELETED" }
+        - if: { left: { param: blocked_flag }, op: is_not_null }
+          then: { value: "BLOCKED" }
+      else: { value: "ACTIVE" }

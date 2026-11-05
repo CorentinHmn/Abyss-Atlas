@@ -1,0 +1,14 @@
+atlas: 1
+kind: dataset
+id: makt
+system: sap_de
+name: MAKT
+dataset_type: table
+description: "Material descriptions, one per language."
+primary_key: [MANDT, MATNR, SPRAS]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  MANDT: { native_type: "CLNT(3)", type: "string(3)", nullable: false, description: "Client" }
+  MATNR: { native_type: "CHAR(40)", type: "string(40)", nullable: false, description: "Material number" }
+  SPRAS: { native_type: "LANG(1)", type: "string(1)", nullable: false, description: "Language key" }
+  MAKTX: { native_type: "CHAR(40)", type: "string(40)", description: "Material description" }

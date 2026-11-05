@@ -1,0 +1,273 @@
+atlas: 1
+kind: model
+id: fact_sales_order_line
+name: Sales order line
+domain: SEL
+description: One row per sales order line of the group, from the three ERPs, rejected or cancelled lines excluded.
+grain:
+  description: One line of one sales order.
+  key: [order_line_id]
+layer: mart
+materialization: table
+
+branches:
+  sap_fr:
+    label: SAP France
+    source_tag: SAP_FR
+    datasets:
+      - i: sap_fr.vbap
+      - h: sap_fr.vbak
+    joins:
+      - left: i
+        right: h
+        type: inner
+        on: { i.VBELN: h.VBELN }
+        cardinality: many_to_one
+        description: The order header of the line.
+    filter: { left: i.ABGRU, op: is_null }
+
+  sap_de:
+    label: SAP Germany
+    source_tag: SAP_DE
+    datasets:
+      - i: sap_de.vbap
+      - h: sap_de.vbak
+    joins:
+      - left: i
+        right: h
+        type: inner
+        on: { i.VBELN: h.VBELN }
+        cardinality: many_to_one
+        description: The order header of the line.
+    filter: { left: i.ABGRU, op: is_null }
+
+  oracle:
+    label: Oracle EBS
+    source_tag: ORACLE
+    datasets:
+      - l: oracle.oe_order_lines_all
+      - h: oracle.oe_order_headers_all
+    joins:
+      - left: l
+        right: h
+        type: inner
+        on: { l.HEADER_ID: h.HEADER_ID }
+        cardinality: many_to_one
+        description: The order header of the line.
+    filter:
+      any:
+        - { left: l.CANCELLED_FLAG, op: is_null }
+        - { left: l.CANCELLED_FLAG, op: ne, value: "Y" }
+
+consolidation:
+  combine: union_all
+  add_source_column: source_system
+
+columns:
+  order_line_id:
+    definition: Group-wide order line identifier, qualified by its ERP (e.g. SAP_FR:0000123456/000010).
+    type: string(52)
+    nullable: false
+    key: true
+    from:
+      sap_fr:
+        steps:
+          - concat: { parts: [i.VBELN, { value: "/" }, i.POSNR] }
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_FR" }, local_key: current } }
+      sap_de:
+        steps:
+          - concat: { parts: [i.VBELN, { value: "/" }, i.POSNR] }
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_DE" }, local_key: current } }
+      oracle:
+        inputs: [l.LINE_ID]
+        steps:
+          - convert: { to: string(40), method: cast, on_error: fail }
+          - rule: { id: qualified_key, args: { system_code: { value: "ORACLE" }, local_key: current } }
+
+  order_number:
+    definition: Sales order number in its ERP.
+    type: string(30)
+    nullable: false
+    from:
+      sap_fr: h.VBELN
+      sap_de: h.VBELN
+      oracle:
+        inputs: [h.ORDER_NUMBER]
+        steps:
+          - convert: { to: string(30), method: cast, on_error: fail }
+
+  line_number:
+    definition: Line number within the order.
+    type: integer
+    nullable: false
+    from:
+      sap_fr:
+        inputs: [i.POSNR]
+        steps:
+          - convert: { to: integer, method: cast, on_error: fail }
+      sap_de:
+        inputs: [i.POSNR]
+        steps:
+          - convert: { to: integer, method: cast, on_error: fail }
+      oracle:
+        inputs: [l.LINE_NUMBER]
+        steps:
+          - convert: { to: integer, method: cast, on_error: fail }
+
+  order_date:
+    definition: Date the order was taken.
+    type: date
+    nullable: false
+    from:
+      sap_fr:
+        inputs: [h.ERDAT]
+        steps:
+          - rule: { id: sap_date, args: { value: current } }
+      sap_de:
+        inputs: [h.ERDAT]
+        steps:
+          - rule: { id: sap_date, args: { value: current } }
+      oracle:
+        inputs: [h.ORDERED_DATE]
+        steps:
+          - convert: { to: date, method: cast, on_error: fail }
+
+  fiscal_period:
+    definition: Fiscal period of the order date; the group fiscal year starts on 1 October (e.g. 2027-P01).
+    type: string(8)
+    nullable: false
+    from:
+      sap_fr:
+        inputs: [h.ERDAT]
+        steps:
+          - rule: { id: sap_date, args: { value: current } }
+          - sql:
+              expression: "TO_CHAR(DATEADD(month, 3, {{ current }}), 'YYYY') || '-P' || TO_CHAR(DATEADD(month, 3, {{ current }}), 'MM')"
+              reason: The group fiscal calendar (year starting on 1 October) is not in the function catalog yet.
+      sap_de:
+        inputs: [h.ERDAT]
+        steps:
+          - rule: { id: sap_date, args: { value: current } }
+          - sql:
+              expression: "TO_CHAR(DATEADD(month, 3, {{ current }}), 'YYYY') || '-P' || TO_CHAR(DATEADD(month, 3, {{ current }}), 'MM')"
+              reason: The group fiscal calendar (year starting on 1 October) is not in the function catalog yet.
+      oracle:
+        inputs: [h.ORDERED_DATE]
+        steps:
+          - convert: { to: date, method: cast, on_error: fail }
+          - sql:
+              expression: "TO_CHAR(DATEADD(month, 3, {{ current }}), 'YYYY') || '-P' || TO_CHAR(DATEADD(month, 3, {{ current }}), 'MM')"
+              reason: The group fiscal calendar (year starting on 1 October) is not in the function catalog yet.
+
+  customer_id:
+    definition: Customer who placed the order (dim_customer).
+    type: string(52)
+    nullable: false
+    quality:
+      - { relationship: { to: dim_customer.customer_id, severity: warn } }
+    from:
+      sap_fr:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_FR" }, local_key: h.KUNNR } }
+      sap_de:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_DE" }, local_key: h.KUNNR } }
+      oracle:
+        inputs: [h.SOLD_TO_ORG_ID]
+        steps:
+          - lookup:
+              dataset: oracle.hz_cust_accounts
+              alias: x
+              match: { x.CUST_ACCOUNT_ID: h.SOLD_TO_ORG_ID }
+              return: x.ACCOUNT_NUMBER
+              on_missing: fail
+          - rule: { id: qualified_key, args: { system_code: { value: "ORACLE" }, local_key: current } }
+
+  material_id:
+    definition: Material ordered (dim_material).
+    type: string(40)
+    nullable: false
+    quality:
+      - { relationship: { to: dim_material.material_id, severity: warn } }
+    from:
+      sap_fr: i.MATNR
+      sap_de: i.MATNR
+      oracle:
+        steps:
+          - lookup:
+              dataset: oracle.mtl_system_items_b
+              alias: m
+              match:
+                all:
+                  - { left: m.INVENTORY_ITEM_ID, op: eq, right: l.INVENTORY_ITEM_ID }
+                  - { left: m.ORGANIZATION_ID, op: eq, right: l.SHIP_FROM_ORG_ID }
+              return: m.SEGMENT1
+              on_missing: fail
+
+  plant_id:
+    definition: Plant that delivers the line (dim_plant).
+    type: string(52)
+    nullable: true
+    quality:
+      - { relationship: { to: dim_plant.plant_id, severity: warn } }
+    from:
+      sap_fr:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_FR" }, local_key: i.WERKS } }
+      sap_de:
+        steps:
+          - rule: { id: qualified_key, args: { system_code: { value: "SAP_DE" }, local_key: i.WERKS } }
+      oracle: { not_provided: "Oracle inventory organizations are not in the plant reference yet (dim_plant covers SAP plants)." }
+
+  quantity:
+    definition: Ordered quantity, in the sales unit.
+    type: decimal(15,3)
+    nullable: false
+    from:
+      sap_fr: i.KWMENG
+      sap_de: i.KWMENG
+      oracle:
+        inputs: [l.ORDERED_QUANTITY]
+        steps:
+          - convert: { to: "decimal(15,3)", method: cast, on_error: fail }
+
+  unit_of_measure:
+    definition: Sales unit of the quantity.
+    type: string(3)
+    nullable: false
+    from:
+      sap_fr: i.VRKME
+      sap_de: i.VRKME
+      oracle: l.ORDER_QUANTITY_UOM
+
+  net_amount:
+    definition: Net value of the line in the order currency.
+    type: decimal(15,2)
+    nullable: false
+    quality: [not_null]
+    from:
+      sap_fr: i.NETWR
+      sap_de: i.NETWR
+      oracle:
+        steps:
+          - calculate: { function: multiply, args: [l.ORDERED_QUANTITY, l.UNIT_SELLING_PRICE] }
+          - calculate: { function: round, args: [current, { value: "2" }] }
+          - convert: { to: "decimal(15,2)", method: cast, on_error: fail }
+
+  currency:
+    definition: Currency of the order, ISO 4217.
+    type: string(3)
+    nullable: false
+    from:
+      sap_fr:
+        inputs: [h.WAERK]
+        steps:
+          - convert: { to: string(3), method: cast, on_error: fail }
+      sap_de:
+        inputs: [h.WAERK]
+        steps:
+          - convert: { to: string(3), method: cast, on_error: fail }
+      oracle:
+        inputs: [h.TRANSACTIONAL_CURR_CODE]
+        steps:
+          - convert: { to: string(3), method: cast, on_error: fail }

@@ -1,0 +1,10 @@
+atlas: 1
+kind: system
+id: sap_fr
+name: SAP France
+system_type: erp
+product: "SAP S/4HANA 2023"
+description: "Group ERP for the French entities."
+landing:
+  database: RAW
+  schema: SAP_FR

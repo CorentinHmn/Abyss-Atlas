@@ -1,0 +1,14 @@
+atlas: 1
+kind: dataset
+id: mtl_item_categories
+system: oracle
+name: MTL_ITEM_CATEGORIES
+dataset_type: table
+description: "Item category assignments, per organization and category set."
+primary_key: [INVENTORY_ITEM_ID, ORGANIZATION_ID, CATEGORY_SET_ID, CATEGORY_ID]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  INVENTORY_ITEM_ID: { native_type: "NUMBER", type: "bigint", nullable: false, description: "Item" }
+  ORGANIZATION_ID:   { native_type: "NUMBER", type: "bigint", nullable: false, description: "Inventory organization" }
+  CATEGORY_SET_ID:   { native_type: "NUMBER", type: "bigint", nullable: false, description: "Category set" }
+  CATEGORY_ID:       { native_type: "NUMBER", type: "bigint", nullable: false, description: "Category" }

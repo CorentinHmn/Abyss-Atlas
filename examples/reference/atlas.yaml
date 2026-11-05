@@ -1,0 +1,10 @@
+atlas: 1
+kind: project
+id: reference
+name: Atlas reference project
+description: >
+  Multi-ERP group consolidation used as the acceptance test of every roadmap phase (docs/07-roadmap.md §2):
+  SAP S/4HANA France and Germany, Oracle E-Business Suite and a manufacturing execution system.
+target_platform: snowflake
+defaults:
+  materialization: table

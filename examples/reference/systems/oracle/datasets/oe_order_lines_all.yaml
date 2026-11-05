@@ -1,0 +1,19 @@
+atlas: 1
+kind: dataset
+id: oe_order_lines_all
+system: oracle
+name: OE_ORDER_LINES_ALL
+dataset_type: table
+description: "Sales order lines."
+primary_key: [LINE_ID]
+metadata_origin: { method: file_import, date: "2026-11-05" }
+columns:
+  LINE_ID:            { native_type: "NUMBER", type: "bigint", nullable: false, description: "Order line identifier" }
+  HEADER_ID:          { native_type: "NUMBER", type: "bigint", nullable: false, description: "Order header" }
+  LINE_NUMBER:        { native_type: "NUMBER", type: "bigint", description: "Line number" }
+  INVENTORY_ITEM_ID:  { native_type: "NUMBER", type: "bigint", description: "Item" }
+  SHIP_FROM_ORG_ID:   { native_type: "NUMBER", type: "bigint", description: "Shipping inventory organization" }
+  ORDERED_QUANTITY:   { native_type: "NUMBER", type: "decimal(38,10)", description: "Ordered quantity" }
+  ORDER_QUANTITY_UOM: { native_type: "VARCHAR2(3)", type: "string(3)", description: "Unit of measure" }
+  UNIT_SELLING_PRICE: { native_type: "NUMBER", type: "decimal(38,10)", description: "Unit selling price" }
+  CANCELLED_FLAG:     { native_type: "VARCHAR2(1)", type: "string(1)", description: "Y when cancelled" }
