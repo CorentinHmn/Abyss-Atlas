@@ -7,6 +7,9 @@
   --color-line: #ccd4de;
   --color-brand: #3f55c4;
   --color-danger: #b0261d;
+  --color-success: #1f7a52;
+  --color-warning: #9a5b00;
+  --color-info: #2f5bd3;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,6 +20,9 @@
     --color-line: #2c3846;
     --color-brand: #8296ff;
     --color-danger: #ff8f85;
+    --color-success: #5fd39d;
+    --color-warning: #f2b553;
+    --color-info: #8fa6ff;
   }
 }
 

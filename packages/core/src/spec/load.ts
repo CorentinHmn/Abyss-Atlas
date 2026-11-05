@@ -89,6 +89,7 @@ function codeForZodIssue(issue: z.core.$ZodIssue): string {
   if (explained.message.includes("FMT-020")) return "VAL-015";
   if (explained.message.includes("MM-600") || explained.message.includes("Domain codes")) return "VAL-016";
   if (explained.message.includes("FMT-002")) return "VAL-011";
+  if (explained.message.includes("MM-210")) return "VAL-045";
   return "VAL-013";
 }
 

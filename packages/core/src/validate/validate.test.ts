@@ -70,6 +70,18 @@ describe("each fault is reported with its code", () => {
     ["VAL-041", "not_provided on a required column", mutate("models/SEL/dim_customer.yaml", replace("    type: decimal(15,2)\n    nullable: true", "    type: decimal(15,2)\n    nullable: false"))],
     ["VAL-042", "missing conversion", mutate("models/GOV/dim_plant.yaml", replace("    type: string(4)\n    nullable: false", "    type: string(2)\n    nullable: false"))],
     ["VAL-047", "arithmetic on text", mutate("models/SEL/fact_sales_order_line.yaml", replace("args: [l.ORDERED_QUANTITY, l.UNIT_SELLING_PRICE]", "args: [l.ORDER_QUANTITY_UOM, l.UNIT_SELLING_PRICE]"))],
+    ["VAL-011", "unsupported format version", mutate("models/GOV/dim_plant.yaml", replace("atlas: 1", "atlas: 2"))],
+    ["VAL-013", "missing required attribute", mutate("models/GOV/dim_plant.yaml", replace("    definition: Plant code in its ERP.\n", ""))],
+    ["VAL-016", "invalid id", mutate("rules/GOV/sap_date.yaml", replace("id: sap_date", "id: SAP-Date"))],
+    ["VAL-017", "alias used twice", mutate("models/SEL/fact_sales_order_line.yaml", replace("      - h: sap_fr.vbak", "      - i: sap_fr.vbak"))],
+    ["VAL-024", "unknown domain", mutate("domains/GOV.yaml", replace("code: GOV", "code: GOVX"))],
+    ["VAL-030", "several branches without consolidation", mutate("models/GOV/dim_plant.yaml", replace("consolidation:\n  combine: union_all\n  add_source_column: source_system\n", ""))],
+    ["VAL-036", "match on an unknown column", mutate("models/SEL/dim_customer.yaml", replace("  match: [vat_number]", "  match: [tax_id]"))],
+    ["VAL-043", "default that does not fit the type", mutate("models/MFG/int_mes_order_output.yaml", replace('default: { value: "0" }', 'default: { value: "none" }'))],
+    ["VAL-045", "SQL without a reason", mutate("models/SEL/fact_sales_order_line.yaml", (c) => c.replace(/\n {14}reason: The group fiscal calendar[^\n]*/, ""))],
+    ["VAL-048", "value mapping on the wrong type", mutate("models/MFG/dim_material.yaml", replace("        inputs: [m.MTART]\n", "        inputs: [m.BRGEW]\n"))],
+    ["VAL-050", "relationship to an unknown column", mutate("models/MFG/fact_production_order.yaml", replace("to: dim_plant.plant_id", "to: dim_plant.site_id"))],
+    ["VAL-051", "too many inline entries", mutate("value-mappings/MFG/material_type_sap.yaml", replace('  "VERP": "PACKAGING"\n', Array.from({ length: 1001 }, (_, i) => `  "Z${i}": "OTHER"\n`).join("")))],
   ];
 
   it.each(cases)("%s: %s", (code, _label, files) => {

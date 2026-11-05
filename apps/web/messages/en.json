@@ -9,7 +9,8 @@
     "signedInAs": "Signed in as {email}",
     "signIn": "Sign in",
     "signOut": "Sign out",
-    "status": "Foundations (phase P0)"
+    "status": "Phase P1: core and command line",
+    "progress": "Project progress"
   },
   "SignIn": {
     "title": "Sign in to Atlas",
@@ -20,5 +21,23 @@
     "invalidCredentials": "The email or password is incorrect.",
     "unavailable": "Sign-in is not available right now. Please try again later.",
     "back": "Back"
+  },
+  "Progress": {
+    "title": "Project progress",
+    "subtitle": "Where Atlas stands on its roadmap. Updated on {date}.",
+    "deployed": "Deployed version: {commit}",
+    "waitingTitle": "Waiting for you",
+    "waitingIntro": "Only you can do these; each one unblocks a step.",
+    "unblocks": "Unblocks {id}",
+    "criteria": "{done} of {total} exit criteria met",
+    "estimate": "Estimate: {estimate}",
+    "status": {
+      "done": "Done",
+      "in_progress": "In progress",
+      "waiting_for_you": "Waiting for you",
+      "not_started": "Not started"
+    },
+    "back": "Back to Atlas",
+    "current": "Current phase"
   }
 }

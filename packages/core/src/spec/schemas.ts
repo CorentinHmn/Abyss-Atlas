@@ -15,6 +15,8 @@ const logicalType = z.string().refine((value) => parseLogicalType(value) !== nul
   error: "Not a logical type (FMT-022), e.g. string(10), decimal(15,2), date.",
 });
 const severity = z.enum(["error", "warn"]);
+/** MM-210: an `sql` escape hatch always says why the structured objects were not enough. */
+const reason = z.string({ error: "An sql escape hatch needs a reason (MM-210)." }).min(1, "An sql escape hatch needs a reason (MM-210).");
 
 // ---------------------------------------------------------------------------------------------------------------
 // Operands and conditions (docs/02-metamodel.md §5.3, FMT §2.5 and §5.2)
@@ -68,7 +70,7 @@ export const condition: z.ZodType<Condition> = z.lazy(() =>
       z.strictObject({ all: z.array(condition).min(1) }),
       z.strictObject({ any: z.array(condition).min(1) }),
       z.strictObject({ not: condition }),
-      z.strictObject({ sql: text, reason: text }),
+      z.strictObject({ sql: text, reason }),
     ]),
   ),
 ) as z.ZodType<Condition>;
@@ -104,7 +106,7 @@ export const stepBodies = {
   }),
   aggregate: z.enum(["sum", "count", "count_distinct", "min", "max", "avg"]),
   rule: z.strictObject({ id, args: z.record(z.string(), operand) }),
-  sql: z.strictObject({ expression: text, reason: text }),
+  sql: z.strictObject({ expression: text, reason }),
 } as const;
 
 export type StepKind = keyof typeof stepBodies | "copy";

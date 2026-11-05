@@ -25,12 +25,17 @@ export default async function HomePage() {
       </div>
 
       {email ? (
-        <form action={signOut} className="flex flex-wrap items-center gap-4">
-          <span>{t("signedInAs", { email })}</span>
-          <button type="submit" className="rounded-md border border-line px-4 py-2 hover:border-brand">
-            {t("signOut")}
-          </button>
-        </form>
+        <div className="flex flex-col gap-4">
+          <Link href="/progress" className="w-fit rounded-md bg-brand px-4 py-2 font-semibold text-paper">
+            {t("progress")}
+          </Link>
+          <form action={signOut} className="flex flex-wrap items-center gap-4">
+            <span>{t("signedInAs", { email })}</span>
+            <button type="submit" className="rounded-md border border-line px-4 py-2 hover:border-brand">
+              {t("signOut")}
+            </button>
+          </form>
+        </div>
       ) : (
         <Link href="/sign-in" className="w-fit rounded-md bg-brand px-4 py-2 font-semibold text-paper">
           {t("signIn")}
