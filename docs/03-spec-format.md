@@ -1,7 +1,7 @@
 # 03 — Spec format
 
 Status: Draft
-Last updated: 2026-11-04
+Last updated: 2026-11-05
 
 This document defines how the objects of `docs/02-metamodel.md` are written as YAML. Specs live in Atlas
 (ADR 0007); YAML is the format of the **YAML view** of the editor and of the **project export**, which the
@@ -25,8 +25,8 @@ identifiers: `FMT-xxx`.
 - FMT-002: Every file starts with two keys: `atlas` (format version, an integer, `1` today) and `kind` (`project`,
   `domain`, `system`, `dataset`, `model`, `rule`, `value_mapping`, `approvals`). The object's attributes follow at
   the top level.
-- FMT-003: The file name is the object's id (`dim_customer.yaml` holds the model `dim_customer`). The folder must
-  match the owner (system or domain) declared in the file.
+- FMT-003: The file name is the object's id (`dim_customer.yaml` holds the model `dim_customer`), or its code for a
+  domain (`SEL.yaml`). The folder must match the owner (system or domain code) declared in the file.
 
 ### 2.2 Naming
 - FMT-010: Keys and enumerated values are written in `snake_case`, like dbt. Metamodel names convert directly:
@@ -76,12 +76,12 @@ An operand is a value used by a step or a condition.
 ## 3. Export layout
 ```
 atlas.yaml                                   project
-domains/<domain>.yaml                        domains
+domains/<CODE>.yaml                          domains used by the project (copied from the organization, MM-026)
 systems/<system>/system.yaml                 source systems
 systems/<system>/datasets/<dataset>.yaml     source datasets (one file per table)
-models/<domain>/<model>.yaml                 target models
-rules/<domain>/<rule>.yaml                   business rules
-value-mappings/<domain>/<mapping>.yaml       value mappings
+models/<CODE>/<model>.yaml                   target models, by domain code
+rules/<CODE>/<rule>.yaml                     business rules
+value-mappings/<CODE>/<mapping>.yaml         value mappings
 approvals/…                                  approval records (§7), mirroring the paths above
 ```
 - FMT-050: An export is an archive whose root holds `atlas.yaml`. The customer stores it where its own policy
@@ -102,11 +102,11 @@ defaults:
   materialization: table
 ```
 
-**Domain** (`domains/sales.yaml`)
+**Domain** (`domains/SEL.yaml`). Domains belong to the organization (MM-025); an export carries a copy of the ones it uses.
 ```yaml
 atlas: 1
 kind: domain
-id: sales
+code: SEL
 name: Sales
 description: Customers, orders, invoicing.
 owner: anna.schmidt@example.com
@@ -156,7 +156,7 @@ atlas: 1
 kind: model
 id: dim_customer
 name: Customer
-domain: sales
+domain: SEL
 description: One row per customer of the group, across all ERPs.
 grain:
   description: One customer of the group.
@@ -220,6 +220,7 @@ consolidation:
 - FMT-071: `on` accepts the short form (a map of equal columns, combined with "and") or a full condition (§5.3).
 - FMT-072: Survivorship strategies: `priority`, `first_not_null`, `most_recent` (with `by`), `rule` (with
   `rule`).
+- FMT-073: A join with `cardinality: many_to_many` must also carry `confirmed: true` (MM-121).
 
 ### 4.3 Target model: columns and their mappings
 Each column carries its meaning first, then `from`: one entry per branch.
@@ -339,13 +340,13 @@ Each step is a one-key map: the key is the step kind.
 
 ## 6. Reusable logic
 
-**Business rule** (`rules/sales/customer_status_from_flags.yaml`)
+**Business rule** (`rules/SEL/customer_status_from_flags.yaml`)
 ```yaml
 atlas: 1
 kind: rule
 id: customer_status_from_flags
 name: Customer status from blocking flags
-domain: sales
+domain: SEL
 statement: >
   A customer flagged for deletion is DELETED. Otherwise, a customer with an order block is BLOCKED.
   Otherwise the customer is ACTIVE.
@@ -363,13 +364,13 @@ logic:
       else: { value: "ACTIVE" }
 ```
 
-**Value mapping** (`value-mappings/sales/country_codes_oracle_to_iso.yaml`)
+**Value mapping** (`value-mappings/SEL/country_codes_oracle_to_iso.yaml`)
 ```yaml
 atlas: 1
 kind: value_mapping
 id: country_codes_oracle_to_iso
 name: Oracle country codes to ISO 3166-1 alpha-2
-domain: sales
+domain: SEL
 from_type: string(3)
 to_type: string(2)
 entries:
@@ -386,10 +387,10 @@ Approvals live in Atlas's approval log (ADR 0007). An export includes them under
 of the file they concern, so the CLI can tell which units are approved.
 
 ```yaml
-# approvals/models/sales/dim_customer.yaml
+# approvals/models/SEL/dim_customer.yaml
 atlas: 1
 kind: approvals
-of: models/sales/dim_customer.yaml
+of: models/SEL/dim_customer.yaml
 model:
   decision: approved
   by: marc.dupont@example.com

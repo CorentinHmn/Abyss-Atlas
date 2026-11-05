@@ -1,7 +1,7 @@
 # 02 — Metamodel
 
 Status: Validated
-Last updated: 2026-11-04
+Last updated: 2026-11-05
 
 This document is the **authoritative definition of the concepts** of Atlas (`CLAUDE.md`, rule 5). Any change of
 concept is made here first, then in the Zod schemas of `packages/core`. The YAML grammar is defined in
@@ -39,7 +39,8 @@ Requirement identifiers: `MM-xxx`.
 ### 2.1 Diagram
 ```mermaid
 classDiagram
-  Project "1" *-- "*" Domain
+  Organization "1" *-- "*" Domain : process catalogue
+  Project "*" ..> "*" Domain : uses
   Project "1" *-- "*" System
   Project "1" *-- "*" TargetModel
   Project "1" *-- "*" BusinessRule
@@ -69,7 +70,7 @@ classDiagram
 | Object | In one line | Section |
 |---|---|---|
 | Project | The container of one specification. | §3.1 |
-| Domain | A business area with an accountable owner and stewards. | §3.2 |
+| Domain | A business process of the organization (e.g. `SEL` Sales), with an accountable owner and stewards. | §3.2 |
 | System | A source system: ERP, MES, CRM, database, file, API. | §3.3 |
 | Source dataset / source column | A table, view or file of a system, and its columns. | §3.4 |
 | Target model / target column | A target table and its columns: meaning, type, grain, quality. | §4.1 |
@@ -93,20 +94,25 @@ classDiagram
 | targetPlatform | yes | Dialect of the generated code: `snowflake` in v1; `databricks`, `bigquery`, `postgresql` later. |
 | defaults | no | Project defaults, e.g. naming convention, default materialization. |
 
-- MM-010: A project contains all the objects below. References never cross projects in v1.
+- MM-010: A project contains all the objects below, except domains, which belong to the organization (§3.2).
+  Other references never cross projects in v1.
 
 ### 3.2 Domain
-A business area (Finance, Sales, Supply chain, Production…) that **owns** target models, business rules and value
-mappings, and is **responsible** for their meaning.
+A **business process of the organization** (e.g. `SEL` Sales, `MFG` Manufacture, `GOV` Govern) that **owns** target
+models, business rules and value mappings, and is **responsible** for their meaning. Domains form the organization's
+process catalogue: an Admin defines them **when the organization is set up**, and every project of the organization
+uses the same catalogue.
 
 | Attribute | Required | Description |
 |---|---|---|
-| id, name | yes | |
-| description | no | Scope of the domain. |
+| code | yes | Short code, unique in the organization: 2 to 5 uppercase letters or digits (e.g. `SEL`). It identifies the domain everywhere (MM-600). |
+| name | yes | Name, e.g. "Sales". |
+| description | no | Scope of the process. |
 | owner | yes | The accountable person (one person). |
 | stewards | yes | People who review and approve the domain's objects (one or more). |
 
-- MM-020: Every target model, business rule and value mapping belongs to exactly one domain.
+- MM-020: Every target model, business rule and value mapping belongs to exactly one domain of the organization's
+  catalogue, referenced by its code.
 - MM-021: A domain must have at least one steward, so that its objects can always be approved. Several stewards
   avoid blocking a review when one is absent.
 - MM-022: People are referenced by the e-mail of their Atlas account. The SaaS resolves them; the CLI treats them as
@@ -115,6 +121,10 @@ mappings, and is **responsible** for their meaning.
 - MM-024: Only an Admin can change a domain's owner or stewards. Such a change made elsewhere (e.g. in an edited export)
   is flagged and does not take effect until an Admin confirms it; otherwise anyone able to edit the YAML could make
   themselves steward.
+- MM-025: Only an Admin creates, renames or retires a domain. A domain still used by a project cannot be deleted;
+  it can only be retired (no new objects).
+- MM-026: A project export contains the domains its objects use, so that the export stays complete (MM-001). Editing
+  them in an export has no effect on the organization's catalogue (MM-024).
 
 ### 3.3 System
 | Attribute | Required | Description |
@@ -215,10 +225,12 @@ equivalent of the `FROM … JOIN … WHERE … GROUP BY` of one part of the unio
 | type | yes | `inner`, `left`, `right`, `full`. |
 | on | yes | A condition (§5.3), usually equalities between key columns. |
 | cardinality | yes | Expected relationship: `one-to-one`, `one-to-many`, `many-to-one`, `many-to-many`. |
+| confirmed | for many-to-many | `true` to confirm that a `many-to-many` join is intended (MM-121). |
 | description | no | Why the join exists, in business words. |
 
 - MM-120: Join conditions only compare columns of compatible logical types.
-- MM-121: A `many-to-many` join is a warning: it multiplies rows. It must be confirmed explicitly.
+- MM-121: A `many-to-many` join multiplies rows. Without `confirmed: true` it is a validation error; once confirmed,
+  it remains a visible warning in reviews.
 - MM-122: The declared cardinality is checked against the declared keys when they are known.
 
 ### 4.4 Consolidation
@@ -349,8 +361,8 @@ Basic checks in v1. They generate dbt tests and the quality section of an ODCS e
 - MM-500: Each check has a severity: `error` (blocks) or `warn`.
 
 ## 9. Identity and references
-- MM-600: Every object has an `id`: lowercase letters, digits, `_` and `-`, unique among its siblings. The display
-  name can change freely; the id is changed only by an explicit rename, which updates every reference.
+- MM-600: Every object has an `id`: lowercase letters, digits, `_` and `-`, unique among its siblings (a domain is
+  identified by its `code`, §3.2). The display name can change freely; the id is changed only by an explicit rename, which updates every reference.
 - MM-601: References use ids and paths, e.g. `sap_fr.kna1.KUNNR` (system, dataset, column) or
   `dim_customer.country_code` (model, column).
 - MM-602: Every reference must resolve. A broken reference is a validation error, never a silent null.
@@ -385,7 +397,7 @@ Kept in the Atlas database, never in the spec. Detailed in `docs/04-architecture
 | Approval log | The authoritative log of approvals (ADR 0007). |
 
 ## 12. Illustrative example
-`dim_customer`, domain Sales, fed by SAP France, SAP Germany and Oracle EBS.
+`dim_customer`, domain `SEL` (Sales), fed by SAP France, SAP Germany and Oracle EBS.
 
 | Element | Content |
 |---|---|
@@ -395,7 +407,7 @@ Kept in the Atlas database, never in the spec. Detailed in `docs/04-architecture
 | Branch `oracle` | `hz_cust_accounts` (alias `a`) joined to `hz_parties` (alias `p`, `inner`, `many-to-one`); sourceTag `ORACLE`. |
 | Consolidation | `union-all`, add column `source_system`, match on VAT number, branch priority `sap_fr` > `sap_de` > `oracle`. |
 | `country_code` | `sap_fr` and `sap_de`: copy of `c.LAND1`. `oracle`: `p.COUNTRY` then `mapValues` with `country_codes_oracle_to_iso`. |
-| `customer_status` | All branches: `rule` `customer_status_from_flags`, owned by Sales, approved by its steward. |
+| `customer_status` | All branches: `rule` `customer_status_from_flags`, owned by `SEL`, approved by its steward. |
 | `credit_limit` | `sap_fr`, `sap_de`: `notProvided` ("held in the credit management module, phase 2"). `oracle`: `lookup` in the credit profile table. |
 
 ## 13. Decisions log
@@ -404,3 +416,6 @@ Kept in the Atlas database, never in the spec. Detailed in `docs/04-architecture
 - Q-MM-02: A person can be owner or steward of several domains (MM-023).
 - Q-MM-03: Inline value mappings are limited to 1,000 entries (MM-310).
 - Q-MM-04: `scd2` historization comes later; it is an optional attribute, so it does not affect v1 (§4.1).
+- Q-MM-05: Domains are the organization's business processes (e.g. `SEL` Sales, `MFG` Manufacture, `GOV` Govern),
+  defined by an Admin at setup and shared by all projects (§3.2).
+- Q-MM-06: A `many-to-many` join must carry `confirmed: true` (MM-121).

@@ -26,9 +26,9 @@ A realistic project, written in phase 0 and used as the acceptance test of every
 | Element | Content |
 |---|---|
 | Systems | `sap_fr`, `sap_de` (SAP S/4HANA), `oracle` (Oracle EBS), `mes` (a manufacturing execution system). |
-| Domains | Sales, Production. |
-| Target models | About 5 (e.g. `dim_customer`, `dim_material`, `dim_plant`, `fact_sales_order`, `fact_production_order`), about 80 columns. |
-| Coverage | Every step kind (`docs/02-metamodel.md` §5.2), several joins of each cardinality, union of branches with consolidation and survivorship, at least one business rule, one value mapping, one `not_provided`, one `sql` escape hatch. |
+| Domains | `SEL` Sales, `MFG` Manufacture, `GOV` Govern (shared reference data, finance). |
+| Target models | 6, about 85 columns: `dim_customer`, `fact_sales_order_line` (SEL); `dim_material`, `fact_production_order` (MFG); `dim_plant`, `fact_exchange_rate` (GOV). Location: `examples/reference/`. |
+| Coverage | Every step kind (`docs/02-metamodel.md` §5.2), joins of each cardinality (one confirmed many-to-many), union of branches with consolidation and survivorship, at least one business rule, one value mapping, one `not_provided`, one `sql` escape hatch. |
 | Outputs | dbt models for Snowflake that compile and run on a test Snowflake account with sample data; Markdown documentation. |
 
 ## 3. Phases
@@ -170,7 +170,7 @@ Every use case of `docs/01-scope.md` and its phase:
 | Phase | Use cases |
 |---|---|
 | P1 | UC-001, UC-003, UC-020, UC-030, UC-032, UC-034 |
-| P2 | UC-001, UC-002, UC-003 (in the browser), UC-011…UC-015, UC-023, UC-030, UC-032 (download), UC-036, UC-040, UC-041, UC-043, UC-044, UC-046, UC-050…UC-052 |
+| P2 | UC-001, UC-002, UC-003 (in the browser), UC-011…UC-015, UC-023, UC-030, UC-032 (download), UC-036, UC-040, UC-041, UC-043, UC-044, UC-046, UC-048, UC-050…UC-052 |
 | P3 | UC-017, UC-021, UC-033, UC-035, UC-045, UC-047, UC-053…UC-055 |
 | P4 | UC-042 |
 | v1.1 | UC-016 |

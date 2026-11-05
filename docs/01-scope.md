@@ -150,6 +150,7 @@ Roles:
 | UC-045 | Approve or refuse a support access request (see UC-053). | Admin | v1 |
 | UC-046 | Suspend an account immediately (e.g. an employee leaves). The credit stays used until the account is deleted (UC-043). | Admin | v1 |
 | UC-047 | Write a support message to the operator and read the replies (see UC-055). Any user can write one; a message from a non-Admin is sent only after an Admin validates it. Admins' own messages are sent directly. | All users | v1 |
+| UC-048 | Define the organization's business processes (domains) when it is set up: code, name, owner and stewards (e.g. `SEL` Sales, `MFG` Manufacture, `GOV` Govern). Change or retire them later. | Admin | v1 |
 
 ### 2.6 Control tower (operator side)
 The control tower is a superuser area for PER-201, separated from customer content (ADR 0002). It shows only
