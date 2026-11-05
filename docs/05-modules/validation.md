@@ -80,3 +80,7 @@ reports.
 ## 4. Phases
 All checks are in P1 except VAL-060 (P3). VAL-033 and VAL-034 only use declared primary keys; they can never see the
 data (OOS-001).
+
+Implementation status (2026-11-05): every P1 check is implemented in `packages/core` except **VAL-033**. SAP keys start
+with the client (`MANDT`), which specs rarely join on; VAL-033 needs a rule for such columns first (e.g. declared
+as a constant per system), otherwise it would warn on every SAP join.

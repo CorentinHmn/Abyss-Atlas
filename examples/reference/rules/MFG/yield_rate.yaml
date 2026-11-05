@@ -15,3 +15,4 @@ logic:
   - calculate: { function: nullif, args: [current, { value: "0" }] }
   - calculate: { function: divide, args: [{ param: good }, current] }
   - calculate: { function: round, args: [current, { value: "4" }] }
+  - convert: { to: "decimal(7,4)", method: cast, on_error: fail }

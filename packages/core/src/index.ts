@@ -4,3 +4,9 @@
  */
 export { FORMAT_VERSION } from "./format";
 export { isValidId } from "./ids";
+export { loadProject, type Loaded, type Project, type SpecFile } from "./spec/load";
+export * as schemas from "./spec/schemas";
+export { FUNCTIONS } from "./types/functions";
+export { formatLogicalType, isImplicitlyAssignable, parseLogicalType, type LogicalType } from "./types/logical-types";
+export type { Issue, Severity } from "./validate/issues";
+export { validateProject, type ValidationResult } from "./validate/validate";
