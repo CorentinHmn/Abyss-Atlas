@@ -13,15 +13,20 @@ export async function signIn(_previous: SignInState, formData: FormData): Promis
   let supabase;
   try {
     supabase = await createSupabaseServerClient();
-  } catch {
+  } catch (cause) {
+    // Logged without any user data: typically missing NEXT_PUBLIC_SUPABASE_* variables at build time.
+    console.error("[sign-in] Supabase client unavailable:", cause instanceof Error ? cause.message : cause);
     return { error: "unavailable" };
   }
   try {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      return { error: error.status === 400 ? "invalidCredentials" : "unavailable" };
+      if (error.status === 400) return { error: "invalidCredentials" };
+      console.error("[sign-in] Supabase auth error:", error.status, error.code);
+      return { error: "unavailable" };
     }
-  } catch {
+  } catch (cause) {
+    console.error("[sign-in] Supabase unreachable:", cause instanceof Error ? cause.message : cause);
     return { error: "unavailable" };
   }
   redirect("/");
