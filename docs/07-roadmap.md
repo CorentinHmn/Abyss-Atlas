@@ -46,7 +46,9 @@ A realistic project, written in phase 0 and used as the acceptance test of every
 ### 3.2 P0 — Foundations
 Content:
 - Monorepo (pnpm, Turborepo, strict TypeScript), lint, Vitest, Playwright; CI on every pull request (ARC-401).
-- Environments local, preview, staging (ARC-400); Supabase (EU region) and Vercel accounts only (RM-006).
+- Environments local, preview, staging (ARC-400); Supabase (EU region) and Vercel accounts only (RM-006). On the
+  Supabase free plan, one hosted project (`atlas`, Frankfurt) serves every environment until a dedicated production
+  project is created before launch (P4); production data never goes elsewhere (ARC-400).
 - Supabase Auth sign-in; `app` and `licensing` schemas with versioned migrations (ARC-402).
 - RLS test harness running in CI (ARC-104, ADR 0002 §3.4).
 - next-intl set up, no hard-coded UI text (ADR 0001).

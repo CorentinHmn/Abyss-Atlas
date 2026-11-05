@@ -1,0 +1,24 @@
+{
+  "Metadata": {
+    "title": "Atlas",
+    "description": "Source-to-target specifications for data platforms."
+  },
+  "Home": {
+    "title": "Atlas",
+    "tagline": "Source-to-target specifications, structured, validated and approved.",
+    "signedInAs": "Signed in as {email}",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "status": "Foundations (phase P0)"
+  },
+  "SignIn": {
+    "title": "Sign in to Atlas",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "invalidCredentials": "The email or password is incorrect.",
+    "unavailable": "Sign-in is not available right now. Please try again later.",
+    "back": "Back"
+  }
+}

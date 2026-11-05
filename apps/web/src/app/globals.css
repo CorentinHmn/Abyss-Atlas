@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #15202b;
+  --color-muted: #566473;
+  --color-paper: #f5f7f9;
+  --color-line: #ccd4de;
+  --color-brand: #3f55c4;
+  --color-danger: #b0261d;
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-ink: #e5eaf0;
+    --color-muted: #9aa6b4;
+    --color-paper: #0f141a;
+    --color-line: #2c3846;
+    --color-brand: #8296ff;
+    --color-danger: #ff8f85;
+  }
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}

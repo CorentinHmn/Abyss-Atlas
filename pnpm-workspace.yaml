@@ -1,0 +1,8 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Native build scripts not needed by Atlas (optional tooling of dependencies).
+ignoredBuiltDependencies:
+  - "@parcel/watcher"
+  - "@swc/core"
