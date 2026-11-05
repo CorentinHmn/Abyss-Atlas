@@ -1,0 +1,15 @@
+# Snowflake profile for the reference run (RM-021). Every value comes from the environment (GitHub secrets),
+# never from this file. Authentication by key pair: the service user has no password.
+atlas:
+  target: snowflake
+  outputs:
+    snowflake:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      private_key_path: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PATH') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'ATLAS_CI') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'ATLAS_CI_WH') }}"
+      database: ATLAS_CI
+      schema: REFERENCE
+      threads: 4

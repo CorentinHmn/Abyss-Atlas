@@ -1,0 +1,81 @@
+# Expected results of the reference project on this fictitious data (RM-021).
+# Each check is a query on the generated models that returns no row when the result is right.
+# The same checks run offline (DuckDB, scripts/reference-run) and on Snowflake.
+
+checks:
+  # ------------------------------------------------------------------------------------------------- dim_customer
+  - name: dim_customer has 6 customers (Acme merged across 3 ERPs, ship-to party filtered out)
+    sql: select count(*) as n from dim_customer having count(*) <> 6
+  - name: Acme (same VAT number in SAP France, SAP Germany and Oracle) is one customer, from SAP France
+    sql: select count(*) as n from dim_customer where vat_number = 'FR12345678901' having count(*) <> 1 or max(customer_id) <> 'SAP_FR:0000100001' or max(source_system) <> 'SAP_FR'
+  - name: Acme takes its credit limit from Oracle (first non-empty value, Oracle first)
+    sql: select credit_limit from dim_customer where vat_number = 'FR12345678901' and (credit_limit is null or credit_limit <> 500000)
+  - name: a customer without VAT number is kept, never merged; unknown group gives OTHER; date 00000000 gives no date
+    sql: select customer_id from dim_customer where customer_id = 'SAP_FR:0000100002' and not (customer_segment = 'OTHER' and created_on is null)
+  - name: the customer without VAT number exists
+    sql: select count(*) as n from dim_customer where customer_id = 'SAP_FR:0000100002' having count(*) <> 1
+  - name: statuses come from the blocking and deletion flags (SAP) and the account status (Oracle)
+    sql: >
+      select customer_id, customer_status from dim_customer
+      where (customer_id = 'SAP_FR:0000100003' and customer_status <> 'BLOCKED')
+         or (customer_id = 'SAP_FR:0000100004' and customer_status <> 'DELETED')
+         or (customer_id = 'ORACLE:A-1002' and customer_status <> 'BLOCKED')
+         or (customer_id = 'SAP_FR:0000100001' and customer_status <> 'ACTIVE')
+  - name: the ship-to only account group is filtered out
+    sql: select customer_id from dim_customer where customer_id = 'SAP_FR:0000100005'
+  - name: SAP Germany keeps the first distribution channel (10, group 03 = RETAIL)
+    sql: select customer_segment from dim_customer where customer_id = 'SAP_DE:0000200002' and customer_segment <> 'RETAIL'
+  - name: an empty city becomes Unknown
+    sql: select city from dim_customer where customer_id = 'SAP_FR:0000100004' and city <> 'Unknown'
+  - name: Oracle customer created on 2020-07-15 with a 20000 EUR credit limit
+    sql: select customer_id from dim_customer where customer_id = 'ORACLE:A-1002' and not (created_on = cast('2020-07-15' as date) and credit_limit = 20000)
+
+  # ---------------------------------------------------------------------------------------- fact_sales_order_line
+  - name: 3 order lines (rejected SAP item and cancelled Oracle line excluded)
+    sql: select count(*) as n from fact_sales_order_line having count(*) <> 3
+  - name: SAP line numbers lose their leading zeros (000010 → 10)
+    sql: select order_line_id from fact_sales_order_line where order_line_id = 'SAP_FR:0000500001/000010' and line_number <> 10
+  - name: Oracle net amount = quantity × unit price, rounded (3 × 99.9 = 299.70)
+    sql: select net_amount from fact_sales_order_line where customer_id = 'ORACLE:A-1002' and net_amount <> 299.70
+  - name: fiscal periods (fiscal year starting on 1 October)
+    sql: >
+      select order_line_id, fiscal_period from fact_sales_order_line
+      where (order_date = cast('2026-10-15' as date) and fiscal_period <> '2027-P01')
+         or (order_date = cast('2026-09-30' as date) and fiscal_period <> '2026-P12')
+         or (order_date = cast('2026-11-02' as date) and fiscal_period <> '2027-P02')
+  - name: the Oracle line is attached to its customer and to its item code through lookups
+    sql: select order_line_id from fact_sales_order_line where customer_id = 'ORACLE:A-1002' and material_id <> 'M-300'
+
+  # -------------------------------------------------------------------------------------------------- dim_material
+  - name: 3 materials (M-100 in three ERPs merged, deleted M-999 filtered out)
+    sql: select count(*) as n from dim_material having count(*) <> 3
+  - name: M-100 comes from SAP France (English name, group, weight in kg)
+    sql: select material_id from dim_material where material_id = 'M-100' and not (material_name = 'Pump' and material_group = 'PUMPS' and gross_weight_kg = 2.5 and source_system = 'SAP_FR')
+  - name: M-200 weighs 500 g = 0.5 kg and is semi-finished
+    sql: select material_id from dim_material where material_id = 'M-200' and not (gross_weight_kg = 0.5 and material_category = 'SEMI_FINISHED')
+  - name: Oracle item M-300 (two inventory organizations, several category sets) gives one row in category MECH
+    sql: select material_id from dim_material where material_id = 'M-300' and not (material_category = 'FINISHED' and material_group = 'MECH' and gross_weight_kg = 1.2)
+
+  # ----------------------------------------------------------------------------------------------------- dim_plant
+  - name: 3 plants, an empty city becomes Unknown
+    sql: select count(*) as n from dim_plant having count(*) <> 3 or sum(case when plant_id = 'SAP_DE:DE20' and city = 'Unknown' then 1 else 0 end) <> 1
+
+  # ------------------------------------------------------------------------------------------------ production
+  - name: the MES output of the French order sums its completed and closed work orders only
+    sql: select erp_order_ref from int_mes_order_output where erp_order_ref = '000001000001' and not (good_qty = 95 and scrap_qty = 5 and work_order_count = 2)
+  - name: French production order with MES output (yield 95 / 100 = 0.95)
+    sql: select production_order_id from fact_production_order where production_order_id = 'SAP_FR:000001000001' and not (good_quantity = 95 and scrap_quantity = 5 and yield_rate = 0.95)
+  - name: German production order without MES output (0 produced, no yield)
+    sql: select production_order_id from fact_production_order where production_order_id = 'SAP_DE:000002000001' and not (good_quantity = 0 and scrap_quantity = 0 and yield_rate is null)
+
+  # -------------------------------------------------------------------------------------------- fact_exchange_rate
+  - name: 4 rates (SAP rate type B filtered out, USD→EUR from SAP and Oracle merged)
+    sql: select count(*) as n from fact_exchange_rate having count(*) <> 4
+  - name: SAP wins over Oracle for the same rate; the inverted date 79738898 is 2026-11-01
+    sql: select exchange_rate from fact_exchange_rate where from_currency = 'USD' and to_currency = 'EUR' and rate_type = 'AVERAGE' and not (exchange_rate = 0.92 and valid_from = cast('2026-11-01' as date))
+  - name: an indirect quotation (negative SAP rate) is inverted (1 / 0.92)
+    sql: select exchange_rate from fact_exchange_rate where from_currency = 'EUR' and to_currency = 'USD' and abs(exchange_rate - 1.086956522) > 0.000000002
+  - name: ratio factors apply (100 JPY = 0.62 EUR, so 1 JPY = 0.0062 EUR)
+    sql: select exchange_rate from fact_exchange_rate where from_currency = 'JPY' and exchange_rate <> 0.0062
+  - name: the Oracle spot rate is kept
+    sql: select count(*) as n from fact_exchange_rate where from_currency = 'GBP' and rate_type = 'SPOT' and exchange_rate = 1.15 having count(*) <> 1

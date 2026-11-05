@@ -1,0 +1,62 @@
+name: Snowflake reference run
+
+# RM-021: the dbt project generated from the reference project runs on Snowflake, on fictitious data.
+# Skipped (with a notice) until the Snowflake secrets exist; see scripts/reference-run/README.md.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "packages/core/**"
+      - "examples/**"
+      - "scripts/reference-run/**"
+      - ".github/workflows/snowflake.yml"
+
+concurrency:
+  group: snowflake-reference
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
+    steps:
+      - id: creds
+        run: |
+          if [ -n "$SNOWFLAKE_ACCOUNT" ] && [ -n "$SNOWFLAKE_USER" ] && [ -n "$SNOWFLAKE_PRIVATE_KEY" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Snowflake secrets are not set yet: the reference run on Snowflake is skipped (RM-021)."
+          fi
+      - if: steps.creds.outputs.configured == 'true'
+        uses: actions/checkout@v4
+      - if: steps.creds.outputs.configured == 'true'
+        uses: pnpm/action-setup@v4
+      - if: steps.creds.outputs.configured == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - if: steps.creds.outputs.configured == 'true'
+        run: pnpm install --frozen-lockfile && pnpm --filter @atlas/cli build
+      - if: steps.creds.outputs.configured == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - if: steps.creds.outputs.configured == 'true'
+        run: pip install -r scripts/reference-run/requirements-snowflake.txt
+      - if: steps.creds.outputs.configured == 'true'
+        name: Generate, load, build and check
+        run: |
+          key="$RUNNER_TEMP/snowflake_key.p8"
+          printf '%s\n' "$SNOWFLAKE_PRIVATE_KEY" > "$key"
+          chmod 600 "$key"
+          export SNOWFLAKE_PRIVATE_KEY_PATH="$key"
+          node packages/cli/dist/atlas.js generate dbt examples/reference --out "$RUNNER_TEMP/dbt"
+          python scripts/reference-run/run_snowflake.py "$RUNNER_TEMP/dbt" examples/reference examples/reference-data

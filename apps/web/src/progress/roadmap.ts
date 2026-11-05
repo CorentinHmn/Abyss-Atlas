@@ -50,7 +50,7 @@ export const PHASES: Phase[] = [
         id: "RM-021",
         label: "The generated dbt project compiles and runs on Snowflake.",
         status: "in_progress",
-        note: "dbt parse and compile pass, and the 70 generated statements are valid Snowflake SQL (checked in CI). Running on Snowflake needs a trial account.",
+        note: "Offline, on fictitious data: the 7 generated models run, the 63 dbt tests and the 28 expected results pass (every push, in CI). The same run on Snowflake is ready and starts as soon as the account and its secrets exist.",
       },
       { id: "RM-022", label: "A dictionary CSV produced by the catalog query imports into dataset files.", status: "done", note: "PostgreSQL query tested on a real database; SQL Server query checked. Native types for PostgreSQL, SQL Server, SAP and Oracle." },
       { id: "RM-023", label: "Validation of the reference project takes under 1 second.", status: "done", note: "About 0.3 s with the atlas command, Node.js start included." },
@@ -98,7 +98,7 @@ export const PHASES: Phase[] = [
 
 /** What only the founder can do, in the order it unblocks the work. */
 export const WAITING_FOR_YOU: { label: string; unblocks: string }[] = [
-  { label: "Create a Snowflake trial account (EU region) and add its credentials to the GitHub repository secrets.", unblocks: "RM-021" },
+  { label: "Create a Snowflake trial account (EU region), run the setup script and add 3 GitHub secrets (guide: scripts/reference-run/README.md).", unblocks: "RM-021" },
   { label: "Choose the final product name (Atlas is a codename) and check the trademark.", unblocks: "RM-060" },
   { label: "Choose the open-source license of the format, core and CLI.", unblocks: "RM-061" },
 ];

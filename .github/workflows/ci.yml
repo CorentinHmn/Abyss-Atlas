@@ -62,4 +62,6 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r scripts/generated-dbt/requirements.txt
-      - run: scripts/generated-dbt/check.sh
+      - run: scripts/generated-dbt/check.sh "$RUNNER_TEMP/dbt"
+      # RM-021 offline: the generated models run on the fictitious data (DuckDB), dbt tests and expectations pass.
+      - run: python scripts/reference-run/run_duckdb.py "$RUNNER_TEMP/dbt" examples/reference examples/reference-data

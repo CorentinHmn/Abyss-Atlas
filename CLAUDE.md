@@ -46,7 +46,8 @@ packages/core/       business core (metamodel, validation, generators)
 packages/cli/        command line
 supabase/            database migrations (SQL) and RLS tests (pgTAP)
 examples/reference/  reference project (acceptance test of every phase, docs/07-roadmap.md §2)
-scripts/             repository checks (offline check of the generated dbt project)
+examples/reference-data/  fictitious source data and expected results of the reference project
+scripts/             repository checks: generated dbt project, reference runs (DuckDB offline, Snowflake)
 docs/                product specifications (functional source of truth)
 docs/adr/            architecture decisions (one decision = one dated file)
 ```

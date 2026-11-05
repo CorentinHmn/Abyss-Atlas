@@ -13,7 +13,8 @@ Source-to-target specifications for data platforms (provisional codename). Produ
 | `docs/` | Product specifications and architecture decisions (`docs/adr/`) |
 
 | `packages/cli` | Command line `atlas` (open source): validate, generate dbt and docs, import dictionaries, diff |
-| `scripts/` | Repository checks, e.g. the offline check of the generated dbt project |
+| `examples/reference-data/` | Fictitious source data and expected results of the reference project |
+| `scripts/` | Repository checks: generated dbt project, reference runs offline (DuckDB) and on Snowflake (`scripts/reference-run/README.md`) |
 
 `apps/worker` arrives in a later phase (`docs/07-roadmap.md`).
 
