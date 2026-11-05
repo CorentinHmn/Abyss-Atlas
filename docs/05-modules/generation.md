@@ -23,10 +23,11 @@ dbt_project.yml
 models/sources/<system>.yml          one dbt source per system (landing database and schema, §3.3 of the metamodel)
 models/<domain code>/<model>.sql     one SQL model per target model
 models/<domain code>/<model>.yml     descriptions, data types and tests of the model
-macros/atlas/rules/<rule>.sql        one macro per business rule
-macros/atlas/value_mappings/<id>.sql one macro per value mapping (a CASE expression)
-tests/atlas/<model>__<check>.sql     data tests that dbt has no generic test for (unique combination)
+tests/atlas/<model>__<check>.sql     data tests that dbt has no generic test for (unique combination, fail behaviors)
 ```
+- GEN-012: Business rules and value mappings are **expanded inline** in the SQL, marked `/* rule <id> */` and
+  `/* value mapping <id> */`. Macros were considered and rejected: a rule receiving the result of another expression
+  would need Jinja nested inside Jinja, which dbt cannot read. Their documentation is in the Markdown output (§3).
 - GEN-010: A chained model (MM-111) is read with `{{ ref('<model>') }}`; a source table with
   `{{ source('<system>', '<dataset>') }}`. dbt then orders the models itself.
 - GEN-011: The model's `materialization` becomes its dbt `materialized` config (`table`, `view`, `incremental`).
@@ -53,7 +54,11 @@ select <target columns> from consolidated
 ```
 - GEN-020: `group_by` becomes `group by` in the branch CTE; aggregation steps become aggregate functions.
 - GEN-021: A `lookup` becomes a `left join` to the looked-up dataset with an alias of its own; it is many-to-one by
-  construction (MM-201). `on_missing: fail` adds a data test that every row found a match.
+  construction (MM-201). `on_missing: fail` and `map_values` with `on_unmatched: fail` produce no error inside the
+  query; they add a **data test listing the offending rows or values** (`tests/atlas/<model>__<branch>__fail_<n>.sql`),
+  which is easier to act on than a runtime error.
+- GEN-023: Every column is cast to its target type, except a source column or an explicit conversion that already has
+  exactly that type.
 - GEN-022: Every branch CTE selects the columns in the same order, cast to the target type, so the union is safe.
 
 ### 2.3 Consolidation
@@ -73,10 +78,10 @@ select <target columns> from consolidated
 | `convert` `cast`, `on_error: fail` | `cast(x as T)` |
 | `convert` `cast`, `on_error: set_null` | `try_cast(x as T)` (text input) |
 | `convert` `parse` date | `to_date(x, 'YYYYMMDD')`, or `try_to_date` with `set_null` |
-| `map_values` | `{{ <value_mapping>(x) }}` macro: `case x when 'a' then 'b' … else <default or x or null> end` |
+| `map_values` | `case when x is null then null when x = 'a' then 'b' … else <x, default or null> end` |
 | `case` | `case when … then … else … end` |
 | `concat` | `array_to_string(array_construct_compact(p1, p2, …), sep)` (skips empty parts, §5.2) |
-| `rule` | `{{ <rule>(arg1, arg2) }}` macro |
+| `rule` | the rule's logic expanded with its arguments, `/* rule <id> */ (…)` |
 | `aggregate` | `sum`, `count`, `count(distinct …)`, `min`, `max`, `avg` |
 | `sql` | the expression, `{{ current }}` replaced by the pipeline value, aliases unchanged |
 
