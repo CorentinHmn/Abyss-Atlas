@@ -1,0 +1,32 @@
+{
+  "name": "@atlas/cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Atlas command line: validate a spec, generate dbt and documentation, import dictionaries, compare versions. Works offline.",
+  "type": "module",
+  "bin": {
+    "atlas": "./dist/atlas.js"
+  },
+  "files": [
+    "dist",
+    "catalog-queries"
+  ],
+  "scripts": {
+    "build": "esbuild src/bin.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist/atlas.js --banner:js=\"#!/usr/bin/env node\nimport { createRequire as __atlasCreateRequire } from 'node:module'; const require = __atlasCreateRequire(import.meta.url);\" --define:__ATLAS_VERSION__='\"0.1.0\"'",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@atlas/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "22.20.5",
+    "esbuild": "0.28.2",
+    "eslint": "9.39.5",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.1.0"
+  }
+}

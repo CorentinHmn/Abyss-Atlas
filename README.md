@@ -12,7 +12,10 @@ Source-to-target specifications for data platforms (provisional codename). Produ
 | `supabase/` | Database migrations (SQL, source of truth) and RLS tests (pgTAP), see ADR 0008 |
 | `docs/` | Product specifications and architecture decisions (`docs/adr/`) |
 
-`apps/worker` and `packages/cli` arrive in later phases (`docs/07-roadmap.md`).
+| `packages/cli` | Command line `atlas` (open source): validate, generate dbt and docs, import dictionaries, diff |
+| `scripts/` | Repository checks, e.g. the offline check of the generated dbt project |
+
+`apps/worker` arrives in a later phase (`docs/07-roadmap.md`).
 
 ## Getting started
 Requirements: Node.js 22.12+ and pnpm 10 (`corepack enable`).
@@ -22,6 +25,16 @@ pnpm install
 cp apps/web/.env.example apps/web/.env.local
 pnpm dev            # http://localhost:3000
 ```
+
+## Command line
+```bash
+pnpm --filter @atlas/cli build
+node packages/cli/dist/atlas.js validate examples/reference
+node packages/cli/dist/atlas.js generate dbt examples/reference --out /tmp/dbt
+node packages/cli/dist/atlas.js generate docs examples/reference --out /tmp/docs
+node packages/cli/dist/atlas.js import dictionary catalog.csv --system sap_fr --dialect sap examples/reference
+```
+Catalog queries to produce `catalog.csv` from PostgreSQL or SQL Server: `packages/cli/catalog-queries/`.
 
 ## Checks
 ```bash
@@ -34,6 +47,11 @@ pnpm db:start      # local Supabase database with every migration applied
 pnpm db:test       # RLS and isolation tests (pgTAP)
 pnpm db:reset      # rebuild the local database from the migrations
 ```
+Generated dbt project (needs Python and `pip install -r scripts/generated-dbt/requirements.txt`):
+```bash
+scripts/generated-dbt/check.sh
+```
+
 The same checks run in GitHub Actions on every push and pull request.
 
 Database changes: add a new file in `supabase/migrations/` (never edit an applied one), make `pnpm db:test` pass,

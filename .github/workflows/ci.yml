@@ -44,3 +44,22 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec supabase db start
       - run: pnpm exec supabase test db
+
+  generated-dbt:
+    # RM-020/RM-021: the reference project generates a dbt project that dbt accepts and whose SQL is valid Snowflake.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @atlas/cli build
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scripts/generated-dbt/requirements.txt
+      - run: scripts/generated-dbt/check.sh

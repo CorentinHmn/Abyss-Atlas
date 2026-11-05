@@ -1,0 +1,8 @@
+# Offline profile: compiling the Jinja of the generated project needs an adapter, not a warehouse.
+atlas:
+  target: offline
+  outputs:
+    offline:
+      type: duckdb
+      path: ":memory:"
+      threads: 1

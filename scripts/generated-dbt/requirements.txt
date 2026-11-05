@@ -1,0 +1,6 @@
+# Offline checks of the generated dbt project (RM-021 before a Snowflake account): dbt parses and compiles it,
+# sqlglot parses every compiled statement as Snowflake SQL. DuckDB is only used to compile Jinja, never to run.
+dbt-core==1.10.23
+dbt-duckdb==1.10.1
+duckdb==2.0.0
+sqlglot==30.29.0

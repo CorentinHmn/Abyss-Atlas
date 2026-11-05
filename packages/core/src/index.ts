@@ -10,3 +10,8 @@ export { FUNCTIONS } from "./types/functions";
 export { formatLogicalType, isImplicitlyAssignable, parseLogicalType, type LogicalType } from "./types/logical-types";
 export type { Issue, Severity } from "./validate/issues";
 export { validateProject, type ValidationResult } from "./validate/validate";
+export { generateDbt, GenerationError, type GeneratedFile } from "./generate/dbt";
+export { generateDocs } from "./generate/docs";
+export { datasetToYaml, DICTIONARY_COLUMNS, importDictionary, type DictionaryImportReport } from "./import/dictionary";
+export { DIALECTS, logicalTypeFor, type Dialect } from "./import/native-types";
+export { diffProjects, type ObjectChange } from "./diff/diff";
