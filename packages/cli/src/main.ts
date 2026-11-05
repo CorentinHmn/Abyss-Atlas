@@ -180,7 +180,7 @@ export async function main(argv: string[], io: Io): Promise<number> {
       io.err(`File not found: ${csvArg}\n`);
       return 1;
     }
-    const { files, report } = importDictionary({ csv: readFileSync(csvPath, "utf8"), system: values.system, dialect, existing, date: values.date ?? io.today(), method: "cli_import" });
+    const { files, report } = importDictionary({ csv: readFileSync(csvPath, "utf8"), system: values.system, dialect, existing, date: values.date ?? io.today() });
     if (report.errors.length > 0) {
       for (const error of report.errors) io.err(`✗ ${error}\n`);
       return 1;

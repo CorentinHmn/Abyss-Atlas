@@ -26,7 +26,8 @@ P3 (§4).
 - CT-011: The operator creates an organization: name and the number of credits granted (at least 1).
 - CT-012: When creating it, the operator enters the e-mail and name of the customer's first Admin, usually the
   contact person; Atlas sends the invitation and uses the first credit (Q-ADM-03 of
-  `docs/05-modules/administration.md`). The control tower does not keep or show this e-mail afterwards.
+  `docs/05-modules/administration.md`). The e-mail must not be used by another Atlas account (ADM-013). The
+  control tower does not keep or show this e-mail afterwards.
 - CT-013: The operator changes the credits granted. Credits cannot go below the number of accounts that exist; to
   lower them further, the customer must first request deletions.
 - CT-014: The operator renames an organization.

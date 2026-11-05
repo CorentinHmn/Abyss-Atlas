@@ -21,7 +21,7 @@ own file in `docs/06-ux/screens/`. Requirement identifiers: `NAV-xxx`.
 ## 2. Workspace layout
 ```
 ┌────────────────────────────────────────────────────────────────────────────┐
-│ Atlas   [Organization ▾]   [Project ▾]            [Search]   [?]  [Me ▾]   │  top bar
+│ Atlas   Organization   [Project ▾]                [Search]   [?]  [Me ▾]   │  top bar
 ├──────────────┬─────────────────────────────────────────────────────────────┤
 │ Project menu │                                                             │
 │  Overview    │                    screen content                           │
@@ -35,8 +35,8 @@ own file in `docs/06-ux/screens/`. Requirement identifiers: `NAV-xxx`.
 │  Settings    │                                                             │
 └──────────────┴─────────────────────────────────────────────────────────────┘
 ```
-- NAV-010: **Top bar**: product mark (goes to the projects list), organization switcher (shown only with accounts in
-  several organizations, ADM-031), project switcher, search (P3), help, personal menu.
+- NAV-010: **Top bar**: product mark (goes to the projects list), organization name (no switcher: one account, one
+  organization, ADM-031), project switcher, search (P3), help, personal menu.
 - NAV-011: **Personal menu**: profile (display name, password), organization administration (Admins), sign out.
 - NAV-012: **Project menu**: shown inside a project; the current screen is highlighted. Counts of validation errors
   appear next to the entries that have some (Models, Rules, Value maps).

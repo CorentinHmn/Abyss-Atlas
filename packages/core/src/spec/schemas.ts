@@ -167,7 +167,7 @@ export const datasetSchema = z.strictObject({
   description: z.string().optional(),
   primary_key: z.array(text).optional(),
   landing_name: z.string().optional(),
-  metadata_origin: z.strictObject({ method: z.enum(["manual", "file_import", "cli_import"]), date: z.string() }),
+  metadata_origin: z.strictObject({ method: z.enum(["manual", "file_import"]), date: z.string() }),
   columns: z.record(
     text,
     z.strictObject({

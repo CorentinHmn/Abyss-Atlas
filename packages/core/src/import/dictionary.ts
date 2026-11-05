@@ -19,7 +19,7 @@ export interface DictionaryImportOptions {
   existing: Map<string, DatasetSpec>;
   /** Date of the import, written in metadata_origin (YYYY-MM-DD). */
   date: string;
-  method?: "file_import" | "cli_import";
+  method?: "file_import";
 }
 
 export interface DictionaryImportReport {

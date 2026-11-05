@@ -7,7 +7,7 @@ What a customer Admin manages for the organization: accounts and licenses, proje
 the organization's settings. The operator side (creating organizations, granting credits, validating deletions) is
 `docs/05-modules/control-tower.md`. Requirement identifiers: `ADM-xxx`.
 
-Phases: P2 unless marked otherwise (`docs/07-roadmap.md` §3.4). Open points are in §7.
+Phases: P2 unless marked otherwise (`docs/07-roadmap.md` §3.4). Decisions are in §7.
 
 ## 1. Accounts and licenses (UC-040, UC-041, UC-043, UC-046)
 
@@ -21,9 +21,10 @@ Phases: P2 unless marked otherwise (`docs/07-roadmap.md` §3.4). Open points are
 - ADM-010: An Admin creates an account with an e-mail address, a display name and a role (Admin, Editor, Viewer).
 - ADM-011: Creation is refused when no credit remains; the check and the use of the credit happen in one database
   transaction, so two Admins can never use the last credit twice (`docs/04-architecture.md` §4.7).
-- ADM-012: The new user receives an **invitation e-mail** with a link to choose a password (see Q-ADM-01). Until then
+- ADM-012: The new user receives an **invitation e-mail** with a link to choose a password (Q-ADM-01). Until then
   the account shows as **invited**; it already uses its credit.
-- ADM-013: An e-mail already used by an account of the organization is refused.
+- ADM-013: An e-mail already used by any Atlas account is refused (§2). The message does not say whether the address
+  is used in another organization; it only asks for another address.
 - ADM-014: Admins can resend an invitation that has not been accepted.
 
 ### 1.3 Changing an account
@@ -44,19 +45,19 @@ Phases: P2 unless marked otherwise (`docs/07-roadmap.md` §3.4). Open points are
   function removes the accounts and returns their credits.
 - ADM-022: Removing an account keeps the history readable: past versions and approvals keep the author's display
   name and e-mail as recorded at the time (no foreign key to the removed account).
-- ADM-023: A person with accounts in several organizations (§2) keeps their sign-in until their last account is
-  removed.
+- ADM-023: Removing an account removes its sign-in; the e-mail address can then be used again.
 
-## 2. Several organizations (see Q-ADM-02)
-- ADM-030: One person signs in once and may hold accounts in several organizations (e.g. a consultant working for
-  two customers). Each account belongs to one organization, uses one credit of that organization and has its own
-  role there.
-- ADM-031: The user picks the current organization in a switcher; everything shown belongs to that organization.
+## 2. One account, one organization (Q-ADM-02)
+- ADM-030: An account belongs to **exactly one organization** and signs in with its own e-mail address. A person
+  working for two customers (e.g. a consultant) has **two separate accounts**, one created by each customer, with
+  **two different e-mail addresses** (typically the address each customer gives them). Nothing links the two accounts.
+- ADM-031: There is no organization switcher: after sign-in, everything shown belongs to the account's organization.
+  The database enforces one organization per account.
 
 ## 3. Projects (UC-044)
 - ADM-040: Editors and Admins create a project (name, description) and rename it.
 - ADM-041: Only Admins delete a project. Deleting asks to type the project's name; it removes its specs, history
-  and downloads (see Q-ADM-04).
+  and downloads; the full export (UC-036) is offered first (Q-ADM-04).
 - ADM-042: Projects can be **archived** by Editors and Admins: they stay readable and leave the main list.
 - ADM-043: Every active member of the organization sees every project (no per-project access list in v1). The
   project-level Approver permission comes in P3 (`docs/01-scope.md` §2.3).
@@ -90,13 +91,13 @@ Phases: P2 unless marked otherwise (`docs/07-roadmap.md` §3.4). Open points are
 Every rule is enforced by RLS policies and database functions, then proven by pgTAP tests (ADR 0008, RM-032);
 the screens only hide what a role cannot do.
 
-## 7. Open points
-- Q-ADM-01: **Invitation e-mails** need an e-mail sender. Supabase's built-in sender is limited to a few e-mails per
-  hour and meant for tests: enough while only the founder uses Atlas, not for customers. Proposal: built-in sender in
-  P2, an EU e-mail provider (new sub-processor, ARC-205) before the first external users.
-- Q-ADM-02: Can one person hold accounts in several organizations (§2)? Proposal: yes, useful for consulting firms.
-- Q-ADM-03: Who creates the **first Admin** of a new organization? Proposal: the operator, with the e-mail of the
-  customer's contact person, when creating the organization; it uses the first credit. The control tower then never
-  shows it again (`docs/05-modules/control-tower.md` CT-012).
-- Q-ADM-04: Deleting a project is final. Proposal: Admins only, with the typed confirmation of ADM-041, and the
-  export (UC-036) offered first.
+## 7. Decisions (2026-11-05)
+- Q-ADM-01: **Invitation e-mails**: Supabase's built-in sender (a few e-mails per hour, meant for tests) in P2; an EU
+  e-mail provider (new sub-processor, ARC-205) is chosen before the first external users.
+- Q-ADM-02: **No account spans several organizations**: the same person has separate accounts, with different e-mail
+  addresses (§2).
+- Q-ADM-03: The **first Admin** of a new organization is invited by the operator, with the e-mail of the customer's
+  contact person, when creating the organization; it uses the first credit. The control tower then never shows it
+  again (`docs/05-modules/control-tower.md` CT-012).
+- Q-ADM-04: Deleting a project is final: Admins only, with the typed confirmation of ADM-041, and the export (UC-036)
+  offered first.

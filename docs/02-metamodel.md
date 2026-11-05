@@ -150,7 +150,7 @@ The codes used in this documentation are only examples.
 | primaryKey | no | Ordered list of key columns. |
 | landingName | no | Override of the landed table name when it differs from the pattern. |
 | description | no | |
-| metadataOrigin | yes | `manual`, `file-import` or `cli-import` (later, UC-005), plus import date. |
+| metadataOrigin | yes | `manual` or `file-import`, plus import date. |
 
 | Attribute (column) | Required | Description |
 |---|---|---|
