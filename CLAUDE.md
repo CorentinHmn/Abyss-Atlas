@@ -30,7 +30,9 @@ validated and approved in Atlas, and generates code (dbt / SQL) and documentatio
 - `apps/worker`: Node.js service: real-time co-editing (**Yjs** + Hocuspocus, ADR 0005) and background jobs
   (**Supabase Queues**, ADR 0006).
 - AI: **Claude on Amazon Bedrock**, EU region, through one AI gateway; off by default per organization (ADR 0004).
-- Data: **PostgreSQL** (Supabase), **Drizzle** ORM, multi-tenant per organization with RLS.
+- Data: **PostgreSQL** (Supabase), multi-tenant per organization with RLS. **SQL migrations are the source of truth**
+  (`supabase/migrations`, never edited once applied) and **pgTAP tests** prove the RLS in CI (ADR 0008);
+  **Drizzle** for typed queries only (from P2).
 - Auth: Supabase Auth. Payments (later): Stripe.
 - Hosting: **EU only** (GDPR): Vercel + Supabase in an EU region, worker on AWS Frankfurt; sovereign host (Scaleway, OVHcloud) as a future option.
 - Tests: **Vitest** (unit), **Playwright** (e2e).
@@ -42,6 +44,7 @@ apps/web/            SaaS application
 apps/worker/         co-editing server and background jobs
 packages/core/       business core (metamodel, validation, generators)
 packages/cli/        command line
+supabase/            database migrations (SQL) and RLS tests (pgTAP)
 docs/                product specifications (functional source of truth)
 docs/adr/            architecture decisions (one decision = one dated file)
 ```

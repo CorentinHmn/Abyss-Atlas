@@ -8,6 +8,7 @@ Source-to-target specifications for data platforms (provisional codename). Produ
 |---|---|
 | `apps/web` | SaaS application (Next.js), deployed on Vercel (region `fra1`) |
 | `packages/core` | Business core: metamodel, YAML format, validation, generators |
+| `supabase/` | Database migrations (SQL, source of truth) and RLS tests (pgTAP), see ADR 0008 |
 | `docs/` | Product specifications and architecture decisions (`docs/adr/`) |
 
 `apps/worker` and `packages/cli` arrive in later phases (`docs/07-roadmap.md`).
@@ -26,7 +27,16 @@ pnpm dev            # http://localhost:3000
 pnpm check          # lint + typecheck + tests
 pnpm build          # production build
 ```
+Database (needs Docker):
+```bash
+pnpm db:start      # local Supabase database with every migration applied
+pnpm db:test       # RLS and isolation tests (pgTAP)
+pnpm db:reset      # rebuild the local database from the migrations
+```
 The same checks run in GitHub Actions on every push and pull request.
+
+Database changes: add a new file in `supabase/migrations/` (never edit an applied one), make `pnpm db:test` pass,
+then apply it to the hosted project and keep the file version equal to the version recorded there (ADR 0008).
 
 ## Environments
 | Environment | Web | Database |

@@ -6,3 +6,7 @@ packages:
 ignoredBuiltDependencies:
   - "@parcel/watcher"
   - "@swc/core"
+
+# The Supabase CLI downloads its binary in a post-install script.
+onlyBuiltDependencies:
+  - supabase

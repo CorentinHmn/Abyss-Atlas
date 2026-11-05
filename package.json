@@ -11,9 +11,14 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "check": "turbo run lint typecheck test"
+    "check": "turbo run lint typecheck test",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:test": "supabase test db"
   },
   "devDependencies": {
-    "turbo": "2.11.10"
+    "turbo": "2.11.10",
+    "supabase": "2.121.0"
   }
 }
