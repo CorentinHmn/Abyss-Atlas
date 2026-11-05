@@ -21,7 +21,7 @@ branches:
       - left: c
         right: s
         type: left
-        on:
+        condition:
           all:
             - { left: c.KUNNR, op: eq, right: s.KUNNR }
             - { left: s.VKORG, op: eq, value: "FR01" }
@@ -41,7 +41,7 @@ branches:
       - left: c
         right: s
         type: left
-        on:
+        condition:
           all:
             - { left: c.KUNNR, op: eq, right: s.KUNNR }
             - { left: s.VKORG, op: eq, value: "DE01" }
@@ -65,7 +65,7 @@ branches:
       - left: a
         right: p
         type: inner
-        on: { a.PARTY_ID: p.PARTY_ID }
+        condition: { a.PARTY_ID: p.PARTY_ID }
         cardinality: many_to_one
         description: The party (company) behind the customer account.
 

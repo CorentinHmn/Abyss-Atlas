@@ -23,7 +23,7 @@ branches:
       - left: m
         right: t
         type: left
-        on:
+        condition:
           all:
             - { left: m.MATNR, op: eq, right: t.MATNR }
             - { left: t.SPRAS, op: eq, value: "E" }
@@ -41,7 +41,7 @@ branches:
       - left: m
         right: t
         type: left
-        on:
+        condition:
           all:
             - { left: m.MATNR, op: eq, right: t.MATNR }
             - { left: t.SPRAS, op: eq, value: "E" }
@@ -60,7 +60,7 @@ branches:
       - left: i
         right: ic
         type: inner
-        on: { i.INVENTORY_ITEM_ID: ic.INVENTORY_ITEM_ID }
+        condition: { i.INVENTORY_ITEM_ID: ic.INVENTORY_ITEM_ID }
         cardinality: many_to_many
         confirmed: true
         description: >
@@ -70,7 +70,7 @@ branches:
       - left: ic
         right: c
         type: inner
-        on: { ic.CATEGORY_ID: c.CATEGORY_ID }
+        condition: { ic.CATEGORY_ID: c.CATEGORY_ID }
         cardinality: many_to_one
         description: The category of the assignment.
     filter: { left: ic.CATEGORY_SET_ID, op: eq, value: "1" }

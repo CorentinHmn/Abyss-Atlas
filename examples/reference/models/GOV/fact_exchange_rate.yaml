@@ -108,13 +108,19 @@ columns:
     quality: [not_null]
     from:
       sap_fr:
-        inputs: [r.UKURS, r.FFACT, r.TFACT]
+        inputs: [r.UKURS]
         steps:
-          - sql:
-              expression: "CASE WHEN r.UKURS < 0 THEN 1 / ABS(r.UKURS) ELSE r.UKURS END * r.TFACT / NULLIF(r.FFACT, 0)"
-              reason: >
-                SAP stores indirect quotations as negative rates, with ratio factors. A case cannot return a
-                calculation yet (operands are not expressions), so this conversion is written in SQL.
+          # SAP stores an indirect quotation as a negative rate: the direct rate is then 1 / |UKURS|.
+          - calculate: { function: abs, args: [current] }
+          - case:
+              when:
+                - if: { left: r.UKURS, op: lt, value: "0" }
+                  then: { calculate: { function: divide, args: [{ value: "1" }, current] } }
+              else: current
+          # Ratio factors: the rate is given for FFACT units of the from-currency and TFACT units of the to-currency.
+          - calculate: { function: multiply, args: [current, r.TFACT] }
+          - calculate: { function: divide, args: [current, r.FFACT] }
+          - convert: { to: "decimal(18,9)", method: cast, on_error: fail }
       oracle:
         inputs: [g.CONVERSION_RATE]
         steps:

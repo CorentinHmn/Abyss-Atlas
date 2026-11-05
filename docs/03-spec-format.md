@@ -69,6 +69,7 @@ An operand is a value used by a step or a condition.
 | `current` | The value produced by the previous steps of the pipeline. |
 | `{ value: "FR01" }` | A literal (FMT-020). |
 | `{ param: blocked_flag }` | A parameter of the business rule being defined. |
+| `{ calculate: { function: divide, args: [{ value: "1" }, current] } }` | One calculation whose arguments are operands without calculation (`docs/02-metamodel.md` §5.3). |
 
 - FMT-040: Literals are only ever written with `value` (or `values`), so a literal can never be mistaken for a
   column.
@@ -175,7 +176,7 @@ branches:
       - left: c
         right: s
         type: left
-        on:                         # full form; the short form is shown in branch `oracle`
+        condition:                  # full form; the short form is shown in branch `oracle`
           all:
             - { left: c.KUNNR, op: eq, right: s.KUNNR }
             - { left: s.VKORG, op: eq, value: "FR01" }
@@ -204,7 +205,7 @@ branches:
       - left: a
         right: p
         type: inner
-        on: { a.PARTY_ID: p.PARTY_ID }    # short form: equality of key columns
+        condition: { a.PARTY_ID: p.PARTY_ID }    # short form: equality of key columns
         cardinality: many_to_one
 
 consolidation:
@@ -217,7 +218,8 @@ consolidation:
       email: { strategy: first_not_null, priority: [oracle, sap_fr, sap_de] }
 ```
 - FMT-070: `datasets` is a list, so the order (first = driving dataset) is explicit.
-- FMT-071: `on` accepts the short form (a map of equal columns, combined with "and") or a full condition (§5.3).
+- FMT-071: `condition` accepts the short form (a map of equal columns, combined with "and") or a full condition (§5.3).
+  The key is not called `on`: YAML 1.1 tools still in use read `on` as the boolean `true`.
 - FMT-072: Survivorship strategies: `priority`, `first_not_null`, `most_recent` (with `by`), `rule` (with
   `rule`).
 - FMT-073: A join with `cardinality: many_to_many` must also carry `confirmed: true` (MM-121).

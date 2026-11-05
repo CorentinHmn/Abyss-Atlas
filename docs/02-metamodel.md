@@ -100,8 +100,9 @@ classDiagram
 ### 3.2 Domain
 A **business process of the organization** (e.g. `SEL` Sales, `MFG` Manufacture, `GOV` Govern) that **owns** target
 models, business rules and value mappings, and is **responsible** for their meaning. Domains form the organization's
-process catalogue: an Admin defines them **when the organization is set up**, and every project of the organization
-uses the same catalogue.
+process catalogue: an Admin defines them **when the organization is set up**, as many as the organization needs
+(sales, manufacture, purchasing, quality, finance, HR…), and every project of the organization uses the same catalogue.
+The codes used in this documentation are only examples.
 
 | Attribute | Required | Description |
 |---|---|---|
@@ -223,7 +224,7 @@ equivalent of the `FROM … JOIN … WHERE … GROUP BY` of one part of the unio
 |---|---|---|
 | left, right | yes | Aliases of two dataset uses of the branch. |
 | type | yes | `inner`, `left`, `right`, `full`. |
-| on | yes | A condition (§5.3), usually equalities between key columns. |
+| condition | yes | A condition (§5.3), usually equalities between key columns. |
 | cardinality | yes | Expected relationship: `one-to-one`, `one-to-many`, `many-to-one`, `many-to-many`. |
 | confirmed | for many-to-many | `true` to confirm that a `many-to-many` join is intended (MM-121). |
 | description | no | Why the join exists, in business words. |
@@ -239,12 +240,18 @@ Applied when a model has several branches.
 | Attribute | Required | Description |
 |---|---|---|
 | combine | yes | `union-all` (keep every row) or `union-distinct`. |
-| addSourceColumn | no | Name of a column that receives each branch's `sourceTag`. |
+| addSourceColumn | no | Name of an automatic column that receives each branch's `sourceTag` (MM-133). |
 | match | no | Key that identifies the same real-world entity across branches (e.g. VAT number). |
 | survivorship | with match | Which value wins when several branches describe the same entity: a **branch priority** list for the whole row, optionally overridden per column (priority list, most recent, first not null, or a business rule). |
 
 - MM-130: Without `match`, rows from different branches are never merged.
 - MM-131: Survivorship covers the "take it from the CRM, else from the ERP" case at column level.
+- MM-132: An empty value in a `match` column never matches: rows without the key are never merged (e.g. customers
+  without a VAT number).
+- MM-133: The column named by `addSourceColumn` is automatic: type `string(20)`, not declared among the target
+  columns, documented and exported like the others.
+- MM-134 (later): consolidation will also produce a cross-reference "source identifier → surviving identifier",
+  so that facts can point to the surviving row after a merge.
 
 ## 5. Column mapping
 
@@ -273,7 +280,7 @@ All the kinds below are in v1.
 | `mapValues` | Translates codes through a value mapping. | mapping, onUnmatched (`keep`, `null`, `default`, `fail`) |
 | `case` | Conditional logic. | when: list of (condition, result), else |
 | `calculate` | A function from the Atlas function catalog (arithmetic, rounding, dates, text). | function, arguments |
-| `concat` | Concatenation of several values. | parts, separator |
+| `concat` | Concatenation of several values; empty parts are skipped, and the separator only goes between non-empty parts. | parts, separator |
 | `lookup` | Fetches one value from another dataset, without changing the branch's rows. | dataset, match (condition), return column, onMissing |
 | `aggregate` | Aggregation, when the branch has `groupBy`. | function (`sum`, `count`, `count-distinct`, `min`, `max`, `avg`) |
 | `rule` | Applies a reusable business rule (§6.1). | rule, arguments |
@@ -288,7 +295,9 @@ All the kinds below are in v1.
 ### 5.3 Conditions and operands
 Conditions are used by joins, filters, `case`, `lookup` and quality checks. They are structured, never strings.
 
-- **Operands**: a column (`alias.column`), a literal (typed), a rule parameter.
+- **Operands**: a column (`alias.column`), the pipeline value (`current`), a literal (typed), a rule parameter, or
+  **one calculation** (a `calculate` whose arguments are operands without calculation), e.g. the result of a
+  `case` can be "1 divided by current". Deeper nesting is written as successive steps.
 - **Comparison**: operand, operator (`=`, `!=`, `<`, `<=`, `>`, `>=`, `in`, `not-in`, `between`, `like`,
   `is-null`, `is-not-null`), operand(s).
 - **Groups**: `all` (and), `any` (or), `not`.
@@ -317,6 +326,8 @@ gross amount − discounts", "Customer status from blocking flags", "Fiscal peri
 
 - MM-300: A rule cannot reference itself, directly or through other rules.
 - MM-301: A business rule is a review unit of its own (§10).
+- MM-302: In a rule with exactly one parameter, the first step receives it as the pipeline value (`current`), as a
+  column mapping does with its only input.
 
 ### 6.2 Value mapping
 | Attribute | Required | Description |
@@ -419,3 +430,7 @@ Kept in the Atlas database, never in the spec. Detailed in `docs/04-architecture
 - Q-MM-05: Domains are the organization's business processes (e.g. `SEL` Sales, `MFG` Manufacture, `GOV` Govern),
   defined by an Admin at setup and shared by all projects (§3.2).
 - Q-MM-06: A `many-to-many` join must carry `confirmed: true` (MM-121).
+- Q-MM-07: Points found by the reference project (`examples/reference/README.md`): one calculation allowed as an
+  operand (§5.3); first step of a one-parameter rule (MM-302); `concat` skips empty parts (§5.2); join key
+  `condition` instead of `on`, which YAML 1.1 tools read as `true`; empty match values never match (MM-132);
+  automatic source column (MM-133); cross-reference after merge comes later (MM-134).

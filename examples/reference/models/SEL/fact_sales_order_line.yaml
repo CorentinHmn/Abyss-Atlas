@@ -21,7 +21,7 @@ branches:
       - left: i
         right: h
         type: inner
-        on: { i.VBELN: h.VBELN }
+        condition: { i.VBELN: h.VBELN }
         cardinality: many_to_one
         description: The order header of the line.
     filter: { left: i.ABGRU, op: is_null }
@@ -36,7 +36,7 @@ branches:
       - left: i
         right: h
         type: inner
-        on: { i.VBELN: h.VBELN }
+        condition: { i.VBELN: h.VBELN }
         cardinality: many_to_one
         description: The order header of the line.
     filter: { left: i.ABGRU, op: is_null }
@@ -51,7 +51,7 @@ branches:
       - left: l
         right: h
         type: inner
-        on: { l.HEADER_ID: h.HEADER_ID }
+        condition: { l.HEADER_ID: h.HEADER_ID }
         cardinality: many_to_one
         description: The order header of the line.
     filter:
