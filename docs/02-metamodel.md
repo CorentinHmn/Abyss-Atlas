@@ -12,13 +12,13 @@ Requirement identifiers: `MM-xxx`.
 ## 1. Purpose and boundaries
 
 ### 1.1 Two families of objects
-| Family | Where it lives | Open source | Content |
+| Family | Where it lives | Exported | Content |
 |---|---|---|---|
 | **Spec domain** | Atlas; exportable as YAML files (`docs/03-spec-format.md`); `packages/core` | Yes | Everything that describes a source-to-target specification: sources, targets, mappings, rules, quality checks, approvals. |
 | **Platform domain** | Atlas database only | No | Organizations, accounts, credits, review workflow, support (§11). Never part of an export. |
 
-- MM-001: The spec domain must be complete on its own: the CLI can validate and generate from the YAML files
-  without the SaaS.
+- MM-001: The spec domain must be complete on its own: `packages/core` can validate and generate from the YAML
+  files alone, without the database.
 - MM-002: The spec domain never contains customer data (rows), secrets or connection credentials. Value mappings
   (§6.2) are reference lists, not business data.
 

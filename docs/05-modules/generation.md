@@ -3,8 +3,8 @@
 Status: Draft
 Last updated: 2026-11-05
 
-Generation turns a valid project into code and documentation that the customer downloads (ADR 0007) or produces
-with the open-source CLI. It lives in `packages/core`. P1 covers **dbt for Snowflake** (UC-030) and **Markdown
+Generation turns a valid project into code and documentation that the customer downloads (ADR 0007); the internal
+CLI produces the same files for Atlas's tests (ADR 0009). It lives in `packages/core`. P1 covers **dbt for Snowflake** (UC-030) and **Markdown
 documentation** (UC-032). Requirement identifiers: `GEN-xxx`.
 
 ## 1. General rules

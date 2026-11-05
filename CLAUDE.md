@@ -12,11 +12,12 @@ validated and approved in Atlas, and generates code (dbt / SQL) and documentatio
 - **ODCS-compatible** (Open Data Contract Standard, Bitol / Linux Foundation) for import/export,
   without depending on it: our format is richer, ODCS is an output.
 - **Atlas is the only workspace** (ADR 0007): specs, history and approvals live in Atlas. Nothing of a customer
-  is ever stored in a Git repository; customers download outputs and can export everything in the open YAML format.
+  is ever stored in a Git repository; customers download outputs and can export everything in plain YAML (and ODCS).
 - **Metadata only**: Atlas never stores customer data and never connects to customer systems
   (see docs/00-vision.md).
 - **Customer confidentiality**: the operator never sees customer content; the control tower sees licensing
   figures only, enforced in the database (ADR 0002).
+- **Proprietary** (ADR 0009): nothing is open source; the CLI is an internal tool (tests, CI), not distributed.
 
 ## Stack (see docs/adr/0001-stack.md)
 - **pnpm + Turborepo** monorepo, strict **TypeScript** everywhere.
@@ -26,7 +27,7 @@ validated and approved in Atlas, and generates code (dbt / SQL) and documentatio
   French and German planned next.
 - `packages/core`: metamodel (**Zod** schemas), YAML parser/serializer, validation,
   generators (dbt, SQL, ODCS, Markdown). **No UI dependency.**
-- `packages/cli`: CLI `atlas validate | generate | import | diff`.
+- `packages/cli`: internal CLI `atlas validate | generate | import | diff` (tests, CI, reference runs).
 - `apps/worker`: Node.js service: real-time co-editing (**Yjs** + Hocuspocus, ADR 0005) and background jobs
   (**Supabase Queues**, ADR 0006).
 - AI: **Claude on Amazon Bedrock**, EU region, through one AI gateway; off by default per organization (ADR 0004).

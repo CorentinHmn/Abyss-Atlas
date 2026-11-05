@@ -4,8 +4,8 @@ Status: Draft
 Last updated: 2026-11-05
 
 This document defines how the objects of `docs/02-metamodel.md` are written as YAML. Specs live in Atlas
-(ADR 0007); YAML is the format of the **YAML view** of the editor and of the **project export**, which the
-open-source CLI reads. The metamodel is
+(ADR 0007); YAML is the format of the **YAML view** of the editor and of the **project export**, which
+`packages/core` reads. The metamodel is
 authoritative for **concepts**; this document is authoritative for **spelling and layout**. Requirement
 identifiers: `FMT-xxx`.
 
@@ -451,4 +451,4 @@ implementation time. Field names below must be checked against that version.
 - FMT-150: Adding an optional key does not change the format version.
 - FMT-151: Any change that can break existing files increases `atlas` (2, 3…). Atlas reads the current version and
   the previous one, and provides an automatic upgrade of the files (a CLI command to add when version 2 exists).
-- FMT-152: The JSON Schema is published per format version.
+- FMT-152: A JSON Schema is maintained per format version.

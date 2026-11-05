@@ -4,6 +4,7 @@ Status: Accepted
 Date: 2026-11-04
 Deciders: founder
 Supersedes: ADR 0003
+Amended by: ADR 0009 (not open source)
 
 ## 1. Context
 - ADR 0003 made the customer's Git repository the source of truth, with two-way sync of specs and approvals.
@@ -13,7 +14,8 @@ Supersedes: ADR 0003
 - What a customer wants to keep on its side, it downloads and stores according to its own policy and
   infrastructure.
 - Specs must still be versioned, reviewable, approvable and protected from the operator (ADR 0002).
-- Customers must not be locked in, and the open-core strategy (open format, `packages/core`, CLI) is kept.
+- Customers must not be locked in, and the open-core strategy (open format, `packages/core`, CLI) is kept
+  *(dropped by ADR 0009: the product is proprietary)*.
 
 ## 2. Options considered
 | Option | Pros | Cons |
@@ -34,9 +36,9 @@ Supersedes: ADR 0003
    repository contains only the product's code.
 5. **Outputs are downloaded**: generated dbt models, documentation, ODCS contracts and the full spec export are
    downloaded by the customer, who stores them as its policy requires.
-6. **Open export**: a project can be exported at any time as an archive in the open YAML format
-   (`docs/03-spec-format.md`), including approval records. The open-source CLI validates and generates from such
-   an export, on the customer's side, without an Atlas account. This is the guarantee against lock-in.
+6. **Open export**: a project can be exported at any time as an archive in plain YAML
+   (`docs/03-spec-format.md`), including approval records. This is the guarantee against lock-in. *(Amended by
+   ADR 0009: the CLI that was to read such an export on the customer's side is an internal tool.)*
 
 ## 4. Consequences
 - Positive:

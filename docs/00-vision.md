@@ -1,7 +1,7 @@
 # 00 — Vision
 
 Status: Draft
-Last updated: 2026-11-04
+Last updated: 2026-11-05
 
 ## 1. Problem
 
@@ -50,7 +50,6 @@ revisited with real data at each roadmap milestone.
 
 ### 3.1 At 1 year
 Qualitative milestones:
-- The spec format, `packages/core` and the CLI are published as open source and usable without the SaaS.
 - A v1 of the SaaS runs in production, hosted in the EU, covering the v1 use cases of `docs/01-scope.md`.
 - A first real project has moved off Excel.
 - The first consulting firms use Atlas on client projects.
@@ -109,7 +108,7 @@ layer**. Mappings, joins, types and business rules are structured objects. Every
 the business and versioned in Atlas, and the spec generates the dbt code and the documentation. Unlike modeling
 suites and warehouse automation tools, Atlas is:
 
-- **open** (open-source format and CLI);
+- **free to leave** (full export in YAML and ODCS; the generated code belongs to the customer);
 - **lightweight** (no Git or tooling to learn: one workspace, outputs downloaded into the existing dbt project);
 - **European** (EU-hosted, metadata only).
 
@@ -117,7 +116,8 @@ suites and warehouse automation tools, Atlas is:
 1. **First-class objects**: joins, types, rules and multi-system provenance are structured objects, never free text.
 2. **One governed workspace**: specs, history and approvals live in Atlas; nobody needs Git. Nothing of a customer
    is stored in any Git repository; what the customer keeps on its side, it downloads (ADR 0007).
-3. **Open format**: the spec format, `packages/core` and the CLI are open source. Adoption of the format is the moat.
+3. **No lock-in**: a project can be exported at any time as plain YAML with its approvals, target tables as ODCS
+   contracts; the generated code belongs to the customer. The product itself is proprietary (ADR 0009).
 4. **ODCS-compatible, not ODCS-dependent**: ODCS is an import/export format.
 5. **Metadata only**: Atlas stores metadata only, **never customer data**. The Atlas service never connects to customer
    databases or source systems: sources are **specified**. Their metadata is entered by hand or imported from
@@ -132,17 +132,11 @@ suites and warehouse automation tools, Atlas is:
 
 ## 7. Business model
 
-### 7.1 Open core
-| Open source (free) | SaaS (paid) |
-|---|---|
-| Spec format | Collaborative web interface, with real-time co-editing |
-| `packages/core` (metamodel, validation, generators) | Review and approval workflow |
-| CLI (`validate`, `generate`, `import`, `diff`), working on an exported project | AI assistant |
-| | Governance |
-| | SSO |
-
-This is the model dbt uses: the open format drives adoption and guarantees customers can always leave with their specs (full export), and the SaaS sells collaboration and governance. The
-open-source license is still open; it will be decided in a dedicated ADR.
+### 7.1 Proprietary SaaS
+Atlas is proprietary (ADR 0009): the spec format, `packages/core` and the command line are not published; the
+command line is an internal tool. Customers pay for the SaaS: collaborative web interface with real-time
+co-editing, review and approval workflow, governance, AI assistant, SSO. What they take away is theirs: the
+outputs they download (dbt code, documentation, ODCS contracts) and the full export of their projects.
 
 ### 7.2 Pricing
 - **Per organization**, with tiers based on the number of licenses, priced in **euros**.
@@ -152,7 +146,7 @@ open-source license is still open; it will be decided in a dedicated ADR.
   - the customer's admins create user accounts themselves, and each account uses 1 credit; nobody signs in
     without an account, so nobody signs in without a license;
   - to get a credit back, the customer asks the operator to delete the account.
-- **No free tier in the SaaS** (0 credits). What is free is the open-source part (format, core, CLI).
+- **No free tier** (0 credits), and nothing to download for free.
   Prospects discover the SaaS through a teaser on the website and a live demonstration.
 - Customers do not sign up on their own: the operator creates the organization when it grants the first credits.
 - Paid tiers, license ranges and prices will be defined later; they are not set in this document.

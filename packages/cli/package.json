@@ -2,6 +2,7 @@
   "name": "@atlas/cli",
   "version": "0.1.0",
   "private": true,
+  "license": "UNLICENSED",
   "description": "Atlas command line: validate a spec, generate dbt and documentation, import dictionaries, compare versions. Works offline.",
   "type": "module",
   "bin": {

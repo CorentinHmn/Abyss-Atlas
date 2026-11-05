@@ -1,4 +1,4 @@
-# Reference run (RM-021)
+# Reference run (RM-021, RM-054)
 
 The dbt project generated from `examples/reference` runs on the fictitious data of `examples/reference-data`, then
 the dbt tests and the expected results (`examples/reference-data/expectations.yaml`) are checked.
@@ -6,10 +6,11 @@ the dbt tests and the expected results (`examples/reference-data/expectations.ya
 | Run | Where | When |
 |---|---|---|
 | Offline (DuckDB): the Snowflake SQL is translated by sqlglot and executed | GitHub Actions, job `generated-dbt` | every push |
-| Snowflake: real `dbt build` | GitHub Actions, workflow `Snowflake reference run` | every push to `main` touching the core or the examples, and on demand, once the secrets exist |
+| Snowflake: real `dbt build` | GitHub Actions, workflow `Snowflake reference run` | on demand, once the secrets exist; planned once before the first design partner (RM-054) |
 
 ## Setting up Snowflake (once)
-1. Create a Snowflake trial account in an **EU region** (e.g. AWS Europe (Frankfurt)).
+1. Create a Snowflake trial account in an **EU region** (e.g. AWS Europe (Frankfurt)). A trial is free for 30 days
+   or 400 USD of usage, whichever comes first: open it just before the run.
 2. On your computer, create a key pair for the CI user (no password, no MFA prompt):
    ```bash
    openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out rsa_key.p8 -nocrypt

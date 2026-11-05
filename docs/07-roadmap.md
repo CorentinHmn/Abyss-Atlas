@@ -1,7 +1,7 @@
 # 07 — Roadmap
 
 Status: Draft
-Last updated: 2026-11-04
+Last updated: 2026-11-05
 
 This document orders the work into phases, each closed by exit criteria. It references the requirement
 identifiers of the other documents (`UC-`, `MM-`, `FMT-`, `ARC-`, `OOS-`). Identifiers of this document: `RM-xxx`.
@@ -29,7 +29,7 @@ A realistic project, written in phase 0 and used as the acceptance test of every
 | Domains | `SEL` Sales, `MFG` Manufacture, `GOV` Govern (shared reference data, finance). |
 | Target models | 7, 61 columns: `dim_customer`, `fact_sales_order_line` (SEL); `dim_material`, `int_mes_order_output` (intermediate, chained), `fact_production_order` (MFG); `dim_plant`, `fact_exchange_rate` (GOV). Location: `examples/reference/`. |
 | Coverage | Every step kind (`docs/02-metamodel.md` §5.2), joins of each cardinality (one confirmed many-to-many), union of branches with consolidation and survivorship, at least one business rule, one value mapping, one `not_provided`, one `sql` escape hatch. |
-| Outputs | dbt models for Snowflake that compile and run on a test Snowflake account with sample data; Markdown documentation. |
+| Outputs | dbt models for Snowflake that compile and run on fictitious sample data (`examples/reference-data`, offline on every push), then once on a Snowflake account before the first design partner (RM-054); Markdown documentation. |
 
 ## 3. Phases
 
@@ -37,7 +37,7 @@ A realistic project, written in phase 0 and used as the acceptance test of every
 | Phase | Goal | Duration (hypothesis) |
 |---|---|---|
 | P0 Foundations | Deliver safely | RH-01: 1–2 weeks |
-| P1 Core and CLI | The engine, open source, no UI | RH-02: 4–6 weeks |
+| P1 Core and CLI | The engine, no UI | RH-02: 4–6 weeks |
 | P2 SaaS minimum | Specify a whole model in Atlas, alone | RH-03: 8–10 weeks |
 | P3 Governance and collaboration | Review, approval, co-editing | RH-04: 8–10 weeks |
 | P4 v1 launch | Ready to sell | RH-05: 4–6 weeks |
@@ -59,21 +59,22 @@ Exit criteria:
 - RM-011: The RLS test harness runs in CI and fails on a table without a policy.
 - RM-012: The reference project exists as YAML files following `docs/03-spec-format.md`.
 
-### 3.3 P1 — Core and CLI (open source)
+### 3.3 P1 — Core and CLI
 Content:
 - `packages/core`: Zod schemas of the metamodel (MM-*), YAML parser and serializer with short forms (FMT-*),
   literal handling (FMT-020), canonical form and hashes (FMT-122, MM-603, MM-700).
 - Validation: references, types and conversions, joins and cardinality, branch completeness, aggregation, escape
   hatch reporting (UC-020, MM-100…MM-702).
 - Generators: dbt models and sources for Snowflake (UC-030), Markdown documentation (UC-032).
-- CLI: `atlas validate`, `generate`, `diff`, `import` of dictionary files (UC-001, UC-034).
+- CLI: `atlas validate`, `generate`, `diff`, `import` of dictionary files (UC-001); an internal tool for tests and
+  CI, not distributed (ADR 0009).
 - Catalog queries for PostgreSQL and SQL Server, documented, and the matching CSV import (UC-003).
-- Before release: product name and open-source license decided (§5).
 
 Exit criteria:
 - RM-020: The reference project validates with no error; every validation rule has unit tests with a failing
   example.
-- RM-021: The generated dbt project of the reference project compiles and runs on Snowflake.
+- RM-021: The generated dbt project of the reference project compiles, and runs on the fictitious data with every
+  expected result (Snowflake SQL translated to DuckDB, in CI). The run on Snowflake itself is RM-054.
 - RM-022: A dictionary CSV produced by the catalog query imports into dataset files.
 - RM-023: Validation of the reference project takes under 1 second on a laptop.
 
@@ -126,12 +127,15 @@ Content:
   (ARC-205).
 - Paid tiers and prices (`docs/00-vision.md` §7.2); credits stay managed by the operator (payments by Stripe later).
 - Website teaser and demonstration project (§5).
+- Reference run on a Snowflake account (trial opened for the run; `scripts/reference-run/README.md`).
 
 Exit criteria:
 - RM-050: The performance targets ARC-300…ARC-306 are met.
 - RM-051: No high or critical finding remains open from the security review.
 - RM-052: The legal documents are signed with every provider and ready for customers.
 - RM-053: v1 is validated by the founder on the reference project and on one design partner's real project.
+- RM-054: Before the first design partner, the generated dbt project of the reference project runs on a Snowflake
+  account (`dbt build`) with every expected result.
 
 ## 4. Documents to write before each phase
 | Before | Documents |
@@ -144,8 +148,8 @@ Exit criteria:
 ## 5. Parallel business track
 | ID | Item | Needed by |
 |---|---|---|
-| RM-060 | Final product name, trademark check, domain name, npm organization. | End of P1 (first public release) |
-| RM-061 | Open-source license of the format, `packages/core` and the CLI (ADR). | End of P1 |
+| RM-060 | Final product name, trademark check, domain name. "Atlas" is kept for now. | Before the website teaser (P4) |
+| RM-061 | *Decided: proprietary, not open source (ADR 0009).* | — |
 | RM-062 | Recruit 3 to 5 design partners, at least 2 consulting firms (H-01). | During P2–P3, needed for RM-053 |
 | RM-063 | Website teaser and a demonstration project (Q-07 of `docs/01-scope.md`). | P4 |
 | RM-064 | Paid tiers and prices. | P4 |
@@ -155,7 +159,7 @@ Exit criteria:
 |---|---|---|
 | **AI assistant** (Claude on Bedrock, off by default) | UC-016, ADR 0004 | v1.1, first after v1 is validated |
 | Generation for Databricks, BigQuery, PostgreSQL | UC-031 | Later |
-| `atlas import` reading a database catalog directly | UC-005 | Later |
+| Command line for customers, under a commercial license | ADR 0009 §5 | If customers ask |
 | ERP data dictionaries (e.g. SAP) | UC-004, OOS-004 | Later (v2) |
 | `scd2` historization | Q-MM-04 of `docs/02-metamodel.md` | Later |
 | French and German UI | OOS-007 | Later |
@@ -169,10 +173,10 @@ Every use case of `docs/01-scope.md` and its phase:
 
 | Phase | Use cases |
 |---|---|
-| P1 | UC-001, UC-003, UC-020, UC-030, UC-032, UC-034 |
+| P1 | UC-001, UC-003, UC-020, UC-030, UC-032 |
 | P2 | UC-001, UC-002, UC-003 (in the browser), UC-011…UC-015, UC-023, UC-030, UC-032 (download), UC-036, UC-040, UC-041, UC-043, UC-044, UC-046, UC-048, UC-050…UC-052 |
 | P3 | UC-017, UC-021, UC-033, UC-035, UC-045, UC-047, UC-053…UC-055 |
 | P4 | UC-042 |
 | v1.1 | UC-016 |
-| Later | UC-004, UC-005, UC-031 |
-| Removed | UC-010, UC-022 |
+| Later | UC-004, UC-031 |
+| Removed | UC-005, UC-010, UC-022, UC-034 |

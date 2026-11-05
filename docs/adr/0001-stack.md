@@ -3,13 +3,14 @@
 Status: Accepted
 Date: 2026-11-04
 Deciders: founder
+Amended by: ADR 0009 (not open source)
 
 ## 1. Context
 Atlas is a source-to-target specification SaaS (see `docs/00-vision.md`). The stack must support:
 
 1. **A business core shared by the web app and the CLI**: the metamodel, YAML parsing, validation and generators run
    the same way in the browser, on the server and in CI.
-2. **Open core**: the spec format, `packages/core` and the CLI are open source. They must build and ship without the
+2. **Open core** *(amended by ADR 0009: the product is proprietary; the independence from the SaaS stays)*: the spec format, `packages/core` and the CLI are open source. They must build and ship without the
    SaaS (no dependency on the web app, the database or the auth provider).
 3. **Rich editing UI**: join and lineage graphs, YAML/SQL code editing, forms.
 4. **Multi-tenant SaaS**: organizations isolated from each other, with roles.
@@ -72,7 +73,7 @@ Atlas is a source-to-target specification SaaS (see `docs/00-vision.md`). The st
 ### 4.1 Positive
 - One TypeScript codebase for the web app, the CLI and the core: validation and generation behave the same
   everywhere.
-- `packages/core` and `packages/cli` can be published as open source on their own.
+- `packages/core` and `packages/cli` build and run on their own, without the SaaS (never published, ADR 0009).
 - Tenant isolation is enforced in the database (RLS), not only in application code.
 - Adding French and German later is a translation task, not a refactor.
 - Mainstream tools: plenty of documentation, examples and hiring options.
@@ -92,7 +93,7 @@ Atlas is a source-to-target specification SaaS (see `docs/00-vision.md`). The st
 - Every tenant-scoped table has an RLS policy; there are no exceptions without an ADR.
 
 ## 5. Follow-up decisions
-- Open-source license for the spec format, `packages/core` and the CLI.
+- Open-source license: none, the product is proprietary (ADR 0009).
 - How approvals relate to Git: ADR 0003, superseded by ADR 0007 (no Git integration).
 - Whether and when to add the Python sqlglot service.
 - AI provider, co-editing and worker service: ADR 0004, 0005 and 0006.

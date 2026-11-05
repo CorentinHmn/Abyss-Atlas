@@ -1,6 +1,7 @@
 {
   "name": "atlas",
   "private": true,
+  "license": "UNLICENSED",
   "packageManager": "pnpm@10.28.0",
   "engines": {
     "node": ">=22.12.0"

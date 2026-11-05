@@ -1,7 +1,7 @@
 # 04 — Architecture
 
 Status: Draft
-Last updated: 2026-11-04
+Last updated: 2026-11-05
 
 This document describes the components of Atlas, how they talk to each other, and how security, confidentiality
 and multi-tenancy are enforced. Decisions are recorded in ADRs:
@@ -12,7 +12,8 @@ and multi-tenancy are enforced. Decisions are recorded in ADRs:
 - ADR 0004: AI provider;
 - ADR 0005: real-time co-editing;
 - ADR 0006: worker service and background jobs;
-- ADR 0007: Atlas is the only workspace, no Git integration.
+- ADR 0007: Atlas is the only workspace, no Git integration;
+- ADR 0009: proprietary product; the command line is an internal tool.
 
 Requirement identifiers: `ARC-xxx`.
 
@@ -25,7 +26,6 @@ flowchart LR
   operator[Operator<br/>control tower] -->|browser| atlas
   atlas[Atlas service<br/>EU only]
   atlas -->|downloads: dbt, docs, export| store[Customer storage<br/>its own policy and infrastructure]
-  store --> cli[Atlas CLI<br/>open source, on customer side]
   atlas -->|metadata only| ai[Claude on Amazon Bedrock<br/>EU region]
   store --> dbt[Customer dbt project<br/>and warehouse]
 ```
@@ -65,7 +65,7 @@ flowchart TB
 | Component | Role | Must never |
 |---|---|---|
 | **`packages/core`** | Metamodel (Zod), YAML parser/serializer, canonical form and hashes, validation, generators. Runs in the browser, on the server, in the worker and in the CLI. | Depend on UI, database, network or any SaaS service (ADR 0001 §4.3). |
-| **`packages/cli`** | `atlas validate`, `generate`, `import` (dictionary files, ODCS), `diff`. Works offline on an exported project (ADR 0007). | Need an account or a network connection for validation and generation. |
+| **`packages/cli`** | `atlas validate`, `generate`, `import` (dictionary files, ODCS), `diff`. **Internal tool** (ADR 0009): Atlas's tests, CI and reference runs; not distributed. Works offline on project files. | Need an account or a network connection for validation and generation. |
 | **`apps/web`** | Screens (Next.js), server actions and API, downloads, AI gateway, control tower area (ADR 0002). | Hold a long-lived connection or run long jobs (Vercel functions are time-limited): both go to the worker. |
 | **`apps/worker`** | Real-time co-editing server (ADR 0005) and background jobs (ADR 0006): version snapshots, large validations, generations and exports, batch AI suggestions. | Expose anything to the operator role. |
 | **PostgreSQL (Supabase)** | All persistent state, with row-level security (§5). | Contain customer data (rows of customer tables): metadata only. |
@@ -78,7 +78,7 @@ flowchart TB
 - ARC-010: Validation runs **in the browser** (Web Worker) on every change, for immediate feedback.
 - ARC-011: The **server** (worker) re-runs validation on saved content; its result is the reference shown in reviews
   and used before generation.
-- ARC-012: The CLI runs the same validation on an exported project, on the customer's side. One code base, one
+- ARC-012: The internal CLI runs the same validation on project files, in Atlas's tests and CI. One code base, one
   result.
 - ARC-013: Invalid content can always be saved as a draft: validation informs, it never blocks editing.
 
@@ -141,8 +141,8 @@ sequenceDiagram
 ### 4.4 Generation
 - ARC-030: In Atlas, users preview the generated code of a model and **download** a whole project's output (dbt
   models, documentation, ODCS contracts) as an archive. The customer stores it according to its own policy.
-- ARC-031: Alternatively, the customer downloads the project export and runs `atlas generate` (open-source CLI) on
-  its side. Atlas pushes nothing anywhere (ADR 0007).
+- ARC-031: The customer can also download the full project export (UC-036). Atlas pushes nothing anywhere
+  (ADR 0007).
 
 ### 4.5 AI suggestion
 ```mermaid
@@ -163,7 +163,7 @@ sequenceDiagram
 
 ### 4.6 Source metadata
 - ARC-050: Source metadata is entered by hand or imported from dictionary files (UC-001), including the result of
-  the catalog queries provided by Atlas (UC-003). Import runs in the browser or the CLI; Atlas never connects to a
+  the catalog queries provided by Atlas (UC-003). Import runs in the browser; Atlas never connects to a
   source (ARC-001).
 
 ### 4.7 Accounts and credits
@@ -241,8 +241,7 @@ Initial targets, to be checked with real projects.
 - ARC-401: CI on every pull request: type check, lint, unit tests (Vitest), RLS tests (ARC-104), end-to-end tests
   (Playwright) against a preview.
 - ARC-402: Database changes go through versioned migrations only.
-- ARC-403: The CLI and `packages/core` are published as versioned npm packages; their version is independent of the
-  SaaS.
+- ARC-403: `packages/core` and the CLI are internal packages: private, never published (ADR 0009).
 
 ## 9. Monitoring
 - ARC-500: Error tracking (Sentry, EU, scrubbed), uptime checks, queue length and job failure alerts, co-editing

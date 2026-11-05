@@ -1,7 +1,7 @@
 # 01 — Scope
 
 Status: Draft
-Last updated: 2026-11-04
+Last updated: 2026-11-05
 
 This document defines who Atlas is for, what it must do first, and what it will not do. Product-level non-goals are
 in `docs/00-vision.md` §8. Requirement identifiers:
@@ -37,7 +37,7 @@ These people decide to buy Atlas. They rarely use it day to day.
 - **What Atlas gives them**:
   - a structured, validated spec;
   - generated dbt models;
-  - the open-source CLI, to validate and generate from an exported project on their side;
+  - a full export of the project (YAML, ODCS), so nothing is locked in;
   - history and diffs of the spec in Atlas.
 
 #### PER-002 — Analyst (business / data analyst)
@@ -86,7 +86,7 @@ Priority levels:
 | UC-001 | Import source metadata from a CSV or Excel data dictionary (systems, tables, columns, types, descriptions). | PER-001, PER-002 | v1 |
 | UC-002 | Enter or edit source metadata manually. | PER-002 | v1 |
 | UC-003 | Extract the catalog of a PostgreSQL or SQL Server database with a **query provided by Atlas** (tables, columns, types, keys; no data), run by the customer with its own tools and access, and import the result as a dictionary file (UC-001). | PER-001 | v1 |
-| UC-005 | `atlas import` (CLI) reads the catalog of a PostgreSQL or SQL Server database directly, on the customer's machine or CI, with the customer's credentials. | PER-001 | Later |
+| UC-005 | *Removed (command line on the customer side, see ADR 0009). The identifier is not reused.* | — | — |
 | UC-004 | Import an ERP data dictionary (e.g. SAP). | PER-001, PER-002 | Later (v2) |
 
 ### 2.2 Writing the specification
@@ -127,9 +127,9 @@ Review rules:
 | UC-031 | Generate dbt models for Databricks, BigQuery and PostgreSQL. | PER-001 | Later |
 | UC-032 | Generate human-readable documentation (Markdown) and download it. | All | v1 |
 | UC-033 | Export a target table as an ODCS data contract; import an ODCS contract. | PER-001, PER-102 | v1 |
-| UC-034 | Run `atlas validate`, `generate`, `import` and `diff` on an exported project, on the customer's side (e.g. in its CI), without the SaaS. | PER-001 | v1 |
+| UC-034 | *Removed (command line on the customer side, see ADR 0009). The identifier is not reused.* | — | — |
 | UC-035 | Visualize joins and lineage as a graph. | All | v1 |
-| UC-036 | Export a whole project at any time as an archive in the open YAML format, including approvals (no lock-in). | Admin, PER-001 | v1 |
+| UC-036 | Export a whole project at any time as an archive in plain YAML, including approvals (no lock-in). | Admin, PER-001 | v1 |
 
 ### 2.5 Organization (customer side)
 Roles:

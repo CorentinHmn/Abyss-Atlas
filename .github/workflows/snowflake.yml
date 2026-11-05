@@ -1,17 +1,11 @@
 name: Snowflake reference run
 
-# RM-021: the dbt project generated from the reference project runs on Snowflake, on fictitious data.
-# Skipped (with a notice) until the Snowflake secrets exist; see scripts/reference-run/README.md.
+# RM-054: the dbt project generated from the reference project runs on Snowflake, on fictitious data.
+# Run on demand only: a Snowflake trial lasts 30 days. Skipped (with a notice) without the Snowflake secrets;
+# see scripts/reference-run/README.md.
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "packages/core/**"
-      - "examples/**"
-      - "scripts/reference-run/**"
-      - ".github/workflows/snowflake.yml"
 
 concurrency:
   group: snowflake-reference

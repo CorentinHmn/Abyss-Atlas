@@ -54,7 +54,7 @@ saves the result as the dictionary CSV of §1.1.
 ## 2. Project export (UC-036)
 - IE-020: A project is exported as a zip archive in the export layout (FMT-050), with approval records (§7 of the
   format) and the domains it uses (MM-026).
-- IE-021: The CLI works on an extracted export.
+- IE-021: The internal CLI works on an extracted export (RM-031 compares its output with the downloads).
 
 ## 3. Generated outputs (UC-030, UC-032)
 - IE-030: dbt and documentation are downloaded as zip archives; see `docs/05-modules/generation.md`.
@@ -62,7 +62,7 @@ saves the result as the dictionary CSV of §1.1.
 ## 4. ODCS (UC-033, P3)
 Export and import as described in `docs/03-spec-format.md` §8.
 
-## 5. CLI commands (UC-034)
+## 5. CLI commands (internal tool, ADR 0009)
 | Command | Effect |
 |---|---|
 | `atlas validate [dir]` | Validates the project; exit code 1 when there is an error. |

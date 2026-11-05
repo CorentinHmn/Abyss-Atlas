@@ -37,7 +37,7 @@ export const PHASES: Phase[] = [
   {
     id: "P1",
     name: "Core and CLI",
-    goal: "The engine, open source, no UI: metamodel, validation, dbt and documentation generators, command line.",
+    goal: "The engine, no UI: metamodel, validation, dbt and documentation generators, internal command line.",
     estimate: "4–6 weeks",
     criteria: [
       {
@@ -48,14 +48,13 @@ export const PHASES: Phase[] = [
       },
       {
         id: "RM-021",
-        label: "The generated dbt project compiles and runs on Snowflake.",
-        status: "in_progress",
-        note: "Offline, on fictitious data: the 7 generated models run, the 63 dbt tests and the 28 expected results pass (every push, in CI). The same run on Snowflake is ready and starts as soon as the account and its secrets exist.",
+        label: "The generated dbt project compiles and runs on the fictitious reference data.",
+        status: "done",
+        note: "The 7 generated models run, the 63 dbt tests and the 28 expected results pass on every push (Snowflake SQL translated to DuckDB). The run on a real Snowflake account is ready and planned before the first design partner (RM-054).",
       },
       { id: "RM-022", label: "A dictionary CSV produced by the catalog query imports into dataset files.", status: "done", note: "PostgreSQL query tested on a real database; SQL Server query checked. Native types for PostgreSQL, SQL Server, SAP and Oracle." },
       { id: "RM-023", label: "Validation of the reference project takes under 1 second.", status: "done", note: "About 0.3 s with the atlas command, Node.js start included." },
-      { id: "RM-060", label: "Final product name, trademark check, domain name.", status: "waiting_for_you", note: "Needed before the first public release of the CLI." },
-      { id: "RM-061", label: "Open-source license of the format, core and CLI.", status: "waiting_for_you", note: "Needed before the first public release of the CLI." },
+      { id: "RM-061", label: "License of the format, core and command line.", status: "done", note: "Decided: proprietary, not open source (ADR 0009). The command line is an internal tool for tests and CI." },
     ],
   },
   {
@@ -92,15 +91,15 @@ export const PHASES: Phase[] = [
       { id: "RM-051", label: "No high or critical finding remains open from the security review.", status: "not_started" },
       { id: "RM-052", label: "Legal documents are signed with every provider.", status: "not_started" },
       { id: "RM-053", label: "v1 is validated on the reference project and on one design partner's real project.", status: "not_started" },
+      { id: "RM-054", label: "Before the first design partner, the generated dbt project runs on a Snowflake account.", status: "not_started", note: "A Snowflake trial (free, 30 days) opened for the run; everything is ready (scripts/reference-run/README.md)." },
+      { id: "RM-060", label: "Final product name, trademark check, domain name.", status: "not_started", note: "Atlas is kept for now. Needed before the website teaser." },
     ],
   },
 ];
 
 /** What only the founder can do, in the order it unblocks the work. */
 export const WAITING_FOR_YOU: { label: string; unblocks: string }[] = [
-  { label: "Create a Snowflake trial account (EU region), run the setup script and add 3 GitHub secrets (guide: scripts/reference-run/README.md).", unblocks: "RM-021" },
-  { label: "Choose the final product name (Atlas is a codename) and check the trademark.", unblocks: "RM-060" },
-  { label: "Choose the open-source license of the format, core and CLI.", unblocks: "RM-061" },
+  { label: "Validate the plan of the P2 documents (modules and screens), proposed in the conversation.", unblocks: "P2" },
 ];
 
 export function phaseStatus(phase: Phase): Status {
