@@ -42,5 +42,5 @@ Deciders: founder
 - History: versions are recorded after a quiet period rather than per keystroke (`docs/04-architecture.md` §4.3).
 
 ## 5. Follow-up decisions
-- Undo/redo scope (per user, per document).
+- Undo/redo scope: decided, per user and per object (`docs/05-modules/mapping-editor.md` Q-MAP-03).
 - Behaviour of comments anchored to a field that another user deletes.

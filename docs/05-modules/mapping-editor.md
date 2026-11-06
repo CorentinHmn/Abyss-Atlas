@@ -9,7 +9,7 @@ and also through a YAML view of the same object. Screens: SCR-020, SCR-021, SCR-
 (`docs/06-ux/navigation-menus.md`). Requirement identifiers: `MAP-xxx`.
 
 Phase: P2 (UC-011…UC-015), single user in practice; real-time co-editing with presence comes in P3 (UC-017,
-ADR 0005). Open points are in §10.
+ADR 0005). Decisions are in §10.
 
 ## 1. Principles
 - MAP-001: **Forms first**: every attribute of the metamodel has a field; nobody needs to write YAML or SQL. The
@@ -120,10 +120,8 @@ ADR 0005). Open points are in §10.
 | Read models, rules, value mappings, YAML and SQL previews | yes | yes | yes |
 | Create, change, delete them | no | yes | yes |
 
-## 10. Open points
-- Q-MAP-01: **Automatic saving** (MAP-070), as in Google Docs, rather than a save button. Proposal: yes; it is what
-  co-editing needs, and the history (versions) gives the way back.
-- Q-MAP-02: **Starting helpers**, deterministic and always confirmed by the user: "new model from a source dataset"
-  (MAP-012) and "copy to other branches" (MAP-046). Proposal: both in P2. (Suggestions by AI stay in v1.1.)
-- Q-MAP-03: **Undo**: each person undoes only their own changes, object by object (the usual choice of co-editing
-  tools). Proposal: yes.
+## 10. Decisions (2026-11-06)
+- Q-MAP-01: Changes are saved automatically, without a save button (MAP-070); the history gives the way back.
+- Q-MAP-02: Both starting helpers are in P2: new model from a source dataset (MAP-012) and copy to other branches
+  (MAP-046). They are deterministic and always confirmed by the user; AI suggestions stay in v1.1.
+- Q-MAP-03: Each person undoes only their own changes, object by object (MAP-072).
