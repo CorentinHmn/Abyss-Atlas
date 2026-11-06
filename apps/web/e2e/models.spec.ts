@@ -167,3 +167,84 @@ test("a branch reads two datasets joined on proposed keys, filtered and deduplic
   expect(branch.filter).toEqual({ left: "s.KTOKD", op: "in", values: ["0001", "0002"] });
   expect(branch.deduplicate).toEqual({ key: ["s.KUNNR"], keep: "first", order_by: [{ column: "a.VTWEG", direction: "asc" }, { column: "a.SPART", direction: "asc" }] });
 });
+
+test("mappings are written in the matrix and the column panel, with steps, typed results and copies (MAP-023, MAP-040…MAP-046)", async ({ page }) => {
+  await signIn(page, who);
+  await page.goto("/p/plants/models");
+  await page.getByRole("button", { name: "New model" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Identifier").fill("dim_plant_mapped");
+  await dialog.getByLabel("Name").fill("Plant, mapped");
+  await dialog.getByLabel("Description").fill("One row per plant of the group.");
+  await dialog.getByLabel("Grain").fill("One plant.");
+  await dialog.getByLabel("Start from").selectOption({ label: "SAP France › T001W" });
+  await dialog.getByRole("button", { name: "Create" }).click();
+  await expect(page).toHaveURL(/models\/dim_plant_mapped$/);
+
+  // A second branch, reading the same table (as SAP Germany would).
+  await page.getByRole("tab", { name: "Branches" }).click();
+  await page.getByLabel("New branch").fill("sap_de");
+  await page.getByRole("button", { name: "Add the branch" }).click();
+  await page.getByRole("region", { name: "Branch sap_de" }).getByRole("button", { name: "Add a dataset" }).click();
+  await page.getByLabel("Branch sap_de, dataset 1: alias").fill("s");
+  await page.getByLabel("Branch sap_de, dataset 1: source").selectOption("sap_fr.t001w");
+
+  await page.getByRole("tab", { name: "Mappings" }).click();
+  const matrix = page.getByRole("table", { name: "Mapping matrix" });
+  await expect(matrix.getByRole("button", { name: "werks in sap_fr" })).toContainText("s.WERKS");
+  await expect(matrix.getByRole("button", { name: "werks in sap_de" })).toContainText("To map");
+
+  // ort01: a default value when the city is empty, then copied to the other branch.
+  await matrix.getByRole("button", { name: "ort01 in sap_fr" }).click();
+  const panel = page.getByRole("region", { name: "ort01 in SAP France" });
+  await panel.getByLabel("ort01 in SAP France: kind").selectOption("steps");
+  await panel.getByLabel("ort01 in SAP France: kind of step to add").selectOption("default");
+  await panel.getByRole("button", { name: "Add the step" }).click();
+  await panel.getByLabel("ort01 in SAP France, step 1 (Default when empty): value").fill("Unknown");
+  await panel.getByRole("checkbox", { name: "Also when the text is empty" }).check();
+  await panel.getByRole("button", { name: "Copy to other branches" }).click();
+  await expect(matrix.getByRole("button", { name: "ort01 in sap_de" })).toContainText("s.ORT01 → default");
+  await expect(page.getByRole("status")).toHaveText("Saved", { timeout: 10_000 });
+  await expect(panel.getByLabel("Type after ort01 in SAP France, step 1 (Default when empty)")).toHaveText("→ string(25)"); // MAP-042
+
+  // land1: converted to the 2-letter target type.
+  await page.getByRole("button", { name: "Next column" }).click();
+  await page.getByRole("button", { name: "Previous column" }).click();
+  await matrix.getByRole("button", { name: "land1 in sap_fr" }).click();
+  const land = page.getByRole("region", { name: "land1 in SAP France" });
+  await land.getByLabel("land1 in SAP France: kind").selectOption("steps");
+  await land.getByLabel("land1 in SAP France: kind of step to add").selectOption("convert");
+  await land.getByRole("button", { name: "Add the step" }).click();
+  await land.getByLabel("land1 in SAP France, step 1 (Convert the type): target type").fill("string(2)");
+
+  // regio: the same mapping for every branch (`*`); name1: not provided by the second branch.
+  await matrix.getByRole("button", { name: "regio in sap_fr" }).click();
+  await page.getByRole("checkbox", { name: "Same mapping for all branches" }).check();
+  await expect(matrix.getByRole("button", { name: "regio in sap_de" })).toContainText("all");
+  await matrix.getByRole("button", { name: "name1 in sap_de" }).click();
+  const name1 = page.getByRole("region", { name: "name1 in sap_de" });
+  await name1.getByLabel("name1 in sap_de: kind").selectOption("not_provided");
+  await name1.getByLabel("name1 in sap_de: why not provided").fill("Plant names are kept in the German HR system.");
+
+  // mandt: a constant instead of a column.
+  await matrix.getByRole("button", { name: "mandt in sap_fr" }).click();
+  const mandt = page.getByRole("region", { name: "mandt in SAP France" });
+  await mandt.getByLabel("mandt in SAP France: kind").selectOption("steps");
+  await mandt.getByLabel("mandt in SAP France: inputs").fill("");
+  await mandt.getByLabel("mandt in SAP France: inputs").blur();
+  await mandt.getByLabel("mandt in SAP France: kind of step to add").selectOption("constant");
+  await mandt.getByRole("button", { name: "Add the step" }).click();
+  await mandt.getByLabel("mandt in SAP France, step 1 (Constant): value").fill("SAP S/4HANA");
+  await expect(page.getByRole("status")).toHaveText("Saved", { timeout: 10_000 });
+
+  const { data } = await admin.schema("app").from("spec_objects").select("content").eq("key", "dim_plant_mapped").single();
+  const columns = (data?.content as { columns: Record<string, { from: Record<string, unknown> }> }).columns;
+  expect(columns.ort01?.from).toEqual({
+    sap_fr: { inputs: ["s.ORT01"], steps: [{ default: { value: "Unknown", also_empty: true } }] },
+    sap_de: { inputs: ["s.ORT01"], steps: [{ default: { value: "Unknown", also_empty: true } }] },
+  });
+  expect(columns.land1?.from.sap_fr).toEqual({ inputs: ["s.LAND1"], steps: [{ convert: { to: "string(2)", method: "cast", on_error: "fail" } }] });
+  expect(columns.regio?.from).toEqual({ "*": "s.REGIO" });
+  expect(columns.name1?.from).toEqual({ sap_fr: "s.NAME1", sap_de: { not_provided: "Plant names are kept in the German HR system." } });
+  expect(columns.mandt?.from.sap_fr).toEqual({ steps: [{ constant: { value: "SAP S/4HANA" } }] });
+});

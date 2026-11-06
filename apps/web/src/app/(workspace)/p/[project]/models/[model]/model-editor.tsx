@@ -16,6 +16,8 @@ import { CLASSIFICATIONS, LAYERS, MATERIALIZATIONS, type ModelContent, type Targ
 import { cn } from "@/lib/utils";
 import { saveModel } from "../actions";
 import { BranchesTab, openBranches, type SourceOption } from "./branches-tab";
+import { MappingsTab } from "./mappings-tab";
+import type { Catalogue } from "@/components/spec/step-list";
 
 export interface IssueView {
   code: string;
@@ -26,7 +28,7 @@ export interface IssueView {
 
 const TABS = ["overview", "columns", "branches", "mappings", "consolidation", "checks", "yaml", "sql"] as const;
 type Tab = (typeof TABS)[number];
-const READY: Tab[] = ["overview", "columns", "branches"];
+const READY: Tab[] = ["overview", "columns", "branches", "mappings"];
 
 const tone = (severity: Severity) => (severity === "error" ? "danger" : severity === "warning" ? "warning" : "info");
 
@@ -43,6 +45,8 @@ export function ModelEditor({
   initial,
   domains,
   sources,
+  catalogue,
+  stepTypes,
   canEdit,
   issues,
 }: {
@@ -50,6 +54,8 @@ export function ModelEditor({
   initial: ModelContent;
   domains: { code: string; name: string; retired: boolean }[];
   sources: SourceOption[];
+  catalogue: Catalogue;
+  stepTypes: Record<string, string>;
   canEdit: boolean;
   issues: IssueView[];
 }) {
@@ -245,6 +251,10 @@ export function ModelEditor({
           ) : null}
 
           {tab === "branches" ? <BranchesTab model={doc} change={change} sources={sources.filter((source) => source.key !== doc.id)} disabled={disabled} issues={issues} /> : null}
+
+          {tab === "mappings" ? (
+            <MappingsTab model={doc} change={change} sources={sources} catalogue={catalogue} stepTypes={stepTypes} issues={issues} disabled={disabled} />
+          ) : null}
 
           {!READY.includes(tab) ? <Alert tone="info">{t("nextStep")}</Alert> : null}
       </div>

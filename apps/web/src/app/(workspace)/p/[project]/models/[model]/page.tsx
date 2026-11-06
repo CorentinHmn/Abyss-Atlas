@@ -43,6 +43,15 @@ export default async function ModelPage({ params }: { params: Promise<{ project:
         primaryKey: ((object.content.grain as { key?: string[] } | undefined)?.key) ?? [],
       })),
   ];
+  const catalogue = {
+    valueMappings: objects.filter((object) => object.kind === "value_mapping").map((object) => object.key),
+    rules: objects
+      .filter((object) => object.kind === "rule")
+      .map((object) => ({ id: object.key, parameters: Object.keys((object.content.parameters as object | undefined) ?? {}) })),
+    lookups: sources.map((source) => ({ key: source.key, label: source.label, columns: source.columns.map((column) => column.name) })),
+  };
+  const prefix = `${model.path}#`;
+  const stepTypes = Object.fromEntries([...(validation?.stepTypes ?? new Map<string, string>())].filter(([key]) => key.startsWith(prefix)).map(([key, type]) => [key.slice(prefix.length), type]));
   const issues = (validation?.byPath.get(model.path) ?? []).map((issue) => ({ code: issue.code, severity: issue.severity, at: issue.at, message: issue.message }));
   return (
     <div className="flex flex-col gap-4">
@@ -59,6 +68,8 @@ export default async function ModelPage({ params }: { params: Promise<{ project:
         initial={model.content as ModelContent}
         domains={domains.map((domain) => ({ code: domain.code, name: domain.name, retired: Boolean(domain.retiredAt) }))}
         sources={sources}
+        catalogue={catalogue}
+        stepTypes={stepTypes}
         canEdit={canEdit}
         issues={issues}
       />

@@ -100,3 +100,11 @@ describe("YAML 1.2 and extensions", () => {
     expect(errorCodes(files)).toEqual([]);
   });
 });
+
+describe("types after each step (MAP-042)", () => {
+  it("are given for every step of the reference project", () => {
+    const result = validateProject(readProject(REFERENCE_PROJECT));
+    expect(result.stepTypes.get("models/GOV/dim_plant.yaml#columns.city.from.*.steps[0]")).toBe("string(25)");
+    expect(result.stepTypes.get("models/GOV/dim_plant.yaml#columns.country_code.from.*.steps[0]")).toBe("string(2)");
+  });
+});

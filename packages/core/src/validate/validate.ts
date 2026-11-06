@@ -14,6 +14,8 @@ export interface ValidationResult {
   warnings: number;
   /** VAL-070: share of target columns whose logic contains an `sql` escape hatch (0 to 1). */
   unstructuredShare: number;
+  /** MAP-042: the type after each step, keyed `file#path.to.steps[index]`. */
+  stepTypes: Map<string, string>;
 }
 
 interface ColumnInfo {
@@ -197,7 +199,7 @@ function checkSteps(ctx: Context, steps: Step[], at: string, start: ValueType | 
     return current;
   };
 
-  steps.forEach((step, index) => {
+  const apply = (step: Step, index: number) => {
     const stepAt = `${at}[${index}]`;
     if (step === "copy") {
       need(stepAt, "copy");
@@ -331,6 +333,11 @@ function checkSteps(ctx: Context, steps: Step[], at: string, start: ValueType | 
       ctx.issues.warning("VAL-046", ctx.file, stepAt, `Unstructured SQL: Atlas cannot check its types or lineage. Reason given: ${step.sql.reason.trim()}`);
       current = { unknown: true };
     }
+  };
+  steps.forEach((step, index) => {
+    apply(step, index);
+    // MAP-042: the type after each step, for the editor.
+    ctx.issues.stepTypes.set(`${ctx.file}#${at}[${index}]`, current ? typeName(current) : "none");
   });
   return current;
 }
@@ -615,6 +622,7 @@ export function validateProject(files: SpecFile[]): ValidationResult {
     errors: sorted.filter((issue) => issue.severity === "error").length,
     warnings: sorted.filter((issue) => issue.severity === "warning").length,
     unstructuredShare,
+    stepTypes: issues.stepTypes,
   };
 }
 

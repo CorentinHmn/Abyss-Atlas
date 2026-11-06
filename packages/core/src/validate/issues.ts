@@ -15,6 +15,8 @@ export interface Issue {
 
 export class IssueList {
   readonly items: Issue[] = [];
+  /** Types computed along the way (MAP-042), keyed `file#path`. */
+  readonly stepTypes = new Map<string, string>();
 
   add(code: string, severity: Severity, file: string, at: string, message: string): void {
     this.items.push({ code, severity, file, at, message });
