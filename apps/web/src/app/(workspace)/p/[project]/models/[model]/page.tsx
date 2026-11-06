@@ -6,6 +6,7 @@ import type { ModelContent } from "@/lib/model";
 import { getDomains, getObjects, getProject, getValidation } from "@/lib/spec";
 import { deleteModel } from "../actions";
 import { ConfirmButton } from "../../sources/confirm-button";
+import type { SourceOption } from "./branches-tab";
 import { ModelEditor } from "./model-editor";
 
 /** SCR-021 */
@@ -20,6 +21,28 @@ export default async function ModelPage({ params }: { params: Promise<{ project:
   const viewer = await getViewer();
   const canEdit = viewer?.account?.role !== "viewer" && !project.archivedAt;
   const [domains, validation] = await Promise.all([getDomains(), getValidation(slug)]);
+  const systems = new Map(objects.filter((object) => object.kind === "system").map((object) => [object.key, String(object.content.name ?? object.key)]));
+  type Columns = Record<string, { type?: string; description?: string; definition?: string }>;
+  const sources: SourceOption[] = [
+    ...objects
+      .filter((object) => object.kind === "dataset")
+      .map((object) => ({
+        key: object.key,
+        label: `${systems.get(String(object.content.system)) ?? object.content.system} › ${String(object.content.name ?? object.content.id)}`,
+        kind: "dataset" as const,
+        columns: Object.entries((object.content.columns as Columns | undefined) ?? {}).map(([name, column]) => ({ name, type: column.type ?? "", ...(column.description ? { description: column.description } : {}) })),
+        primaryKey: (object.content.primary_key as string[] | undefined) ?? [],
+      })),
+    ...objects
+      .filter((object) => object.kind === "model")
+      .map((object) => ({
+        key: object.key,
+        label: `${String(object.content.name ?? object.key)} (${object.key})`,
+        kind: "model" as const,
+        columns: Object.entries((object.content.columns as Columns | undefined) ?? {}).map(([name, column]) => ({ name, type: column.type ?? "", ...(column.definition ? { description: column.definition } : {}) })),
+        primaryKey: ((object.content.grain as { key?: string[] } | undefined)?.key) ?? [],
+      })),
+  ];
   const issues = (validation?.byPath.get(model.path) ?? []).map((issue) => ({ code: issue.code, severity: issue.severity, at: issue.at, message: issue.message }));
   return (
     <div className="flex flex-col gap-4">
@@ -35,6 +58,7 @@ export default async function ModelPage({ params }: { params: Promise<{ project:
         slug={slug}
         initial={model.content as ModelContent}
         domains={domains.map((domain) => ({ code: domain.code, name: domain.name, retired: Boolean(domain.retiredAt) }))}
+        sources={sources}
         canEdit={canEdit}
         issues={issues}
       />

@@ -15,6 +15,7 @@ import { Field } from "@/components/ui/label";
 import { CLASSIFICATIONS, LAYERS, MATERIALIZATIONS, type ModelContent, type TargetColumn } from "@/lib/model";
 import { cn } from "@/lib/utils";
 import { saveModel } from "../actions";
+import { BranchesTab, openBranches, type SourceOption } from "./branches-tab";
 
 export interface IssueView {
   code: string;
@@ -25,7 +26,7 @@ export interface IssueView {
 
 const TABS = ["overview", "columns", "branches", "mappings", "consolidation", "checks", "yaml", "sql"] as const;
 type Tab = (typeof TABS)[number];
-const READY: Tab[] = ["overview", "columns"];
+const READY: Tab[] = ["overview", "columns", "branches"];
 
 const tone = (severity: Severity) => (severity === "error" ? "danger" : severity === "warning" ? "warning" : "info");
 
@@ -41,12 +42,14 @@ export function ModelEditor({
   slug,
   initial,
   domains,
+  sources,
   canEdit,
   issues,
 }: {
   slug: string;
   initial: ModelContent;
   domains: { code: string; name: string; retired: boolean }[];
+  sources: SourceOption[];
   canEdit: boolean;
   issues: IssueView[];
 }) {
@@ -60,7 +63,8 @@ export function ModelEditor({
     },
     [slug, router],
   );
-  const { doc, change, undo, redo, canUndo, canRedo, state, retry } = useSpecDocument<ModelContent>(initial, save);
+  const [opened] = useState(() => ({ ...initial, branches: openBranches(initial.branches) }));
+  const { doc, change, undo, redo, canUndo, canRedo, state, retry } = useSpecDocument<ModelContent>(opened, save);
   const [tab, setTab] = useState<Tab>("overview");
   const columns = Object.entries(doc.columns);
   const setField = (patch: Partial<ModelContent>) => change((current) => ({ ...current, ...patch }));
@@ -118,8 +122,22 @@ export function ModelEditor({
         ))}
       </nav>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="min-w-0">
+      {issues.length > 0 ? (
+        <details className="rounded-md border border-line bg-surface" open={issues.some((issue) => issue.severity === "error")}>
+          <summary className="cursor-pointer px-3 py-2 text-sm font-bold">{t("problemsCount", { count: issues.length })}</summary>
+          <ul className="flex max-h-64 flex-col gap-2 overflow-y-auto border-t border-line p-3" aria-label={t("problems")}>
+            {issues.map((issue) => (
+              <li key={issue.code + issue.at + issue.message} className="text-xs">
+                <Badge tone={tone(issue.severity)}>{issue.code}</Badge> <span className="font-mono text-muted">{issue.at}</span> {issue.message}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : (
+        <p className="text-sm text-muted">{t("noProblem")}</p>
+      )}
+
+      <div className="min-w-0">
           {tab === "overview" ? (
             <Card className="grid gap-4 sm:grid-cols-2">
               <Field label={t("name")} htmlFor="m-name">
@@ -226,21 +244,9 @@ export function ModelEditor({
             </div>
           ) : null}
 
-          {!READY.includes(tab) ? <Alert tone="info">{t("nextStep")}</Alert> : null}
-        </div>
+          {tab === "branches" ? <BranchesTab model={doc} change={change} sources={sources.filter((source) => source.key !== doc.id)} disabled={disabled} issues={issues} /> : null}
 
-        <aside className="flex flex-col gap-2" aria-label={t("problems")}>
-          <h2 className="text-sm font-bold">{t("problemsCount", { count: issues.length })}</h2>
-          {issues.length === 0 ? <p className="text-sm text-muted">{t("noProblem")}</p> : null}
-          <ul className="flex max-h-[70vh] flex-col gap-2 overflow-y-auto">
-            {issues.map((issue) => (
-              <li key={issue.code + issue.at + issue.message} className="rounded-md border border-line bg-surface p-2 text-xs">
-                <Badge tone={tone(issue.severity)}>{issue.code}</Badge> <span className="font-mono text-muted">{issue.at}</span>
-                <p className="mt-1">{issue.message}</p>
-              </li>
-            ))}
-          </ul>
-        </aside>
+          {!READY.includes(tab) ? <Alert tone="info">{t("nextStep")}</Alert> : null}
       </div>
     </div>
   );

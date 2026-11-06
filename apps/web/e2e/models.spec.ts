@@ -22,7 +22,12 @@ test.beforeAll(async () => {
   await admin.schema("app").from("domains").insert({ organization_id: org.id, code: "GOV", name: "Govern", owner_email: who, steward_emails: [who] });
   const { data: project } = await admin.schema("app").from("projects").insert({ organization_id: org.id, name: "Plants", slug: "plants" }).select("id").single();
   // The SAP France system and its plant table, as the source registry stores them.
-  for (const [kind, file] of [["system", "systems/sap_fr/system.yaml"], ["dataset", "systems/sap_fr/datasets/t001w.yaml"]] as const) {
+  for (const [kind, file] of [
+    ["system", "systems/sap_fr/system.yaml"],
+    ["dataset", "systems/sap_fr/datasets/t001w.yaml"],
+    ["dataset", "systems/sap_fr/datasets/kna1.yaml"],
+    ["dataset", "systems/sap_fr/datasets/knvv.yaml"],
+  ] as const) {
     const content = parse(readFileSync(join(reference, file), "utf8"), { version: "1.2" }) as Record<string, unknown>;
     const { error: insertError } = await admin.schema("app").from("spec_objects").insert({
       project_id: project!.id,
@@ -96,4 +101,69 @@ test("undo goes back over the user's own changes, and the model list shows it (M
   const row = page.getByRole("row", { name: /dim_plant/ });
   await expect(row).toContainText("1"); // one branch
   await expect(row).toContainText("100 %"); // every column is mapped in its only branch
+});
+
+test("a branch reads two datasets joined on proposed keys, filtered and deduplicated (MAP-022, MAP-030…MAP-032, MAP-044)", async ({ page }) => {
+  await signIn(page, who);
+  await page.goto("/p/plants/models");
+  await page.getByRole("button", { name: "New model" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Identifier").fill("dim_customer");
+  await dialog.getByLabel("Name").fill("Customer");
+  await dialog.getByLabel("Description").fill("One row per customer of the group.");
+  await dialog.getByLabel("Grain").fill("One customer.");
+  await dialog.getByLabel("Start from").selectOption({ label: "SAP France › KNA1" });
+  await dialog.getByRole("button", { name: "Create" }).click();
+  await expect(page).toHaveURL(/models\/dim_customer$/);
+
+  await page.getByRole("tab", { name: "Branches" }).click();
+  await expect(page.getByLabel("Branch sap_fr, dataset 1: source")).toHaveValue("sap_fr.kna1");
+  await page.getByRole("button", { name: "Add a dataset" }).click();
+  await page.getByLabel("Branch sap_fr, dataset 2: source").selectOption("sap_fr.knvv");
+  await expect(page.getByLabel("Branch sap_fr, dataset 2: alias")).toHaveValue("a");
+
+  await page.getByRole("button", { name: "Add a join" }).click();
+  await page.getByLabel("Branch sap_fr, join 1: right").selectOption("a");
+  await page.getByLabel("Branch sap_fr, join 1: cardinality").selectOption("one_to_many");
+  await page.getByRole("button", { name: "Propose the key columns" }).click();
+  await expect(page.getByLabel("Branch sap_fr, join 1 1: left", { exact: true })).toHaveValue("s.MANDT");
+  await expect(page.getByLabel("Branch sap_fr, join 1 2: right", { exact: true })).toHaveValue("a.KUNNR");
+  await page.getByRole("button", { name: "Add a comparison" }).first().click();
+  await page.getByLabel("Branch sap_fr, join 1 3: left", { exact: true }).fill("a.VKORG");
+  await page.getByLabel("Branch sap_fr, join 1 3: right: kind of operand").selectOption("value");
+  await page.getByLabel("Branch sap_fr, join 1 3: right", { exact: true }).fill("FR01");
+
+  await page.getByRole("button", { name: "Add a filter" }).click();
+  await page.getByLabel("Filter of branch sap_fr: left", { exact: true }).fill("s.KTOKD");
+  await page.getByLabel("Filter of branch sap_fr: operator").selectOption("in");
+  await page.getByLabel("Filter of branch sap_fr: values").fill("0001, 0002");
+  await page.getByLabel("Filter of branch sap_fr: values").blur();
+
+  await page.getByRole("button", { name: "Add a deduplication" }).click();
+  await page.getByLabel("Branch sap_fr: deduplication key").fill("s.KUNNR");
+  await page.getByLabel("Branch sap_fr: deduplication order").fill("a.VTWEG asc, a.SPART asc");
+  await page.getByLabel("Branch sap_fr: deduplication order").blur();
+  await expect(page.getByRole("status")).toHaveText("Saved", { timeout: 10_000 });
+
+  const { data } = await admin.schema("app").from("spec_objects").select("content").eq("key", "dim_customer").single();
+  const branch = (data?.content as { branches: Record<string, Record<string, unknown>> }).branches.sap_fr as Record<string, unknown>;
+  expect(Object.keys(branch)).toEqual(["label", "source_tag", "datasets", "joins", "filter", "deduplicate"]);
+  expect(branch.datasets).toEqual([{ s: "sap_fr.kna1" }, { a: "sap_fr.knvv" }]);
+  expect(branch.joins).toEqual([
+    {
+      left: "s",
+      right: "a",
+      type: "left",
+      condition: {
+        all: [
+          { left: "s.MANDT", op: "eq", right: "a.MANDT" },
+          { left: "s.KUNNR", op: "eq", right: "a.KUNNR" },
+          { left: "a.VKORG", op: "eq", right: { value: "FR01" } },
+        ],
+      },
+      cardinality: "one_to_many",
+    },
+  ]);
+  expect(branch.filter).toEqual({ left: "s.KTOKD", op: "in", values: ["0001", "0002"] });
+  expect(branch.deduplicate).toEqual({ key: ["s.KUNNR"], keep: "first", order_by: [{ column: "a.VTWEG", direction: "asc" }, { column: "a.SPART", direction: "asc" }] });
 });

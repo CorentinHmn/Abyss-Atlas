@@ -10,7 +10,7 @@ export { specKey, specPath, specToFile } from "./spec/serialize";
 export type { SpecKind } from "./spec/schemas";
 export * as schemas from "./spec/schemas";
 export { FUNCTIONS } from "./types/functions";
-export { formatLogicalType, isImplicitlyAssignable, parseLogicalType, type LogicalType } from "./types/logical-types";
+export { formatLogicalType, isComparable, isImplicitlyAssignable, parseLogicalType, type LogicalType } from "./types/logical-types";
 export type { Issue, Severity } from "./validate/issues";
 export { validateProject, type ValidationResult } from "./validate/validate";
 export { generateDbt, GenerationError, type GeneratedFile } from "./generate/dbt";
