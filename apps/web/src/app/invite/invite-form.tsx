@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useState } from "react";
 import { Alert } from "@/components/ui/alert";
@@ -39,7 +40,7 @@ export function InviteForm({ minPassword }: { minPassword: number }) {
   if (stage.kind === "loading") return <p className="text-muted">{t("checking")}</p>;
   if (stage.kind === "invalid") return <Alert>{t("invalid")}</Alert>;
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <ActionForm action={action} className="flex flex-col gap-4">
       <p className="text-sm text-muted">{t("intro", { email: stage.email })}</p>
       <Field label={t("name")} htmlFor="invite-name">
         <Input id="invite-name" name="name" defaultValue={stage.name} required maxLength={120} />
@@ -54,6 +55,6 @@ export function InviteForm({ minPassword }: { minPassword: number }) {
       <Button type="submit" disabled={pending}>
         {t("join")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }

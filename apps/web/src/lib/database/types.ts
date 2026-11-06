@@ -6,7 +6,21 @@ export type Database = {
   
   "app": {
           Tables: {
-            "memberships": {
+            "domains": {
+                  Row: {
+                    "code": string,"created_at": string,"description": string,"name": string,"organization_id": string,"owner_email": string,"retired_at": string | null,"steward_emails": (string)[],"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code": string,"created_at"?: string,"description"?: string,"name": string,"organization_id": string,"owner_email": string,"retired_at"?: string | null,"steward_emails": (string)[],"updated_at"?: string
+                  }
+                  Update: {
+                    "code"?: string,"created_at"?: string,"description"?: string,"name"?: string,"organization_id"?: string,"owner_email"?: string,"retired_at"?: string | null,"steward_emails"?: (string)[],"updated_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"memberships": {
                   Row: {
                     "created_at": string,"deletion_requested_at": string | null,"display_name": string,"email": string,"joined_at": string | null,"organization_id": string,"role": Database["app"]['Enums']["member_role"],"status": Database["app"]['Enums']["member_status"],"user_id": string
                   }
@@ -92,8 +106,14 @@ isOneToOne: false
 "credits_remaining":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"delete_domain":
+{ Args: { "domain_code": string }; Returns: undefined
+                           },
 "delete_spec_objects":
 { Args: { "objects": Json,"project": string }; Returns: number
+                           },
+"domain_in_use":
+{ Args: { "domain_code": string,"org": string }; Returns: boolean
                            },
 "email_available":
 { Args: { "candidate": string }; Returns: boolean
@@ -144,8 +164,14 @@ isOneToOne: false
 "require_other_account":
 { Args: { "target": string }; Returns: string
                            },
+"save_domain":
+{ Args: { "domain_code": string,"domain_description": string,"domain_name": string,"owner": string,"stewards": (string)[] }; Returns: undefined
+                           },
 "save_spec_objects":
 { Args: { "objects": Json,"project": string,"what"?: Database["app"]['Enums']["spec_change"] }; Returns: number
+                           },
+"set_domain_retired":
+{ Args: { "domain_code": string,"retired": boolean }; Returns: undefined
                            },
 "set_my_display_name":
 { Args: { "new_name": string }; Returns: undefined

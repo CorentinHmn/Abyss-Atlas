@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import { Alert } from "@/components/ui/alert";
@@ -15,7 +16,7 @@ export function RequestResetForm() {
   const [state, action, pending] = useActionState<ActionResult, FormData>(requestReset, null);
   if (state?.ok) return <Alert tone="success">{t("sent")}</Alert>;
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <ActionForm action={action} className="flex flex-col gap-4">
       <Field label={t("email")} htmlFor="reset-email">
         <Input id="reset-email" name="email" type="email" autoComplete="email" required />
       </Field>
@@ -23,7 +24,7 @@ export function RequestResetForm() {
       <Button type="submit" disabled={pending}>
         {t("send")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -32,7 +33,7 @@ export function NewPasswordForm({ minPassword }: { minPassword: number }) {
   const errors = useTranslations("Errors");
   const [state, action, pending] = useActionState<ActionResult, FormData>(setNewPassword, null);
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <ActionForm action={action} className="flex flex-col gap-4">
       <Field label={t("newPassword")} hint={t("passwordRule", { min: minPassword })} htmlFor="reset-password">
         <Input id="reset-password" name="password" type="password" autoComplete="new-password" minLength={minPassword} required />
       </Field>
@@ -43,6 +44,6 @@ export function NewPasswordForm({ minPassword }: { minPassword: number }) {
       <Button type="submit" disabled={pending}>
         {t("save")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }

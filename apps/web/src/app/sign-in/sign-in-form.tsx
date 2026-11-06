@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import { signIn, type SignInState } from "../actions";
@@ -9,7 +10,7 @@ export function SignInForm() {
   const [state, action, pending] = useActionState<SignInState, FormData>(signIn, null);
 
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <ActionForm action={action} className="flex flex-col gap-4">
       <label htmlFor="email" className="flex flex-col gap-1 text-sm font-medium">
         {t("email")}
         <input
@@ -44,6 +45,6 @@ export function SignInForm() {
       >
         {pending ? t("submitting") : t("submit")}
       </button>
-    </form>
+    </ActionForm>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { useTranslations } from "next-intl";
 import { useActionState, useState, type ReactNode } from "react";
 import { Alert } from "@/components/ui/alert";
@@ -36,7 +37,7 @@ export function SystemDialog({ slug, system, trigger }: { slug: string; system?:
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent title={system ? t("editSystem") : t("newSystem")} description={t("systemHint")} closeLabel={t("close")}>
-        <form action={action} className="flex flex-col gap-4">
+        <ActionForm action={action} className="flex flex-col gap-4">
           {system ? <input type="hidden" name="existingId" value={system.id} /> : null}
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t("systemId")} hint={t("systemIdHint")} htmlFor="system-id">
@@ -80,7 +81,7 @@ export function SystemDialog({ slug, system, trigger }: { slug: string; system?:
           <Button type="submit" disabled={pending} className="self-end">
             {t("save")}
           </Button>
-        </form>
+        </ActionForm>
       </DialogContent>
     </Dialog>
   );

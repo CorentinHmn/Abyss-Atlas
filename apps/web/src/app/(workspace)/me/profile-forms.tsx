@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { useTranslations } from "next-intl";
 import { useActionState, useTransition, useState } from "react";
 import { Alert } from "@/components/ui/alert";
@@ -26,7 +27,7 @@ export function ProfileForms({ displayName, minPassword }: { displayName: string
   return (
     <div className="flex flex-col gap-6">
       <Card>
-        <form action={nameAction} className="flex flex-col gap-4">
+        <ActionForm action={nameAction} className="flex flex-col gap-4">
           <CardTitle>{t("nameTitle")}</CardTitle>
           <Field label={t("name")} htmlFor="profile-name">
             <Input id="profile-name" name="name" defaultValue={displayName} required maxLength={120} />
@@ -35,10 +36,10 @@ export function ProfileForms({ displayName, minPassword }: { displayName: string
           <Button type="submit" disabled={namePending} className="self-start">
             {t("save")}
           </Button>
-        </form>
+        </ActionForm>
       </Card>
       <Card>
-        <form action={passwordAction} className="flex flex-col gap-4">
+        <ActionForm action={passwordAction} className="flex flex-col gap-4">
           <CardTitle>{t("passwordTitle")}</CardTitle>
           <Field label={t("newPassword")} hint={t("passwordRule", { min: minPassword })} htmlFor="profile-password">
             <Input id="profile-password" name="password" type="password" autoComplete="new-password" minLength={minPassword} required />
@@ -50,7 +51,7 @@ export function ProfileForms({ displayName, minPassword }: { displayName: string
           <Button type="submit" disabled={passwordPending} className="self-start">
             {t("changePassword")}
           </Button>
-        </form>
+        </ActionForm>
       </Card>
       <Card className="flex flex-col gap-3">
         <CardTitle>{t("sessionsTitle")}</CardTitle>

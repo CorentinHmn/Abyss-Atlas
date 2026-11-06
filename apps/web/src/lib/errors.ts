@@ -17,6 +17,10 @@ export type ErrorKey =
   | "idTaken"
   | "invalidId"
   | "fileUnreadable"
+  | "domainCode"
+  | "noSteward"
+  | "domainInUse"
+  | "notAnAccount"
   | "invalid"
   | "unavailable";
 
@@ -30,6 +34,10 @@ const BY_REQUIREMENT: [string, ErrorKey][] = [
   ["CT-013", "creditsBelowAccounts"],
   ["CT-011", "minimumCredit"],
   ["ADM-042", "archived"],
+  ["MM-025", "domainInUse"],
+  ["MM-022", "notAnAccount"],
+  ["MM-021", "noSteward"],
+  ["MM-020", "domainCode"],
 ];
 
 export function errorKey(error: { code?: string; message?: string } | null | undefined): ErrorKey {

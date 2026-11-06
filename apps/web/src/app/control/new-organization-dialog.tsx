@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import { Alert } from "@/components/ui/alert";
@@ -21,7 +22,7 @@ export function NewOrganizationDialog() {
         <Button className="bg-control hover:bg-control/90">{t("new")}</Button>
       </DialogTrigger>
       <DialogContent title={t("newTitle")} description={t("newDescription")} closeLabel={t("close")}>
-        <form action={action} className="flex flex-col gap-4">
+        <ActionForm action={action} className="flex flex-col gap-4">
           <Field label={t("name")} htmlFor="org-name">
             <Input id="org-name" name="name" required maxLength={120} autoFocus />
           </Field>
@@ -38,7 +39,7 @@ export function NewOrganizationDialog() {
           <Button type="submit" disabled={pending} className="self-end bg-control hover:bg-control/90">
             {t("create")}
           </Button>
-        </form>
+        </ActionForm>
       </DialogContent>
     </Dialog>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { Alert } from "@/components/ui/alert";
@@ -25,7 +26,7 @@ export function NewProjectDialog() {
         <Button>{t("new")}</Button>
       </DialogTrigger>
       <DialogContent title={t("newTitle")} closeLabel={t("close")}>
-        <form action={action} className="flex flex-col gap-4">
+        <ActionForm action={action} className="flex flex-col gap-4">
           <Field label={t("name")} htmlFor="project-name">
             <Input id="project-name" name="name" required maxLength={120} autoFocus />
           </Field>
@@ -36,7 +37,7 @@ export function NewProjectDialog() {
           <Button type="submit" disabled={pending} className="self-end">
             {t("create")}
           </Button>
-        </form>
+        </ActionForm>
       </DialogContent>
     </Dialog>
   );

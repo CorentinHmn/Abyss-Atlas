@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { useTranslations } from "next-intl";
 import { useActionState, useState, useTransition } from "react";
 import { Alert } from "@/components/ui/alert";
@@ -23,7 +24,7 @@ export function CreditsForm({ organizationId, credits, accounts }: { organizatio
   const [state, action, pending] = useActionState<ActionResult, FormData>(setCredits, null);
   return (
     <Card>
-      <form action={action} className="flex flex-col gap-3">
+      <ActionForm action={action} className="flex flex-col gap-3">
         <CardTitle>{t("creditsTitle")}</CardTitle>
         <input type="hidden" name="organization" value={organizationId} />
         <Field label={t("credits")} hint={t("creditsHint", { accounts })} htmlFor="credits">
@@ -33,7 +34,7 @@ export function CreditsForm({ organizationId, credits, accounts }: { organizatio
         <Button type="submit" disabled={pending} className="self-start bg-control hover:bg-control/90">
           {t("save")}
         </Button>
-      </form>
+      </ActionForm>
     </Card>
   );
 }
@@ -43,7 +44,7 @@ export function RenameForm({ organizationId, name }: { organizationId: string; n
   const [state, action, pending] = useActionState<ActionResult, FormData>(renameOrganization, null);
   return (
     <Card>
-      <form action={action} className="flex flex-col gap-3">
+      <ActionForm action={action} className="flex flex-col gap-3">
         <CardTitle>{t("renameTitle")}</CardTitle>
         <input type="hidden" name="organization" value={organizationId} />
         <Field label={t("name")} htmlFor="name">
@@ -53,7 +54,7 @@ export function RenameForm({ organizationId, name }: { organizationId: string; n
         <Button type="submit" disabled={pending} className="self-start bg-control hover:bg-control/90">
           {t("save")}
         </Button>
-      </form>
+      </ActionForm>
     </Card>
   );
 }
@@ -105,7 +106,7 @@ export function FirstAdminForm({ organizationId }: { organizationId: string }) {
   const [state, action, pending] = useActionState<ActionResult, FormData>(inviteFirstAdmin, null);
   return (
     <Card>
-      <form action={action} className="flex flex-col gap-3">
+      <ActionForm action={action} className="flex flex-col gap-3">
         <CardTitle>{t("firstAdminTitle")}</CardTitle>
         <p className="text-sm text-muted">{t("firstAdminBody")}</p>
         <input type="hidden" name="organization" value={organizationId} />
@@ -119,7 +120,7 @@ export function FirstAdminForm({ organizationId }: { organizationId: string }) {
         <Button type="submit" disabled={pending} className="self-start bg-control hover:bg-control/90">
           {t("invite")}
         </Button>
-      </form>
+      </ActionForm>
     </Card>
   );
 }

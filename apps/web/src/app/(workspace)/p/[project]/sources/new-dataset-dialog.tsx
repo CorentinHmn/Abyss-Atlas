@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import { Alert } from "@/components/ui/alert";
@@ -24,7 +25,7 @@ export function NewDatasetDialog({ slug, systemId }: { slug: string; systemId: s
         </Button>
       </DialogTrigger>
       <DialogContent title={t("newDataset")} description={t("newDatasetHint")} closeLabel={t("close")}>
-        <form action={action} className="flex flex-col gap-4">
+        <ActionForm action={action} className="flex flex-col gap-4">
           <Field label={t("datasetName")} hint={t("datasetNameHint")} htmlFor="dataset-name">
             <Input id="dataset-name" name="name" required maxLength={120} autoFocus />
           </Field>
@@ -49,7 +50,7 @@ export function NewDatasetDialog({ slug, systemId }: { slug: string; systemId: s
           <Button type="submit" disabled={pending} className="self-end">
             {t("create")}
           </Button>
-        </form>
+        </ActionForm>
       </DialogContent>
     </Dialog>
   );

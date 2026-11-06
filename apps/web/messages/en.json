@@ -49,7 +49,8 @@
     "organizations": "Organizations",
     "auditLog": "Audit log",
     "progress": "Project progress",
-    "operator": "Operator"
+    "operator": "Operator",
+    "domains": "Domains"
   },
   "NoAccess": {
     "title": "No access",
@@ -77,7 +78,11 @@
     "archived": "This project is archived: restore it before changing it.",
     "idTaken": "This identifier is already used in this project.",
     "invalidId": "Use lowercase letters, digits, _ and - only.",
-    "fileUnreadable": "This file cannot be read."
+    "fileUnreadable": "This file cannot be read.",
+    "domainCode": "A domain code has 2 to 5 capital letters or digits.",
+    "noSteward": "Choose at least one steward.",
+    "domainInUse": "This domain is used by models, rules or value mappings: retire it instead.",
+    "notAnAccount": "Owner and stewards must be active accounts of your organization."
   },
   "Projects": {
     "title": "Projects",
@@ -419,5 +424,37 @@
     "saving": "Saving part {done} of {total}…",
     "done": "{count, plural, =0 {Nothing changed: the datasets were already up to date.} one {# dataset saved.} other {# datasets saved.}}",
     "seeSources": "See the sources"
+  },
+  "Domains": {
+    "title": "Domains",
+    "subtitle": "The business processes of your organization (Sales, Manufacture, Govern…), shared by all projects. Each target model, business rule and value mapping belongs to one of them; their stewards approve its objects.",
+    "new": "New domain",
+    "newTitle": "New domain",
+    "editTitle": "Edit {code}",
+    "dialogHint": "A business process that owns models, rules and value mappings and is responsible for their meaning.",
+    "code": "Code",
+    "codeHint": "2 to 5 capitals or digits, e.g. SEL. It cannot change later.",
+    "name": "Name",
+    "description": "Scope",
+    "owner": "Owner",
+    "ownerHint": "The accountable person.",
+    "stewards": "Stewards",
+    "stewardsHint": "They review and approve the domain's objects (from the review phase). Choose at least one, ideally two.",
+    "person": "{name} ({email})",
+    "save": "Save",
+    "close": "Close",
+    "status": "Status",
+    "actions": "Actions",
+    "active": "Active",
+    "retired": "Retired",
+    "retire": "Retire",
+    "reactivate": "Reactivate",
+    "delete": "Delete",
+    "deleteCode": "Delete {code}",
+    "edit": "Edit",
+    "editCode": "Edit {code}",
+    "emptyTitle": "No domain yet",
+    "emptyBody": "Define your organization's business processes first: models, rules and value mappings are assigned to them.",
+    "emptyViewer": "Your Admins have not defined the domains yet."
   }
 }

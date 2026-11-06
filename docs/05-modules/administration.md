@@ -70,8 +70,11 @@ Phases: P2 unless marked otherwise (`docs/07-roadmap.md` §3.4). Decisions are i
   examples).
 - ADM-052: A domain used by a project cannot be deleted, only **retired**: no new object can be assigned to it
   (MM-025). A code cannot be changed once used.
-- ADM-053 (P3): Owners and stewards of each domain, Admin-only changes (MM-021…MM-024), are added with review and
-  approval.
+- ADM-053: Each domain has an owner and at least one steward, chosen among the active accounts of the organization
+  and referenced by their e-mail (MM-021…MM-023); only Admins change them (MM-024). They are entered from P2, because
+  the format requires them; what stewards approve, and how, comes in P3 with review and approval.
+- ADM-054: Members of the organization read the catalogue (to assign a domain to a model, a rule or a value mapping);
+  only active domains can be assigned.
 
 ## 5. Organization settings
 - ADM-060: Admins see the organization's name (set by the operator) and its contact person as recorded by the
