@@ -23,7 +23,7 @@ Amends: ADR 0001 (Drizzle "for typed queries only, from P2")
 
 1. The web app reads and writes through supabase-js **with the user's session**: RLS applies to every query.
 2. Writes with rules (credits, last Admin, operator actions) go through **SQL functions** that check the caller and
-   are tested with pgTAP (`supabase/migrations/20261106*_accounts_and_credits.sql`).
+   are tested with pgTAP (`supabase/migrations/20261106100000_accounts_and_credits.sql`).
 3. TypeScript types are **generated** from the local database (`pnpm db:types` →
    `apps/web/src/lib/database/types.ts`); CI fails when they are out of date.
 4. The schemas `app` and `licensing` are exposed in the Data API. Anonymous visitors have no privilege on them;
