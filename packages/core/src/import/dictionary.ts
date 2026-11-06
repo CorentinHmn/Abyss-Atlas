@@ -11,7 +11,9 @@ export const DICTIONARY_COLUMNS = ["dataset", "column", "native_type", "nullable
 const REQUIRED = ["dataset", "column", "native_type"] as const;
 
 export interface DictionaryImportOptions {
-  csv: string;
+  /** The dictionary as CSV text, or as rows already read (e.g. from an Excel sheet); the first row is the header. */
+  csv?: string;
+  rows?: string[][];
   /** System the tables belong to (IE-002). */
   system: string;
   dialect: Dialect;
@@ -86,7 +88,7 @@ export function datasetToYaml(dataset: DatasetSpec): string {
 
 export function importDictionary(options: DictionaryImportOptions): { files: GeneratedFile[]; report: DictionaryImportReport } {
   const report: DictionaryImportReport = { created: [], updated: [], unknownTypes: [], missingColumns: [], errors: [] };
-  const rows = parseCsv(options.csv);
+  const rows = options.rows ?? parseCsv(options.csv ?? "");
   const header = (rows[0] ?? []).map((cell) => cell.trim().toLowerCase());
   for (const required of REQUIRED) {
     if (!header.includes(required)) report.errors.push(`The file has no "${required}" column. Expected columns: ${DICTIONARY_COLUMNS.join(", ")}.`);

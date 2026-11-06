@@ -36,7 +36,7 @@ One row per source column:
 Atlas provides one read-only query per database engine. The customer runs it with its own tools and access and
 saves the result as the dictionary CSV of §1.1.
 
-- IE-010: Queries are provided for **PostgreSQL** and **SQL Server**, in `packages/cli/catalog-queries/`. They only
+- IE-010: Queries are provided for **PostgreSQL** and **SQL Server**, in `packages/core/src/import/catalog-queries.ts`, shown in Atlas next to the import (SRC-020). They only
   read the catalog (`information_schema` and system views).
 - IE-011: Their output columns are exactly those of §1.1, in that order.
 

@@ -5,6 +5,7 @@
 import { parseDocument } from "yaml";
 import type { z } from "zod";
 import { formatPath, IssueList } from "../validate/issues";
+import { specPath } from "./serialize";
 import {
   schemasByKind,
   type DatasetSpec,
@@ -50,26 +51,6 @@ function withoutExtensions(value: unknown): unknown {
     );
   }
   return value;
-}
-
-/** FMT-003 and §3: where an object of each kind must live. */
-function expectedPath(kind: SpecKind, spec: Record<string, unknown>): string | null {
-  switch (kind) {
-    case "project":
-      return "atlas.yaml";
-    case "domain":
-      return `domains/${String(spec.code)}.yaml`;
-    case "system":
-      return `systems/${String(spec.id)}/system.yaml`;
-    case "dataset":
-      return `systems/${String(spec.system)}/datasets/${String(spec.id)}.yaml`;
-    case "model":
-      return `models/${String(spec.domain)}/${String(spec.id)}.yaml`;
-    case "rule":
-      return `rules/${String(spec.domain)}/${String(spec.id)}.yaml`;
-    case "value_mapping":
-      return `value-mappings/${String(spec.domain)}/${String(spec.id)}.yaml`;
-  }
 }
 
 /** Zod reports a failed union as one issue holding the issues of every alternative: look inside for the real cause. */
@@ -144,8 +125,8 @@ export function loadProject(files: SpecFile[]): { project: Project; issues: Issu
       continue;
     }
 
-    const expected = expectedPath(kind as SpecKind, record);
-    if (expected !== null && expected !== file.path) {
+    const expected = specPath(kind as SpecKind, record);
+    if (expected !== file.path) {
       issues.error("VAL-014", file.path, "", `This ${kind} must be in ${expected} (FMT-003).`);
     }
 

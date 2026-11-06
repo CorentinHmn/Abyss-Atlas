@@ -24,6 +24,10 @@ export async function createOperator(email: string): Promise<void> {
 export async function cleanUp(): Promise<void> {
   const { data } = await admin.auth.admin.listUsers({ perPage: 1000 });
   for (const user of data?.users ?? []) if (user.email?.startsWith(`e2e-${RUN}-`)) await admin.auth.admin.deleteUser(user.id);
+  // Projects first: their spec objects reference the organization too.
+  const { data: organizations } = await admin.schema("licensing").from("organizations").select("id").like("name", `E2E ${RUN}%`);
+  const ids = (organizations ?? []).map((organization) => organization.id);
+  if (ids.length > 0) await admin.schema("app").from("projects").delete().in("organization_id", ids);
   await admin.schema("licensing").from("organizations").delete().like("name", `E2E ${RUN}%`);
 }
 

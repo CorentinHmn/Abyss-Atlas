@@ -13,6 +13,10 @@ export type ErrorKey =
   | "alreadyHasAccounts"
   | "forbidden"
   | "expiredLink"
+  | "archived"
+  | "idTaken"
+  | "invalidId"
+  | "fileUnreadable"
   | "invalid"
   | "unavailable";
 
@@ -25,6 +29,7 @@ const BY_REQUIREMENT: [string, ErrorKey][] = [
   ["ADM-017", "notYourself"],
   ["CT-013", "creditsBelowAccounts"],
   ["CT-011", "minimumCredit"],
+  ["ADM-042", "archived"],
 ];
 
 export function errorKey(error: { code?: string; message?: string } | null | undefined): ErrorKey {

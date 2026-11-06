@@ -8,7 +8,10 @@ with types and keys. It is **metadata only**: Atlas never connects to a source a
 OOS-006). Objects: `docs/02-metamodel.md` §3.3–3.4. File import: `docs/05-modules/import-export.md` §1.
 Screens: SCR-030, SCR-031, SCR-032 (`docs/06-ux/navigation-menus.md`). Requirement identifiers: `SRC-xxx`.
 
-Phase: P2 (UC-001, UC-002, UC-003 in the browser). Decisions are in §7.
+Phase: P2 (UC-001, UC-002, UC-003 in the browser). Decisions are in §7. Storage: ADR 0011.
+
+Implementation status (2026-11-06): §1–§3 and §5 are in the app. The "used / not used" filter and "where used"
+(SRC-010, SRC-030) wait for the mapping editor, which creates the uses.
 
 ## 1. Systems (UC-002)
 - SRC-001: Editors and Admins create a system: id (e.g. `sap_fr`, MM-600), name, kind, product, description, and

@@ -151,7 +151,7 @@ select throws_ok(
                                       'new2@a.test', 'Intruder') $$,
   'P0001', null, 'The operator cannot add an Admin to an organization that already has accounts');
 select is(
-  (select array_agg(action order by id) from licensing.operator_audit),
+  (select array_agg(action order by id) from licensing.operator_audit where operator_id = '99999999-9999-9999-9999-999999999999'),
   array['deletions_validated', 'organization_created', 'first_admin_invited'],
   'CT-040: every successful operator action is in the audit log');
 select is_empty($$ select 1 from licensing.operator_audit where details::text like '%@%' $$,

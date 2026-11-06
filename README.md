@@ -36,7 +36,7 @@ node packages/cli/dist/atlas.js generate dbt examples/reference --out /tmp/dbt
 node packages/cli/dist/atlas.js generate docs examples/reference --out /tmp/docs
 node packages/cli/dist/atlas.js import dictionary catalog.csv --system sap_fr --dialect sap examples/reference
 ```
-Catalog queries to produce `catalog.csv` from PostgreSQL or SQL Server: `packages/cli/catalog-queries/`.
+Catalog queries to produce `catalog.csv` from PostgreSQL or SQL Server: `packages/core/src/import/catalog-queries.ts` (also shown in Atlas).
 
 ## Checks
 ```bash

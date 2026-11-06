@@ -34,6 +34,46 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"spec_objects": {
+                  Row: {
+                    "content": NonNullable<Json>,"created_at": string,"hash": string,"key": string,"kind": Database["app"]['Enums']["spec_kind"],"organization_id": string,"path": string,"project_id": string,"updated_at": string,"updated_by": string | null,"updated_by_name": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "content": NonNullable<Json>,"created_at"?: string,"hash": string,"key": string,"kind": Database["app"]['Enums']["spec_kind"],"organization_id": string,"path": string,"project_id": string,"updated_at"?: string,"updated_by"?: string | null,"updated_by_name"?: string | null
+                  }
+                  Update: {
+                    "content"?: NonNullable<Json>,"created_at"?: string,"hash"?: string,"key"?: string,"kind"?: Database["app"]['Enums']["spec_kind"],"organization_id"?: string,"path"?: string,"project_id"?: string,"updated_at"?: string,"updated_by"?: string | null,"updated_by_name"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "spec_objects_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"spec_versions": {
+                  Row: {
+                    "authors": NonNullable<Json>,"change": Database["app"]['Enums']["spec_change"],"content": Json | null,"created_at": string,"hash": string | null,"id": number,"key": string,"kind": Database["app"]['Enums']["spec_kind"],"organization_id": string,"project_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "authors"?: NonNullable<Json>,"change": Database["app"]['Enums']["spec_change"],"content"?: Json | null,"created_at"?: string,"hash"?: string | null,"id"?: never,"key": string,"kind": Database["app"]['Enums']["spec_kind"],"organization_id": string,"project_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "authors"?: NonNullable<Json>,"change"?: Database["app"]['Enums']["spec_change"],"content"?: Json | null,"created_at"?: string,"hash"?: string | null,"id"?: never,"key"?: string,"kind"?: Database["app"]['Enums']["spec_kind"],"organization_id"?: string,"project_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "spec_versions_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -51,6 +91,9 @@ export type Database = {
                            },
 "credits_remaining":
 { Args: Record<PropertyKey, never>; Returns: number
+                           },
+"delete_spec_objects":
+{ Args: { "objects": Json,"project": string }; Returns: number
                            },
 "email_available":
 { Args: { "candidate": string }; Returns: boolean
@@ -86,14 +129,23 @@ export type Database = {
 "reactivate_account":
 { Args: { "target": string }; Returns: undefined
                            },
+"record_version":
+{ Args: { "new_content": Json,"new_hash": string,"object_key": string,"object_kind": Database["app"]['Enums']["spec_kind"],"org": string,"project": string,"what": Database["app"]['Enums']["spec_change"] }; Returns: undefined
+                           },
 "request_deletion":
 { Args: { "target": string }; Returns: undefined
                            },
 "require_admin":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"require_editable_project":
+{ Args: { "project": string }; Returns: string
+                           },
 "require_other_account":
 { Args: { "target": string }; Returns: string
+                           },
+"save_spec_objects":
+{ Args: { "objects": Json,"project": string,"what"?: Database["app"]['Enums']["spec_change"] }; Returns: number
                            },
 "set_my_display_name":
 { Args: { "new_name": string }; Returns: undefined
@@ -106,7 +158,7 @@ export type Database = {
                            }
           }
           Enums: {
-            "member_role": "admin"|"editor"|"viewer","member_status": "active"|"suspended"
+            "member_role": "admin"|"editor"|"viewer","member_status": "active"|"suspended","spec_change": "edit"|"import"|"copy"|"restore"|"delete","spec_kind": "system"|"dataset"|"model"|"rule"|"value_mapping"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -311,7 +363,7 @@ export type CompositeTypes<
 export const Constants = {
   "app": {
           Enums: {
-            "member_role": ["admin", "editor", "viewer"],"member_status": ["active", "suspended"]
+            "member_role": ["admin", "editor", "viewer"],"member_status": ["active", "suspended"],"spec_change": ["edit", "import", "copy", "restore", "delete"],"spec_kind": ["system", "dataset", "model", "rule", "value_mapping"]
           }
         },"licensing": {
           Enums: {

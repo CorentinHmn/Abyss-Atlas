@@ -63,10 +63,10 @@ export const PHASES: Phase[] = [
     goal: "Specify a whole model in Atlas: accounts and credits, source registry, mapping editor, history, downloads.",
     estimate: "8–10 weeks",
     criteria: [
-      { id: "RM-030", label: "The founder writes the whole reference project in Atlas, without editing YAML outside it.", status: "in_progress", note: "Documents of P2 written. Done in the app: control tower (organizations, credits, deletions, audit log), licenses and accounts, invitations, profile, forgotten password, projects list. Next: source registry and mapping editor." },
+      { id: "RM-030", label: "The founder writes the whole reference project in Atlas, without editing YAML outside it.", status: "in_progress", note: "Done in the app: control tower, licenses and accounts, invitations, projects, and the source registry (systems, column grid, dictionary import from CSV or Excel with preview, copy between projects, history of every change). Next: domains and the mapping editor." },
       { id: "RM-031", label: "The downloaded dbt output is identical to the CLI output on the exported project.", status: "not_started" },
-      { id: "RM-032", label: "RLS tests cover every app and licensing table; no cross-organization access.", status: "in_progress", note: "80 database tests so far, on every table that exists (accounts, projects, organizations, audit log); new tables add theirs." },
-      { id: "RM-033", label: "The operator role cannot read any app table.", status: "in_progress", note: "Proven for accounts and projects; the control tower only calls functions that return counts." },
+      { id: "RM-032", label: "RLS tests cover every app and licensing table; no cross-organization access.", status: "in_progress", note: "106 database tests, on every table that exists (accounts, projects, organizations, audit log, spec objects and history); new tables add theirs." },
+      { id: "RM-033", label: "The operator role cannot read any app table.", status: "in_progress", note: "Proven for accounts, projects, spec objects and history; the control tower only calls functions that return counts." },
     ],
   },
   {
