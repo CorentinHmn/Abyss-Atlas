@@ -26,12 +26,12 @@ insert into licensing.organizations (id, name, credits_granted) values
 
 insert into licensing.operators (user_id) values ('99999999-9999-9999-9999-999999999999');
 
-insert into app.memberships (organization_id, user_id, role, status) values
-  ('aaaaaaaa-0000-0000-0000-00000000000a', '11111111-1111-1111-1111-111111111111', 'admin', 'active'),
-  ('aaaaaaaa-0000-0000-0000-00000000000a', '22222222-2222-2222-2222-222222222222', 'viewer', 'active'),
-  ('aaaaaaaa-0000-0000-0000-00000000000a', '55555555-5555-5555-5555-555555555555', 'editor', 'active'),
-  ('aaaaaaaa-0000-0000-0000-00000000000a', '44444444-4444-4444-4444-444444444444', 'editor', 'suspended'),
-  ('bbbbbbbb-0000-0000-0000-00000000000b', '33333333-3333-3333-3333-333333333333', 'admin', 'active');
+insert into app.memberships (organization_id, user_id, role, status, email, display_name) values
+  ('aaaaaaaa-0000-0000-0000-00000000000a', '11111111-1111-1111-1111-111111111111', 'admin', 'active', 'alice@a.test', 'Alice'),
+  ('aaaaaaaa-0000-0000-0000-00000000000a', '22222222-2222-2222-2222-222222222222', 'viewer', 'active', 'bob@a.test', 'Bob'),
+  ('aaaaaaaa-0000-0000-0000-00000000000a', '55555555-5555-5555-5555-555555555555', 'editor', 'active', 'eve@a.test', 'Eve'),
+  ('aaaaaaaa-0000-0000-0000-00000000000a', '44444444-4444-4444-4444-444444444444', 'editor', 'suspended', 'dave@a.test', 'Dave'),
+  ('bbbbbbbb-0000-0000-0000-00000000000b', '33333333-3333-3333-3333-333333333333', 'admin', 'active', 'carol@b.test', 'Carol');
 
 insert into app.projects (id, organization_id, name) values
   ('aaaaaaaa-0000-0000-0000-0000000000a1', 'aaaaaaaa-0000-0000-0000-00000000000a', 'Project of A'),
@@ -65,13 +65,14 @@ select throws_ok(
   'Admin of A cannot create a project in B'
 );
 select throws_ok(
-  $$ insert into app.memberships (organization_id, user_id, role)
-     values ('bbbbbbbb-0000-0000-0000-00000000000b', '11111111-1111-1111-1111-111111111111', 'admin') $$,
+  $$ insert into app.memberships (organization_id, user_id, role, email, display_name)
+     values ('bbbbbbbb-0000-0000-0000-00000000000b', '11111111-1111-1111-1111-111111111111', 'admin', 'alice@a.test', 'Alice') $$,
   '42501', null,
   'Admin of A cannot add themselves to organization B'
 );
-select is_empty(
+select throws_ok(
   $$ update licensing.organizations set credits_granted = 1000 returning id $$,
+  '42501', null,
   'A customer Admin cannot change the credits'
 );
 select is_empty(
@@ -82,9 +83,8 @@ select is_empty(
   $$ delete from app.projects where organization_id = 'bbbbbbbb-0000-0000-0000-00000000000b' returning id $$,
   'Admin of A cannot delete a project of B'
 );
-select isnt_empty(
-  $$ update app.memberships set status = 'active'
-     where user_id = '44444444-4444-4444-4444-444444444444' returning user_id $$,
+select lives_ok(
+  $$ select app.reactivate_account('44444444-4444-4444-4444-444444444444') $$,
   'Admin of A can change the status of an account of A'
 );
 reset role;
@@ -119,8 +119,8 @@ select is_empty(
   'A Viewer cannot promote themselves'
 );
 select throws_ok(
-  $$ insert into app.memberships (organization_id, user_id, role)
-     values ('aaaaaaaa-0000-0000-0000-00000000000a', '99999999-9999-9999-9999-999999999999', 'viewer') $$,
+  $$ insert into app.memberships (organization_id, user_id, role, email, display_name)
+     values ('aaaaaaaa-0000-0000-0000-00000000000a', '99999999-9999-9999-9999-999999999999', 'viewer', 'olga@operator.test', 'Olga') $$,
   '42501', null,
   'A Viewer cannot add an account'
 );
@@ -137,8 +137,8 @@ select lives_ok(
   'An Editor of A can create a project in A'
 );
 select throws_ok(
-  $$ insert into app.memberships (organization_id, user_id, role)
-     values ('aaaaaaaa-0000-0000-0000-00000000000a', '99999999-9999-9999-9999-999999999999', 'viewer') $$,
+  $$ insert into app.memberships (organization_id, user_id, role, email, display_name)
+     values ('aaaaaaaa-0000-0000-0000-00000000000a', '99999999-9999-9999-9999-999999999999', 'viewer', 'olga@operator.test', 'Olga') $$,
   '42501', null,
   'An Editor cannot add an account'
 );
@@ -183,12 +183,11 @@ select is_empty($$ select 1 from app.projects $$, 'The operator cannot read any 
 select is_empty($$ select 1 from app.memberships $$, 'The operator cannot read any account of a customer');
 select is((select count(*)::int from licensing.organizations), 2, 'The operator sees every organization');
 select lives_ok(
-  $$ insert into licensing.organizations (name, credits_granted) values ('Organization C', 3) $$,
+  $$ select licensing.create_organization('Organization C', 3) $$,
   'The operator can create an organization'
 );
-select isnt_empty(
-  $$ update licensing.organizations set credits_granted = 20
-     where id = 'aaaaaaaa-0000-0000-0000-00000000000a' returning id $$,
+select lives_ok(
+  $$ select licensing.set_credits('aaaaaaaa-0000-0000-0000-00000000000a', 20) $$,
   'The operator can change the credits of an organization'
 );
 select throws_ok(
