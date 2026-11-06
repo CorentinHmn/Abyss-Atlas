@@ -8,7 +8,7 @@ with types and keys. It is **metadata only**: Atlas never connects to a source a
 OOS-006). Objects: `docs/02-metamodel.md` §3.3–3.4. File import: `docs/05-modules/import-export.md` §1.
 Screens: SCR-030, SCR-031, SCR-032 (`docs/06-ux/navigation-menus.md`). Requirement identifiers: `SRC-xxx`.
 
-Phase: P2 (UC-001, UC-002, UC-003 in the browser). Open points are in §7.
+Phase: P2 (UC-001, UC-002, UC-003 in the browser). Decisions are in §7.
 
 ## 1. Systems (UC-002)
 - SRC-001: Editors and Admins create a system: id (e.g. `sap_fr`, MM-600), name, kind, product, description, and
@@ -17,6 +17,8 @@ Phase: P2 (UC-001, UC-002, UC-003 in the browser). Open points are in §7.
 - SRC-003: Deleting a system deletes its datasets. It asks for confirmation and lists the models that use it
   (§4).
 - SRC-004: The sources screen lists the systems with their number of datasets and of models using them.
+- SRC-005: An action copies systems and their datasets from another project of the organization into this one
+  (Q-SRC-02); the copies are then independent.
 
 ## 2. Datasets and columns (UC-002)
 - SRC-010: Each system lists its datasets with search (name, description, column name) and a filter "used by a
@@ -36,8 +38,8 @@ Phase: P2 (UC-001, UC-002, UC-003 in the browser). Open points are in §7.
 - SRC-020: The import screen (SCR-032) shows the **catalog queries** for PostgreSQL and SQL Server, ready to copy,
   with a one-line instruction: run it with your own tools and access, save the result as CSV, import it here
   (IE-010). Atlas never runs them.
-- SRC-021: The user chooses the system, the dialect (`postgresql`, `sqlserver`, `sap`, `oracle`) and the file. The
-  file is read **in the browser** (IE-001…IE-005); only the resulting metadata is saved.
+- SRC-021: The user chooses the system, the dialect (`postgresql`, `sqlserver`, `sap`, `oracle`) and the file: CSV,
+  or Excel `.xlsx` (first sheet, or a sheet the user picks, same columns; Q-SRC-01). The file is read **in the browser** (IE-001…IE-005); only the resulting metadata is saved.
 - SRC-022: Before anything is saved, a **preview** lists: datasets to create, datasets to update (columns added,
   types changed), columns present in Atlas but missing from the file (kept, IE-004), and types that could not be
   translated (imported as `string`, IE-003). The user confirms or cancels.
@@ -62,13 +64,8 @@ Phase: P2 (UC-001, UC-002, UC-003 in the browser). Open points are in §7.
 | Read systems, datasets, columns, where used | yes | yes | yes |
 | Create, change, delete; import a dictionary | no | yes | yes |
 
-## 7. Open points
-- Q-SRC-01: UC-001 says "CSV **or Excel** data dictionary". Proposal: accept `.xlsx` too, read in the browser
-  (first sheet, or a sheet the user picks, with the same columns as the CSV). This is only a dictionary of source
-  columns, not an import of Excel mappings (OOS-009).
-- Q-SRC-02: Sources belong to a **project** (MM-010): two projects reading the same SAP system each hold their own
-  copy. Proposal: keep it so in v1 (each project complete on its own, export included), and add an action "copy
-  systems and datasets from another project of the organization". The alternative, one source catalogue shared by
-  all projects, changes the metamodel and the export.
-- Q-SRC-03: Deleting a column used by mappings (SRC-031). Proposal: allowed after a confirmation that lists the uses,
-  as described; the alternative is to block it until the uses are removed.
+## 7. Decisions (2026-11-06)
+- Q-SRC-01: Dictionary files may be CSV or Excel `.xlsx` (SRC-021). This is only a dictionary of source columns, not
+  an import of Excel mappings (OOS-009).
+- Q-SRC-02: Sources belong to a project (MM-010); systems and datasets can be copied from another project (SRC-005).
+- Q-SRC-03: A column used by mappings can be deleted after a confirmation that lists its uses (SRC-031).

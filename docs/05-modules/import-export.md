@@ -23,7 +23,7 @@ One row per source column:
 | `namespace` | no | Schema or database of the table in the source |
 
 - IE-001: Files are UTF-8 (a byte-order mark is accepted). The separator is detected: `,` or `;` (European Excel
-  uses `;`).
+  uses `;`). In Atlas, the same table may also come as an Excel `.xlsx` sheet (SRC-021).
 - IE-002: The import targets one system, given by the user; the dataset id is the table name in lowercase, made
   valid for MM-600.
 - IE-003: The logical type is derived from the native type with the dialect chosen by the user (§1.3); a type that

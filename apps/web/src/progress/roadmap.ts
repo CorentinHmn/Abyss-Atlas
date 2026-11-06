@@ -99,7 +99,7 @@ export const PHASES: Phase[] = [
 
 /** What only the founder can do, in the order it unblocks the work. */
 export const WAITING_FOR_YOU: { label: string; unblocks: string }[] = [
-  { label: "Review the P2 documents as they are written (administration, control tower, navigation and source registry are written; 3 open points on the source registry).", unblocks: "P2" },
+  { label: "Answer the 3 open points of the mapping editor (automatic saving, starting helpers, undo) and review the P2 documents written so far.", unblocks: "P2" },
 ];
 
 export function phaseStatus(phase: Phase): Status {
