@@ -54,7 +54,6 @@ export default async function DatasetPage({ params }: { params: Promise<{ projec
         </p>
       ))}
       <DatasetEditor
-        key={dataset.updatedAt}
         slug={slug}
         draft={datasetDraft(dataset.content)}
         dialect={guessDialect(system.content.product as string | undefined)}
