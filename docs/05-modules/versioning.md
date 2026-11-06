@@ -7,7 +7,7 @@ History of a project in Atlas: who changed what and when, comparison of any two 
 Atlas is the only workspace, with no Git (ADR 0007): history lives in the database (`app.spec_versions`, ARC-023).
 Screen: SCR-050 (`docs/06-ux/navigation-menus.md`). Requirement identifiers: `VER-xxx`.
 
-Phase: P2 (UC-023). Open points are in §8.
+Phase: P2 (UC-023). Decisions are in §8.
 
 ## 1. What is a version
 - VER-001: A **version** is the state of one object (model, rule, value mapping, dataset, system, project settings)
@@ -41,7 +41,7 @@ Phase: P2 (UC-023). Open points are in §8.
   description. It marks the latest version of every object at that moment; it never changes afterwards.
 - VER-031: Names are unique within the project. Admins can delete a named version (the object versions stay).
 - VER-032: From a named version, users can download the generated outputs and the export of that moment
-  (`docs/05-modules/import-export.md`), see Q-VER-02.
+  (`docs/05-modules/import-export.md`, Q-VER-02).
 
 ## 5. Restore
 - VER-040: Editors and Admins restore an older version of an object, or a deleted object. A restore never rewrites
@@ -65,10 +65,8 @@ Phase: P2 (UC-023). Open points are in §8.
 | Create a named version, restore | no | yes | yes |
 | Delete a named version | no | no | yes |
 
-## 8. Open points
-- Q-VER-01: **Retention**: keep every version for the life of the project. Proposal: yes; it is metadata only, a few
-  kilobytes per version, and it is the audit trail of the spec.
-- Q-VER-02: **Outputs of a named version**: download the dbt code, the documentation and the export as they were at
-  "Release 1.0", not only the current ones. Proposal: yes.
-- Q-VER-03: **Restore the whole project** to a named version, in addition to restoring one object. Proposal: yes,
-  with the list of changes shown before confirming.
+## 8. Decisions (2026-11-06)
+- Q-VER-01: Every version is kept for the life of the project (VER-050): metadata only, and the audit trail of the
+  spec.
+- Q-VER-02: The outputs and the export of a named version can be downloaded (VER-032).
+- Q-VER-03: A whole project can be restored to a named version, after the list of changes is shown (VER-041).
