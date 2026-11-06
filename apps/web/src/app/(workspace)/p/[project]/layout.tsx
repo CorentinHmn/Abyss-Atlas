@@ -23,6 +23,7 @@ export default async function ProjectLayout({ children, params }: { children: Re
           <NavLink href={base} exact>
             {t("overview")}
           </NavLink>
+          <NavLink href={`${base}/models`}>{t("models")}</NavLink>
           <NavLink href={`${base}/sources`}>{t("sources")}</NavLink>
         </nav>
       </aside>

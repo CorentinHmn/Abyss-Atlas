@@ -42,5 +42,7 @@ Deciders: founder
 - History: versions are recorded after a quiet period rather than per keystroke (`docs/04-architecture.md` §4.3).
 
 ## 5. Follow-up decisions
+- When: in P3 with the worker. P2 edits plain objects with automatic saving behind one layer of the editor, which
+  the co-editing document then replaces (`docs/05-modules/mapping-editor.md` MAP-002, Q-MAP-04; 2026-11-06).
 - Undo/redo scope: decided, per user and per object (`docs/05-modules/mapping-editor.md` Q-MAP-03).
 - Behaviour of comments anchored to a field that another user deletes.

@@ -14,9 +14,10 @@ ADR 0005). Decisions are in §10.
 ## 1. Principles
 - MAP-001: **Forms first**: every attribute of the metamodel has a field; nobody needs to write YAML or SQL. The
   YAML view (§7) is an alternative for those who prefer text.
-- MAP-002: **One document per object** (model, rule, value mapping), as in ADR 0005: forms and YAML view edit the same
-  co-editing document. P2 already uses this document, saved through `apps/web` (RM-006); P3 adds the worker for
-  several people at once, without changing the editor.
+- MAP-002: **One document per object** (model, rule, value mapping): forms and YAML view edit the same document,
+  behind one layer of the editor (`useSpecDocument`). In P2 this layer keeps the object in the browser and saves it
+  automatically through `apps/web` (RM-006); in P3 the co-editing document of ADR 0005 (Yjs, worker) replaces it
+  behind the same layer, without changing the screens (Q-MAP-04).
 - MAP-003: **Never blocked by validation** (ARC-013): incomplete or invalid content is saved as it is; problems are
   shown, not enforced.
 - MAP-004: **Types everywhere**: every column, operand and step shows its logical type; the type after each step is
@@ -125,3 +126,5 @@ ADR 0005). Decisions are in §10.
 - Q-MAP-02: Both starting helpers are in P2: new model from a source dataset (MAP-012) and copy to other branches
   (MAP-046). They are deterministic and always confirmed by the user; AI suggestions stay in v1.1.
 - Q-MAP-03: Each person undoes only their own changes, object by object (MAP-072).
+- Q-MAP-04: No co-editing document in P2: the editor works on a plain object with automatic saving; Yjs and the
+  worker come in P3 behind the same layer (MAP-002, ADR 0005 §5).

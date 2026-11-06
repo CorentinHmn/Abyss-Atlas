@@ -21,6 +21,7 @@ export type ErrorKey =
   | "noSteward"
   | "domainInUse"
   | "notAnAccount"
+  | "unknownDomain"
   | "invalid"
   | "unavailable";
 
