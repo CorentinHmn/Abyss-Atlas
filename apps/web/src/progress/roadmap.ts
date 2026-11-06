@@ -99,9 +99,8 @@ export const PHASES: Phase[] = [
 
 /** What only the founder can do, in the order it unblocks the work. */
 export const WAITING_FOR_YOU: { label: string; unblocks: string }[] = [
-  { label: "Confirm the database change (accounts and credits) when Supabase asks for it in the conversation.", unblocks: "P2" },
-  { label: "Supabase dashboard: Data API, add the schemas app and licensing; Authentication, URL configuration: site URL and redirect URLs of the Vercel address.", unblocks: "P2" },
-  { label: "Vercel: add the environment variable SUPABASE_SECRET_KEY (the secret key of the Supabase project), then redeploy.", unblocks: "P2" },
+  { label: "Try the control tower in production: create a test organization with another e-mail address than yours and accept its invitation.", unblocks: "P2" },
+  { label: "Before the first external users: choose an EU e-mail provider for invitations (Supabase's built-in sender is for tests only).", unblocks: "P2" },
 ];
 
 export function phaseStatus(phase: Phase): Status {
