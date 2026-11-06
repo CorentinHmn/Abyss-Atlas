@@ -9,7 +9,7 @@
 --   old: a person who already signed in once, with no account
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(42);
+select plan(45);
 
 insert into auth.users (id, email, created_at, last_sign_in_at) values
   ('11111111-1111-1111-1111-111111111111', 'alice@a.test', now() - interval '1 day', now()),
@@ -41,6 +41,8 @@ select results_eq($$ select * from app.license_counter() $$, $$ values (3, 2, 1,
   'ADM-001: the Admin sees credits granted, used, remaining and waiting for deletion');
 select is((select count(*)::int from app.list_accounts()), 2, 'SCR-080: the Admin lists the 2 accounts of A');
 select is(app.credits_remaining(), 1, 'One credit remains before inviting');
+select is(app.email_available('Carol@B.test'), false, 'ADM-013: an address used by any Atlas sign-in is not available');
+select is(app.email_available('someone@new.test'), true, 'ADM-013: a new address is available');
 
 select throws_ok($$ select app.add_account('a0000000-0000-0000-0000-0000000000ff', 'old@x.test', 'Old', 'viewer') $$,
   'P0001', null, 'ADM-013: a person who already signed in cannot be attached to the organization');
@@ -102,6 +104,8 @@ select throws_ok($$ select app.suspend_account('11111111-1111-1111-1111-11111111
 select throws_ok($$ select * from licensing.organization_figures() $$, '42501', null,
   'A customer cannot read the control tower figures');
 select lives_ok($$ select app.set_my_display_name('Bob B.') $$, 'SCR-090: anyone changes their own display name');
+select throws_ok($$ select app.email_available('carol@b.test') $$, '42501', null,
+  'An Editor cannot check whether an address is used');
 select throws_ok($$ select licensing.validate_deletions('aaaaaaaa-0000-0000-0000-00000000000a') $$, '42501', null,
   'A customer cannot validate deletions');
 reset role;

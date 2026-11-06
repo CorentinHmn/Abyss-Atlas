@@ -43,6 +43,16 @@ Catalog queries to produce `catalog.csv` from PostgreSQL or SQL Server: `package
 pnpm check          # lint + typecheck + tests
 pnpm build          # production build
 ```
+
+End-to-end tests (Playwright) run against a local Supabase stack and the web app:
+```bash
+pnpm db:start                                   # local Supabase (Docker), with Mailpit for e-mails
+pnpm exec supabase status -o env                # local URL, publishable and secret keys
+export NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<local> SUPABASE_SECRET_KEY=<local>
+pnpm --filter @atlas/web e2e                    # starts the app if needed
+```
+After a migration, regenerate the database types: `pnpm db:types`.
+
 Database (needs Docker):
 ```bash
 pnpm db:start      # local Supabase database with every migration applied

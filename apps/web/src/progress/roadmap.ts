@@ -20,7 +20,7 @@ export interface Phase {
   criteria: Criterion[];
 }
 
-export const UPDATED_ON = "2026-11-05";
+export const UPDATED_ON = "2026-11-06";
 
 export const PHASES: Phase[] = [
   {
@@ -63,10 +63,10 @@ export const PHASES: Phase[] = [
     goal: "Specify a whole model in Atlas: accounts and credits, source registry, mapping editor, history, downloads.",
     estimate: "8–10 weeks",
     criteria: [
-      { id: "RM-030", label: "The founder writes the whole reference project in Atlas, without editing YAML outside it.", status: "in_progress", note: "Documents of P2 written: administration, control tower, source registry, mapping editor, versioning, navigation and 21 screens." },
+      { id: "RM-030", label: "The founder writes the whole reference project in Atlas, without editing YAML outside it.", status: "in_progress", note: "Documents of P2 written. Done in the app: control tower (organizations, credits, deletions, audit log), licenses and accounts, invitations, profile, forgotten password, projects list. Next: source registry and mapping editor." },
       { id: "RM-031", label: "The downloaded dbt output is identical to the CLI output on the exported project.", status: "not_started" },
-      { id: "RM-032", label: "RLS tests cover every app and licensing table; no cross-organization access.", status: "not_started" },
-      { id: "RM-033", label: "The operator role cannot read any app table.", status: "not_started" },
+      { id: "RM-032", label: "RLS tests cover every app and licensing table; no cross-organization access.", status: "in_progress", note: "80 database tests so far, on every table that exists (accounts, projects, organizations, audit log); new tables add theirs." },
+      { id: "RM-033", label: "The operator role cannot read any app table.", status: "in_progress", note: "Proven for accounts and projects; the control tower only calls functions that return counts." },
     ],
   },
   {
@@ -99,7 +99,9 @@ export const PHASES: Phase[] = [
 
 /** What only the founder can do, in the order it unblocks the work. */
 export const WAITING_FOR_YOU: { label: string; unblocks: string }[] = [
-  { label: "Review the P2 documents (6 modules, navigation, 21 screens); development of P2 starts with accounts and credits.", unblocks: "P2" },
+  { label: "Confirm the database change (accounts and credits) when Supabase asks for it in the conversation.", unblocks: "P2" },
+  { label: "Supabase dashboard: Data API, add the schemas app and licensing; Authentication, URL configuration: site URL and redirect URLs of the Vercel address.", unblocks: "P2" },
+  { label: "Vercel: add the environment variable SUPABASE_SECRET_KEY (the secret key of the Supabase project), then redeploy.", unblocks: "P2" },
 ];
 
 export function phaseStatus(phase: Phase): Status {

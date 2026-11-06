@@ -44,6 +44,40 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec supabase db start
       - run: pnpm exec supabase test db
+      - name: Database types are up to date (pnpm db:types)
+        run: pnpm db:types && git diff --exit-code apps/web/src/lib/database/types.ts
+
+  e2e:
+    # End-to-end tests of the web app against a local Supabase stack (accounts, credits, control tower).
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec supabase start -x studio,imgproxy,vector,logflare,realtime,storage-api,edge-runtime,supavisor,postgres-meta
+      - name: Local Supabase settings for the app (local keys only)
+        run: |
+          pnpm exec supabase status -o env > supabase.env
+          . ./supabase.env
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+            echo "SUPABASE_SECRET_KEY=$SECRET_KEY"
+          } >> "$GITHUB_ENV"
+      - run: pnpm --filter @atlas/web build
+      - run: pnpm --filter @atlas/web exec playwright install --with-deps chromium
+      - run: pnpm --filter @atlas/web e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7
 
   generated-dbt:
     # RM-020/RM-021: the reference project generates a dbt project that dbt accepts and whose SQL is valid Snowflake.

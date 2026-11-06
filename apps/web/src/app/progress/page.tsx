@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { notFound, redirect } from "next/navigation";
+import { getViewer } from "@/lib/session";
 import { PHASES, phaseStatus, UPDATED_ON, WAITING_FOR_YOU, type Status } from "@/progress/roadmap";
 
 const STATUS_STYLE: Record<Status, string> = {
@@ -18,18 +18,11 @@ const STATUS_DOT: Record<Status, string> = {
   not_started: "bg-line",
 };
 
-async function signedIn(): Promise<boolean> {
-  try {
-    const supabase = await createSupabaseServerClient();
-    const { data } = await supabase.auth.getUser();
-    return Boolean(data.user);
-  } catch {
-    return false;
-  }
-}
-
 export default async function ProgressPage() {
-  if (!(await signedIn())) redirect("/sign-in");
+  // SCR-900: the founder (operator) only; customers never see the roadmap.
+  const viewer = await getViewer();
+  if (!viewer) redirect("/sign-in");
+  if (!viewer.isOperator) notFound();
   const t = await getTranslations("Progress");
   const commit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7);
   const current = PHASES.find((phase) => phaseStatus(phase) !== "done");

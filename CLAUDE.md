@@ -33,7 +33,7 @@ validated and approved in Atlas, and generates code (dbt / SQL) and documentatio
 - AI: **Claude on Amazon Bedrock**, EU region, through one AI gateway; off by default per organization (ADR 0004).
 - Data: **PostgreSQL** (Supabase), multi-tenant per organization with RLS. **SQL migrations are the source of truth**
   (`supabase/migrations`, never edited once applied) and **pgTAP tests** prove the RLS in CI (ADR 0008);
-  **Drizzle** for typed queries only (from P2).
+  the app uses **supabase-js with the user's session** and generated types (`pnpm db:types`), no Drizzle (ADR 0010).
 - Auth: Supabase Auth. Payments (later): Stripe.
 - Hosting: **EU only** (GDPR): Vercel + Supabase in an EU region, worker on AWS Frankfurt; sovereign host (Scaleway, OVHcloud) as a future option.
 - Tests: **Vitest** (unit), **Playwright** (e2e).

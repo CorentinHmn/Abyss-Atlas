@@ -263,6 +263,36 @@ begin
 end;
 $$;
 
+-- ADM-040: creates a project in the caller's organization and returns its slug. Runs with the caller's rights, so
+-- the insert policy (Editors and Admins) applies.
+create function app.create_project(project_name text, project_description text default '')
+returns text
+language sql
+security invoker
+set search_path = ''
+as $$
+  insert into app.projects (organization_id, name, description)
+  values (app.my_organization(), btrim(project_name), btrim(coalesce(project_description, '')))
+  returning slug;
+$$;
+
+-- ADM-013: an address already used by any Atlas sign-in is refused before an invitation is sent. Admins and the
+-- operator only; the answer says nothing about where the address is used.
+create function app.email_available(candidate text)
+returns boolean
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+begin
+  if not licensing.is_operator() then
+    perform app.require_admin();
+  end if;
+  return not exists (select 1 from auth.users u where lower(u.email) = lower(btrim(candidate)));
+end;
+$$;
+
 ------------------------------------------------------------------------------------------------------------------------
 -- Customer side: license counter and accounts (Admins)
 ------------------------------------------------------------------------------------------------------------------------
@@ -580,7 +610,8 @@ grant execute on function
   app.license_counter(), app.list_accounts(), app.add_account(uuid, text, text, app.member_role),
   app.credits_remaining(), app.set_role(uuid, app.member_role), app.suspend_account(uuid),
   app.reactivate_account(uuid), app.request_deletion(uuid), app.cancel_deletion(uuid), app.mark_joined(),
-  app.set_my_display_name(text), app.my_organization()
+  app.set_my_display_name(text), app.my_organization(), app.create_project(text, text),
+  app.email_available(text)
   to authenticated;
 
 grant execute on function
