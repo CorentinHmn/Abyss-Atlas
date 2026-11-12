@@ -17,6 +17,7 @@ export default async function RulePage({ params }: { params: Promise<{ project: 
   const data = await loadReusable(project, "rule", id);
   if (!data) notFound();
   const t = await getTranslations("Reusable");
+  const history = await getTranslations("History");
   const viewer = await getViewer();
   const canEdit = viewer?.account?.role !== "viewer" && !project.archivedAt;
   const domains = await getDomains();
@@ -27,6 +28,10 @@ export default async function RulePage({ params }: { params: Promise<{ project: 
         <Link href={`/p/${slug}/rules`} className="text-sm text-muted hover:text-ink">
           {t("backToRules")}
         </Link>
+        <div className="flex items-center gap-3">
+          <Link href={`/p/${slug}/history?kind=rule&object=${encodeURIComponent(id)}`} className="text-sm text-muted hover:text-ink">
+            {history("objectHistory")}
+          </Link>
         {canEdit ? (
           <ConfirmButton
             label={t("delete")}
@@ -35,6 +40,7 @@ export default async function RulePage({ params }: { params: Promise<{ project: 
             action={deleteReusable.bind(null, slug, "rule", id)}
           />
         ) : null}
+        </div>
       </div>
       <RuleEditor
         slug={slug}

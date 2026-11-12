@@ -17,6 +17,7 @@ export default async function ValueMappingPage({ params }: { params: Promise<{ p
   const data = await loadReusable(project, "value_mapping", id);
   if (!data) notFound();
   const t = await getTranslations("Reusable");
+  const history = await getTranslations("History");
   const viewer = await getViewer();
   const canEdit = viewer?.account?.role !== "viewer" && !project.archivedAt;
   const domains = await getDomains();
@@ -27,6 +28,10 @@ export default async function ValueMappingPage({ params }: { params: Promise<{ p
         <Link href={`/p/${slug}/value-mappings`} className="text-sm text-muted hover:text-ink">
           {t("backToMappings")}
         </Link>
+        <div className="flex items-center gap-3">
+          <Link href={`/p/${slug}/history?kind=value_mapping&object=${encodeURIComponent(id)}`} className="text-sm text-muted hover:text-ink">
+            {history("objectHistory")}
+          </Link>
         {canEdit ? (
           <ConfirmButton
             label={t("delete")}
@@ -35,6 +40,7 @@ export default async function ValueMappingPage({ params }: { params: Promise<{ p
             action={deleteReusable.bind(null, slug, "value_mapping", id)}
           />
         ) : null}
+        </div>
       </div>
       <ValueMappingEditor
         slug={slug}

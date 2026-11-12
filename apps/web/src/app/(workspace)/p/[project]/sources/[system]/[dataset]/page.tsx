@@ -19,6 +19,7 @@ export default async function DatasetPage({ params }: { params: Promise<{ projec
   const system = objects.find((object) => object.kind === "system" && object.key === systemId);
   if (!dataset || !system) notFound();
   const t = await getTranslations("Dataset");
+  const history = await getTranslations("History");
   const viewer = await getViewer();
   const canEdit = viewer?.account?.role !== "viewer" && !project.archivedAt;
   const validation = await getValidation(slug);
@@ -39,14 +40,19 @@ export default async function DatasetPage({ params }: { params: Promise<{ projec
             {dataset.updatedByName ? ` · ${t("lastChange", { name: dataset.updatedByName })}` : ""}
           </p>
         </div>
-        {canEdit ? (
-          <ConfirmButton
-            label={t("delete")}
-            title={t("deleteTitle", { name: String(dataset.content.name ?? datasetId) })}
-            body={t("deleteBody")}
-            action={deleteDataset.bind(null, slug, systemId, datasetId)}
-          />
-        ) : null}
+        <div className="flex items-center gap-3">
+          <Link href={`/p/${slug}/history?kind=dataset&object=${encodeURIComponent(dataset.key)}`} className="text-sm text-muted hover:text-ink">
+            {history("objectHistory")}
+          </Link>
+          {canEdit ? (
+            <ConfirmButton
+              label={t("delete")}
+              title={t("deleteTitle", { name: String(dataset.content.name ?? datasetId) })}
+              body={t("deleteBody")}
+              action={deleteDataset.bind(null, slug, systemId, datasetId)}
+            />
+          ) : null}
+        </div>
       </div>
       {general.map((issue) => (
         <p key={issue.code + issue.at + issue.message} className="text-sm">

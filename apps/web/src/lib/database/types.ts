@@ -34,6 +34,26 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"named_versions": {
+                  Row: {
+                    "created_at": string,"created_by": NonNullable<Json>,"description": string,"id": string,"last_version_id": number,"name": string,"organization_id": string,"project_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by": NonNullable<Json>,"description"?: string,"id"?: string,"last_version_id": number,"name": string,"organization_id": string,"project_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: NonNullable<Json>,"description"?: string,"id"?: string,"last_version_id"?: number,"name"?: string,"organization_id"?: string,"project_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "named_versions_project_id_fkey"
+      columns: ["project_id"]
+isOneToOne: false
+      referencedRelation: "projects"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"projects": {
                   Row: {
                     "archived_at": string | null,"created_at": string,"description": string,"id": string,"name": string,"organization_id": string,"slug": string
@@ -100,6 +120,9 @@ isOneToOne: false
 "cancel_deletion":
 { Args: { "target": string }; Returns: undefined
                            },
+"create_named_version":
+{ Args: { "project": string,"version_description"?: string,"version_name": string }; Returns: string
+                           },
 "create_project":
 { Args: { "project_description"?: string,"project_name": string }; Returns: string
                            },
@@ -108,6 +131,9 @@ isOneToOne: false
                            },
 "delete_domain":
 { Args: { "domain_code": string }; Returns: undefined
+                           },
+"delete_named_version":
+{ Args: { "named": string }; Returns: undefined
                            },
 "delete_spec_objects":
 { Args: { "objects": Json,"project": string }; Returns: number
@@ -145,6 +171,16 @@ isOneToOne: false
                            },
 "my_organization":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"project_at":
+{ Args: { "mark": number,"project": string }; Returns: {
+              "content": Json,"hash": string,"key": string,"kind": Database["app"]['Enums']["spec_kind"]
+            }[]
+                           },
+"project_history":
+{ Args: { "author_email"?: string,"before_id"?: number,"max_rows"?: number,"object_key"?: string,"object_kind"?: Database["app"]['Enums']["spec_kind"],"project": string }; Returns: {
+              "authors": Json,"change": Database["app"]['Enums']["spec_change"],"content": Json,"created_at": string,"id": number,"key": string,"kind": Database["app"]['Enums']["spec_kind"],"previous": Json,"updated_at": string
+            }[]
                            },
 "reactivate_account":
 { Args: { "target": string }; Returns: undefined

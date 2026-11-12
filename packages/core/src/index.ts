@@ -20,4 +20,4 @@ export { datasetIdFor, datasetToYaml, DICTIONARY_COLUMNS, importDictionary, type
 export { CATALOG_QUERIES, type CatalogQueryDialect } from "./import/catalog-queries";
 export { parseCsv } from "./import/csv";
 export { DIALECTS, logicalTypeFor, type Dialect } from "./import/native-types";
-export { diffProjects, type ObjectChange } from "./diff/diff";
+export { diffObjects, diffProjects, type FieldChange, type ObjectChange } from "./diff/diff";

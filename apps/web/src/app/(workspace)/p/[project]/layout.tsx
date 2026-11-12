@@ -27,6 +27,7 @@ export default async function ProjectLayout({ children, params }: { children: Re
           <NavLink href={`${base}/rules`}>{t("rules")}</NavLink>
           <NavLink href={`${base}/value-mappings`}>{t("valueMappings")}</NavLink>
           <NavLink href={`${base}/sources`}>{t("sources")}</NavLink>
+          <NavLink href={`${base}/history`}>{t("history")}</NavLink>
         </nav>
       </aside>
       <div className="min-w-0 flex-1">{children}</div>

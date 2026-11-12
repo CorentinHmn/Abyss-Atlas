@@ -19,6 +19,7 @@ export default async function ModelPage({ params }: { params: Promise<{ project:
   const model = objects.find((object) => object.kind === "model" && object.key === modelId);
   if (!model) notFound();
   const t = await getTranslations("ModelEditor");
+  const history = await getTranslations("History");
   const viewer = await getViewer();
   const canEdit = viewer?.account?.role !== "viewer" && !project.archivedAt;
   const [domains, validation] = await Promise.all([getDomains(), getValidation(slug)]);
@@ -60,9 +61,14 @@ export default async function ModelPage({ params }: { params: Promise<{ project:
         <Link href={`/p/${slug}/models`} className="text-sm text-muted hover:text-ink">
           {t("back")}
         </Link>
+        <div className="flex items-center gap-3">
+          <Link href={`/p/${slug}/history?kind=model&object=${encodeURIComponent(modelId)}`} className="text-sm text-muted hover:text-ink">
+            {history("objectHistory")}
+          </Link>
         {canEdit ? (
           <ConfirmButton label={t("delete")} title={t("deleteTitle", { name: String(model.content.name ?? modelId) })} body={t("deleteBody")} action={deleteModel.bind(null, slug, modelId)} />
         ) : null}
+        </div>
       </div>
       <ModelEditor
         slug={slug}

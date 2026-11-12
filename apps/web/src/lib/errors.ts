@@ -23,6 +23,7 @@ export type ErrorKey =
   | "notAnAccount"
   | "unknownDomain"
   | "invalid"
+  | "nameTaken"
   | "unavailable";
 
 export type ActionResult = { ok: true; message?: string } | { ok: false; error: ErrorKey } | null;
@@ -44,6 +45,7 @@ const BY_REQUIREMENT: [string, ErrorKey][] = [
 export function errorKey(error: { code?: string; message?: string } | null | undefined): ErrorKey {
   if (!error) return "unavailable";
   const message = error.message ?? "";
+  if (error.code === "23505" && message.includes("VER-031")) return "nameTaken";
   for (const [requirement, key] of BY_REQUIREMENT) if (message.includes(requirement)) return key;
   if (message.includes("Cancel the deletion request first")) return "deletionPending";
   if (message.includes("already has accounts")) return "alreadyHasAccounts";

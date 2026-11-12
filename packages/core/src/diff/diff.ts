@@ -48,6 +48,13 @@ function entries(project: Project): [ObjectKind, Map<string, unknown>][] {
   ];
 }
 
+/** VER-021: the attributes that differ between two versions of one object (canonical form, attribute by attribute). */
+export function diffObjects(before: unknown, after: unknown): FieldChange[] {
+  const out: FieldChange[] = [];
+  diffValues(before, after, "", out);
+  return out;
+}
+
 export function diffProjects(before: Project, after: Project): ObjectChange[] {
   const changes: ObjectChange[] = [];
   const afterEntries = new Map(entries(after));
