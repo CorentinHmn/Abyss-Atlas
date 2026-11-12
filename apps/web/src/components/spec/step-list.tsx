@@ -37,7 +37,10 @@ export function StepList({
   disabled,
   label,
   onChange,
+  params,
 }: {
+  /** In a business rule: its parameters, usable as operands. */
+  params?: string[] | undefined;
   steps: Step[];
   columns: SourceColumn[];
   catalogue: Catalogue;
@@ -87,7 +90,7 @@ export function StepList({
                 </>
               ) : null}
             </div>
-            <StepForm step={step} columns={columns} catalogue={catalogue} disabled={disabled} label={stepLabel} onChange={(next) => set(index, next)} />
+            <StepForm step={step} columns={columns} catalogue={catalogue} disabled={disabled} label={stepLabel} params={params} onChange={(next) => set(index, next)} />
           </li>
         );
       })}
@@ -110,7 +113,7 @@ export function StepList({
   );
 }
 
-function StepForm({ step, columns, catalogue, disabled, label, onChange }: { step: Step; columns: SourceColumn[]; catalogue: Catalogue; disabled: boolean; label: string; onChange: (step: Step) => void }) {
+function StepForm({ step, columns, catalogue, disabled, label, params, onChange }: { step: Step; columns: SourceColumn[]; catalogue: Catalogue; disabled: boolean; label: string; params?: string[] | undefined; onChange: (step: Step) => void }) {
   const t = useTranslations("Steps");
   const list = useId();
   if (step === "copy") return null;
@@ -186,11 +189,11 @@ function StepForm({ step, columns, catalogue, disabled, label, onChange }: { ste
         {c.when.map((branch, index) => (
           <div key={index} className="flex flex-col gap-2 rounded border border-line p-2">
             <span className="text-xs font-semibold text-muted">{t("when", { n: index + 1 })}</span>
-            <ConditionEditor value={branch.if} columns={columns} disabled={disabled} label={t("whenOf", { label, n: index + 1 })} onChange={(condition) => onChange({ case: { ...c, when: c.when.map((item, position) => (position === index ? { ...item, if: condition } : item)) } })} />
+            <ConditionEditor params={params} value={branch.if} columns={columns} disabled={disabled} label={t("whenOf", { label, n: index + 1 })} onChange={(condition) => onChange({ case: { ...c, when: c.when.map((item, position) => (position === index ? { ...item, if: condition } : item)) } })} />
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted">{t("then")}</span>
               <div className="min-w-60 flex-1">
-                <OperandInput value={branch.then} columns={columns} disabled={disabled} label={t("thenOf", { label, n: index + 1 })} onChange={(operand) => onChange({ case: { ...c, when: c.when.map((item, position) => (position === index ? { ...item, then: operand } : item)) } })} />
+                <OperandInput params={params} value={branch.then} columns={columns} disabled={disabled} label={t("thenOf", { label, n: index + 1 })} onChange={(operand) => onChange({ case: { ...c, when: c.when.map((item, position) => (position === index ? { ...item, then: operand } : item)) } })} />
               </div>
               {!disabled && c.when.length > 1 ? (
                 <Button variant="ghost" size="sm" className="text-danger" onClick={() => onChange({ case: { ...c, when: c.when.filter((_, position) => position !== index) } })}>
@@ -208,7 +211,7 @@ function StepForm({ step, columns, catalogue, disabled, label, onChange }: { ste
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted">{t("else")}</span>
           <div className="min-w-60 flex-1">
-            <OperandInput value={c.else} columns={columns} disabled={disabled} label={t("elseOf", { label })} onChange={(operand) => onChange({ case: { ...c, else: operand } })} />
+            <OperandInput params={params} value={c.else} columns={columns} disabled={disabled} label={t("elseOf", { label })} onChange={(operand) => onChange({ case: { ...c, else: operand } })} />
           </div>
         </div>
       </div>
@@ -239,7 +242,7 @@ function StepForm({ step, columns, catalogue, disabled, label, onChange }: { ste
           {signature ? <span className="text-xs text-muted">{signature.description}</span> : null}
         </div>
         {c.args.map((arg, index) => (
-          <OperandInput key={index} value={arg} columns={withCurrent(columns)} disabled={disabled} label={t("argOf", { label, n: index + 1 })} onChange={(operand) => onChange({ calculate: { ...c, args: c.args.map((item, position) => (position === index ? operand : item)) } })} />
+          <OperandInput params={params} key={index} value={arg} columns={withCurrent(columns)} disabled={disabled} label={t("argOf", { label, n: index + 1 })} onChange={(operand) => onChange({ calculate: { ...c, args: c.args.map((item, position) => (position === index ? operand : item)) } })} />
         ))}
         {signature?.rest && !disabled ? (
           <Button variant="ghost" size="sm" className="self-start" onClick={() => onChange({ calculate: { ...c, args: [...c.args, { value: "" }] } })}>
@@ -256,7 +259,7 @@ function StepForm({ step, columns, catalogue, disabled, label, onChange }: { ste
         {c.parts.map((part, index) => (
           <div key={index} className="flex items-center gap-2">
             <div className="min-w-60 flex-1">
-              <OperandInput value={part} columns={withCurrent(columns)} disabled={disabled} label={t("partOf", { label, n: index + 1 })} onChange={(operand) => onChange({ concat: { ...c, parts: c.parts.map((item, position) => (position === index ? operand : item)) } })} />
+              <OperandInput params={params} value={part} columns={withCurrent(columns)} disabled={disabled} label={t("partOf", { label, n: index + 1 })} onChange={(operand) => onChange({ concat: { ...c, parts: c.parts.map((item, position) => (position === index ? operand : item)) } })} />
             </div>
             {!disabled && c.parts.length > 2 ? (
               <Button variant="ghost" size="icon" aria-label={t("removePart", { label, n: index + 1 })} onClick={() => onChange({ concat: { ...c, parts: c.parts.filter((_, position) => position !== index) } })}>
@@ -294,7 +297,7 @@ function StepForm({ step, columns, catalogue, disabled, label, onChange }: { ste
           </Select>
           <Input aria-label={field("alias")} className="w-20 font-mono" value={l.alias} disabled={disabled} onChange={(event) => set({ alias: event.target.value })} />
         </div>
-        <ConditionEditor value={l.match} columns={withCurrent(lookupColumns)} disabled={disabled} label={t("matchOf", { label })} onChange={(match) => set({ match })} />
+        <ConditionEditor params={params} value={l.match} columns={withCurrent(lookupColumns)} disabled={disabled} label={t("matchOf", { label })} onChange={(match) => set({ match })} />
         <div className="flex flex-wrap gap-2">
           <Select aria-label={field("return")} className="min-w-56 flex-1 font-mono" value={l.return} disabled={disabled} onChange={(event) => set({ return: event.target.value })}>
             <option value="">{t("chooseReturn")}</option>
@@ -357,7 +360,7 @@ function StepForm({ step, columns, catalogue, disabled, label, onChange }: { ste
           <div key={name} className="flex items-center gap-2">
             <span className="w-32 shrink-0 font-mono text-xs">{name}</span>
             <div className="min-w-60 flex-1">
-              <OperandInput value={r.args[name] as Operand | undefined} columns={withCurrent(columns)} disabled={disabled} label={t("paramOf", { label, name })} onChange={(operand) => onChange({ rule: { ...r, args: { ...r.args, [name]: operand } } })} />
+              <OperandInput params={params} value={r.args[name] as Operand | undefined} columns={withCurrent(columns)} disabled={disabled} label={t("paramOf", { label, name })} onChange={(operand) => onChange({ rule: { ...r, args: { ...r.args, [name]: operand } } })} />
             </div>
           </div>
         ))}

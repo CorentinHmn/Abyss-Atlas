@@ -35,7 +35,10 @@ export function ConditionEditor({
   disabled,
   label,
   depth = 0,
+  params,
 }: {
+  /** In a business rule: its parameters, usable as operands. */
+  params?: string[] | undefined;
   value: Condition;
   columns: SourceColumn[];
   onChange: (condition: Condition) => void;
@@ -67,6 +70,7 @@ export function ConditionEditor({
         </div>
         {children.map((child, index) => (
           <ConditionEditor
+            params={params}
             key={index}
             value={child}
             columns={columns}
@@ -101,7 +105,7 @@ export function ConditionEditor({
           <span className="flex-1" />
           {remove}
         </div>
-        <ConditionEditor value={value.not} columns={columns} disabled={disabled} depth={depth + 1} label={label} onChange={(next) => onChange({ not: next })} />
+        <ConditionEditor params={params} value={value.not} columns={columns} disabled={disabled} depth={depth + 1} label={label} onChange={(next) => onChange({ not: next })} />
       </div>
     );
   }
@@ -138,7 +142,7 @@ export function ConditionEditor({
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap items-start gap-2">
         <div className="min-w-60 flex-1">
-          <OperandInput value={comparison.left as Operand} columns={columns} disabled={disabled} label={t("leftOf", { label })} onChange={(left) => setComparison({ left } as Partial<Comparison>)} />
+          <OperandInput params={params} value={comparison.left as Operand} columns={columns} disabled={disabled} label={t("leftOf", { label })} onChange={(left) => setComparison({ left } as Partial<Comparison>)} />
         </div>
         <Select aria-label={t("operatorOf", { label })} className="w-40" value={comparison.op} disabled={disabled} onChange={(event) => setComparison({ op: event.target.value as Operator } as Partial<Comparison>)}>
           {OPERATORS.map((op) => (

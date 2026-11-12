@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 import { saveModel } from "../actions";
 import { BranchesTab, openBranches, type SourceOption } from "./branches-tab";
 import { MappingsTab } from "./mappings-tab";
+import { ChecksTab } from "./checks-tab";
+import { ConsolidationTab } from "./consolidation-tab";
 import type { Catalogue } from "@/components/spec/step-list";
 
 export interface IssueView {
@@ -28,7 +30,7 @@ export interface IssueView {
 
 const TABS = ["overview", "columns", "branches", "mappings", "consolidation", "checks", "yaml", "sql"] as const;
 type Tab = (typeof TABS)[number];
-const READY: Tab[] = ["overview", "columns", "branches", "mappings"];
+const READY: Tab[] = ["overview", "columns", "branches", "mappings", "consolidation", "checks"];
 
 const tone = (severity: Severity) => (severity === "error" ? "danger" : severity === "warning" ? "warning" : "info");
 
@@ -256,6 +258,18 @@ export function ModelEditor({
             <MappingsTab model={doc} change={change} sources={sources} catalogue={catalogue} stepTypes={stepTypes} issues={issues} disabled={disabled} />
           ) : null}
 
+          {tab === "consolidation" ? <ConsolidationTab model={doc} change={change} rules={catalogue.rules.map((rule) => rule.id)} disabled={disabled} /> : null}
+
+          {tab === "checks" ? (
+            <ChecksTab
+              model={doc}
+              change={change}
+              valueMappings={catalogue.valueMappings}
+              references={sources.filter((source) => source.kind === "model").flatMap((source) => source.columns.map((column) => `${source.key}.${column.name}`))}
+              disabled={disabled}
+            />
+          ) : null}
+
           {!READY.includes(tab) ? <Alert tone="info">{t("nextStep")}</Alert> : null}
       </div>
     </div>
@@ -356,7 +370,7 @@ function ColumnRow({
   );
 }
 
-function SaveStatus({ state, onRetry }: { state: SaveState; onRetry: () => void }) {
+export function SaveStatus({ state, onRetry }: { state: SaveState; onRetry: () => void }) {
   const t = useTranslations("ModelEditor");
   if (state === "error") {
     return (

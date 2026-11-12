@@ -24,6 +24,8 @@ export default async function ProjectLayout({ children, params }: { children: Re
             {t("overview")}
           </NavLink>
           <NavLink href={`${base}/models`}>{t("models")}</NavLink>
+          <NavLink href={`${base}/rules`}>{t("rules")}</NavLink>
+          <NavLink href={`${base}/value-mappings`}>{t("valueMappings")}</NavLink>
           <NavLink href={`${base}/sources`}>{t("sources")}</NavLink>
         </nav>
       </aside>
