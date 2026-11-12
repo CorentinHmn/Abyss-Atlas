@@ -1,32 +1,49 @@
 @import "tailwindcss";
 
-@theme {
-  --color-ink: #15202b;
-  --color-muted: #566473;
-  --color-paper: #f5f7f9;
-  --color-surface: #ffffff;
-  --color-control: #0f766e;
-  --color-line: #ccd4de;
-  --color-brand: #3f55c4;
-  --color-danger: #b0261d;
-  --color-success: #1f7a52;
-  --color-warning: #9a5b00;
-  --color-info: #2f5bd3;
+/* Colors follow the system setting: a @theme block cannot sit in a media query (it would always apply). */
+@theme inline {
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-control: var(--control);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+}
+
+:root {
+  color-scheme: light;
+  --ink: #15202b;
+  --muted: #566473;
+  --paper: #f5f7f9;
+  --surface: #ffffff;
+  --control: #0f766e;
+  --line: #ccd4de;
+  --brand: #3f55c4;
+  --danger: #b0261d;
+  --success: #1f7a52;
+  --warning: #9a5b00;
+  --info: #2f5bd3;
 }
 
 @media (prefers-color-scheme: dark) {
-  @theme {
-    --color-ink: #e5eaf0;
-    --color-muted: #9aa6b4;
-    --color-paper: #0f141a;
-    --color-surface: #161d25;
-    --color-control: #4fd1c5;
-    --color-line: #2c3846;
-    --color-brand: #8296ff;
-    --color-danger: #ff8f85;
-    --color-success: #5fd39d;
-    --color-warning: #f2b553;
-    --color-info: #8fa6ff;
+  :root {
+    color-scheme: dark;
+    --ink: #e5eaf0;
+    --muted: #9aa6b4;
+    --paper: #0f141a;
+    --surface: #161d25;
+    --control: #4fd1c5;
+    --line: #2c3846;
+    --brand: #8296ff;
+    --danger: #ff8f85;
+    --success: #5fd39d;
+    --warning: #f2b553;
+    --info: #8fa6ff;
   }
 }
 

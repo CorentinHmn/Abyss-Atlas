@@ -8,6 +8,7 @@ import type { SaveState } from "@/components/spec/use-spec-document";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { SaveStatus } from "./models/[model]/model-editor";
 
 export interface IssueView {
@@ -101,5 +102,25 @@ export function WhereUsed({ uses }: { uses: UseView[] }) {
         </ul>
       )}
     </Card>
+  );
+}
+
+/** The two views of a rule or value mapping: its form and its YAML file (MAP-060). */
+export function ViewTabs({ view, onChange }: { view: "form" | "yaml"; onChange: (view: "form" | "yaml") => void }) {
+  const t = useTranslations("Reusable");
+  return (
+    <nav className="flex gap-1 border-b border-line" role="tablist" aria-label={t("views")}>
+      {(["form", "yaml"] as const).map((item) => (
+        <button
+          key={item}
+          role="tab"
+          aria-selected={view === item}
+          onClick={() => onChange(item)}
+          className={cn("-mb-px border-b-2 border-transparent px-3 py-2 text-sm font-medium text-muted hover:text-ink", view === item && "border-brand text-ink")}
+        >
+          {t(`view.${item}`)}
+        </button>
+      ))}
+    </nav>
   );
 }

@@ -567,10 +567,10 @@
     "duplicate": "Two columns have this name.",
     "noColumn": "No column yet.",
     "addColumn": "Add a column",
-    "nextStep": "This part of the editor arrives in the next step. Meanwhile it keeps what the model already contains.",
     "problems": "Problems",
     "problemsCount": "{count, plural, =0 {Problems} one {# problem} other {# problems}}",
-    "noProblem": "No problem found."
+    "noProblem": "No problem found.",
+    "yamlOf": "YAML of {name}"
   },
   "Conditions": {
     "calculation": "calculation: {fn}",
@@ -965,6 +965,27 @@
     "referenceDataset": "Dataset",
     "referenceKey": "Source value column",
     "referenceValue": "Target value column",
-    "choose": "Choose…"
+    "choose": "Choose…",
+    "yamlOf": "YAML of {name}",
+    "views": "Views",
+    "view": {
+      "form": "Form",
+      "yaml": "YAML"
+    }
+  },
+  "Yaml": {
+    "hint": "The file of this object as the project export contains it. Your edits apply to the forms as soon as the file is valid.",
+    "readOnly": "The file of this object as the project export contains it (read only).",
+    "notApplied": "Not applied yet: the forms keep the last valid version until this is fixed.",
+    "yamlProblems": "Problems in the YAML",
+    "line": "Line {line}",
+    "idLocked": "The identifier cannot change here: it stays {id}."
+  },
+  "Sql": {
+    "hint": "The dbt model generated for Snowflake from this model, as the project download will contain it. It follows every saved change.",
+    "refreshing": "Shown for the last saved version: it follows once your change is saved.",
+    "label": "Generated SQL",
+    "blocked": "The SQL appears once these errors are fixed:",
+    "errors": "Errors that prevent generation"
   }
 }

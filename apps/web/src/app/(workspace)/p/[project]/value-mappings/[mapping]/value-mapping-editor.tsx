@@ -3,7 +3,7 @@
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useSpecDocument } from "@/components/spec/use-spec-document";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,10 @@ import { Card } from "@/components/ui/card";
 import { Input, Select, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import { Table, Td, Th } from "@/components/ui/table";
-import { MAX_ENTRIES, type ValueMappingContent } from "@/lib/reusable";
+import { MAX_ENTRIES, normalizeValueMapping, type ValueMappingContent } from "@/lib/reusable";
+import { YamlView } from "@/components/spec/yaml-view";
 import { cn } from "@/lib/utils";
-import { EditorHeader, type IssueView, Problems, type UseView, WhereUsed } from "../../reusable-shared";
+import { EditorHeader, type IssueView, Problems, type UseView, ViewTabs, WhereUsed } from "../../reusable-shared";
 import { saveReusable } from "../../spec-actions";
 
 interface Row {
@@ -102,6 +103,8 @@ export function ValueMappingEditor({
   const [opened] = useState(() => open(initial));
   const { doc, change, undo, redo, canUndo, canRedo, state, retry } = useSpecDocument<Draft>(opened, save);
   const [pasted, setPasted] = useState("");
+  const [view, setView] = useState<"form" | "yaml">("form");
+  const stored = useMemo(() => normalizeValueMapping(store(doc)) as Record<string, unknown>, [doc]);
   const disabled = !canEdit;
   const set = (patch: Partial<Draft>) => change((current) => ({ ...current, ...patch }));
   const setRow = (index: number, patch: Partial<Row>) => change((current) => ({ ...current, rows: current.rows.map((row, position) => (position === index ? { ...row, ...patch } : row)) }));
@@ -118,7 +121,11 @@ export function ValueMappingEditor({
   return (
     <div className="flex flex-col gap-4">
       <EditorHeader name={doc.name} domain={doc.domain} id={doc.id} canEdit={canEdit} canUndo={canUndo} canRedo={canRedo} undo={undo} redo={redo} state={state} retry={retry} />
+      <ViewTabs view={view} onChange={setView} />
       <Problems issues={issues} />
+      {view === "yaml" ? (
+        <YamlView kind="value_mapping" value={stored} issues={issues} disabled={disabled} label={t("yamlOf", { name: doc.name })} onApply={(spec) => change(() => open(spec as ValueMappingContent))} />
+      ) : (
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div className="flex min-w-0 flex-col gap-4">
           <Card className="grid gap-4 sm:grid-cols-2">
@@ -255,6 +262,7 @@ export function ValueMappingEditor({
         </div>
         <WhereUsed uses={uses} />
       </div>
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ export { isValidId } from "./ids";
 export { loadProject, type Loaded, type Project, type SpecFile } from "./spec/load";
 export { canonicalJson, contentHash } from "./spec/canonical";
 export { specKey, specPath, specToFile } from "./spec/serialize";
+export { checkSpecFile, lineOf, splitPath, type EditIssue } from "./spec/edit";
 export type { SpecKind } from "./spec/schemas";
 export * as schemas from "./spec/schemas";
 export { FUNCTIONS } from "./types/functions";

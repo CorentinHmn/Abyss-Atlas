@@ -3,7 +3,7 @@
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { type Catalogue, StepList } from "@/components/spec/step-list";
 import { useSpecDocument } from "@/components/spec/use-spec-document";
 import { Button } from "@/components/ui/button";
@@ -11,8 +11,9 @@ import { Card } from "@/components/ui/card";
 import { Input, Select, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import type { Step } from "@/lib/mappings";
-import type { RuleContent } from "@/lib/reusable";
-import { EditorHeader, type IssueView, Problems, type UseView, WhereUsed } from "../../reusable-shared";
+import { normalizeRule, type RuleContent } from "@/lib/reusable";
+import { YamlView } from "@/components/spec/yaml-view";
+import { EditorHeader, type IssueView, Problems, type UseView, ViewTabs, WhereUsed } from "../../reusable-shared";
 import { saveReusable } from "../../spec-actions";
 
 /** SCR-040, MAP-050, MAP-051: a business rule, its parameters and its logic, saved automatically. */
@@ -47,6 +48,8 @@ export function RuleEditor({
   );
   const { doc, change, undo, redo, canUndo, canRedo, state, retry } = useSpecDocument<RuleContent>(initial, save);
   const disabled = !canEdit;
+  const [view, setView] = useState<"form" | "yaml">("form");
+  const stored = useMemo(() => normalizeRule(doc) as Record<string, unknown>, [doc]);
   const set = (patch: Partial<RuleContent>) => change((current) => ({ ...current, ...patch }));
   const parameters = Object.entries(doc.parameters);
   /** Parameters are changed by position, like target columns: a rename may still be on its way. */
@@ -68,7 +71,11 @@ export function RuleEditor({
   return (
     <div className="flex flex-col gap-4">
       <EditorHeader name={doc.name} domain={doc.domain} id={doc.id} canEdit={canEdit} canUndo={canUndo} canRedo={canRedo} undo={undo} redo={redo} state={state} retry={retry} />
+      <ViewTabs view={view} onChange={setView} />
       <Problems issues={issues} />
+      {view === "yaml" ? (
+        <YamlView kind="rule" value={stored} issues={issues} disabled={disabled} label={t("yamlOf", { name: doc.name })} onApply={(spec) => change(() => spec as RuleContent)} />
+      ) : (
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div className="flex min-w-0 flex-col gap-4">
           <Card className="grid gap-4 sm:grid-cols-2">
@@ -142,6 +149,7 @@ export function RuleEditor({
         </div>
         <WhereUsed uses={uses} />
       </div>
+      )}
     </div>
   );
 }

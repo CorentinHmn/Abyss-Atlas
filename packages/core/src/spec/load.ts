@@ -41,7 +41,7 @@ export interface Project {
 }
 
 /** FMT-012: keys starting with `x_` are extensions, ignored by validation. */
-function withoutExtensions(value: unknown): unknown {
+export function withoutExtensions(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(withoutExtensions);
   if (value !== null && typeof value === "object") {
     return Object.fromEntries(
@@ -64,7 +64,7 @@ function explainIssue(issue: z.core.$ZodIssue): z.core.$ZodIssue {
   return innermostIssues(issue).find((inner) => /\b(FMT|MM)-\d{3}\b|Domain codes/.test(inner.message)) ?? issue;
 }
 
-function codeForZodIssue(issue: z.core.$ZodIssue): string {
+export function codeForZodIssue(issue: z.core.$ZodIssue): string {
   const explained = explainIssue(issue);
   if (explained.code === "unrecognized_keys") return "VAL-012";
   if (explained.message.includes("FMT-020")) return "VAL-015";
@@ -74,7 +74,7 @@ function codeForZodIssue(issue: z.core.$ZodIssue): string {
   return "VAL-013";
 }
 
-function describeZodIssue(issue: z.core.$ZodIssue): string {
+export function describeZodIssue(issue: z.core.$ZodIssue): string {
   const explained = explainIssue(issue);
   if (explained.code === "unrecognized_keys") return `Unknown key(s): ${explained.keys.join(", ")} (extensions start with x_).`;
   if (explained.code === "invalid_union") return "This value does not match any allowed form (see docs/03-spec-format.md).";

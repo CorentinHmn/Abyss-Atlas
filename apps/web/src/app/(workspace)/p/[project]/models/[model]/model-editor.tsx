@@ -4,15 +4,17 @@ import type { Severity } from "@atlas/core";
 import { ArrowDown, ArrowUp, Redo2, Trash2, Undo2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { type SaveState, useSpecDocument } from "@/components/spec/use-spec-document";
-import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Select, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
-import { CLASSIFICATIONS, LAYERS, MATERIALIZATIONS, type ModelContent, type TargetColumn } from "@/lib/model";
+import { CLASSIFICATIONS, LAYERS, MATERIALIZATIONS, type ModelContent, normalizeModel, type TargetColumn } from "@/lib/model";
+import type { SqlPreview } from "@/lib/preview";
+import { YamlView } from "@/components/spec/yaml-view";
+import { SqlTab } from "./sql-tab";
 import { cn } from "@/lib/utils";
 import { saveModel } from "../actions";
 import { BranchesTab, openBranches, type SourceOption } from "./branches-tab";
@@ -30,7 +32,6 @@ export interface IssueView {
 
 const TABS = ["overview", "columns", "branches", "mappings", "consolidation", "checks", "yaml", "sql"] as const;
 type Tab = (typeof TABS)[number];
-const READY: Tab[] = ["overview", "columns", "branches", "mappings", "consolidation", "checks"];
 
 const tone = (severity: Severity) => (severity === "error" ? "danger" : severity === "warning" ? "warning" : "info");
 
@@ -51,6 +52,8 @@ export function ModelEditor({
   stepTypes,
   canEdit,
   issues,
+  sqlPreview,
+  modelPath,
 }: {
   slug: string;
   initial: ModelContent;
@@ -60,6 +63,8 @@ export function ModelEditor({
   stepTypes: Record<string, string>;
   canEdit: boolean;
   issues: IssueView[];
+  sqlPreview: SqlPreview | null;
+  modelPath: string;
 }) {
   const t = useTranslations("ModelEditor");
   const router = useRouter();
@@ -74,6 +79,7 @@ export function ModelEditor({
   const [opened] = useState(() => ({ ...initial, branches: openBranches(initial.branches) }));
   const { doc, change, undo, redo, canUndo, canRedo, state, retry } = useSpecDocument<ModelContent>(opened, save);
   const [tab, setTab] = useState<Tab>("overview");
+  const stored = useMemo(() => normalizeModel(doc) as Record<string, unknown>, [doc]);
   const columns = Object.entries(doc.columns);
   const setField = (patch: Partial<ModelContent>) => change((current) => ({ ...current, ...patch }));
   /** Columns are changed by position: a rename may still be on its way when the next field is edited. */
@@ -270,7 +276,18 @@ export function ModelEditor({
             />
           ) : null}
 
-          {!READY.includes(tab) ? <Alert tone="info">{t("nextStep")}</Alert> : null}
+          {tab === "yaml" ? (
+            <YamlView
+              kind="model"
+              value={stored}
+              issues={issues}
+              disabled={disabled}
+              label={t("yamlOf", { name: doc.name })}
+              onApply={(spec) => change(() => ({ ...(spec as ModelContent), branches: openBranches((spec as ModelContent).branches) }))}
+            />
+          ) : null}
+
+          {tab === "sql" ? <SqlTab preview={sqlPreview} modelPath={modelPath} saving={state !== "saved"} /> : null}
       </div>
     </div>
   );

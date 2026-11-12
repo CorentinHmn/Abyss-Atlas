@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getViewer } from "@/lib/session";
 import type { ModelContent } from "@/lib/model";
+import { previewModelSql } from "@/lib/preview";
 import { getDomains, getObjects, getProject, getValidation } from "@/lib/spec";
 import { deleteModel } from "../actions";
 import { ConfirmButton } from "../../sources/confirm-button";
@@ -72,6 +73,8 @@ export default async function ModelPage({ params }: { params: Promise<{ project:
         stepTypes={stepTypes}
         canEdit={canEdit}
         issues={issues}
+        sqlPreview={previewModelSql(project, objects, domains, modelId)}
+        modelPath={model.path}
       />
     </div>
   );
